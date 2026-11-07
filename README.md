@@ -1,2 +1,2 @@
 # memdeck
-Trabalho de Conclusão de Curso - Pontifícia Universidade Católica
+Trabalho de Conclusão de Curso - Pontifícia Universidade Católica de Minas Gerais
