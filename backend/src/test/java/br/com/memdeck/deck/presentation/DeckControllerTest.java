@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.util.UUID;
 
@@ -15,7 +16,9 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,8 +28,11 @@ import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.deck.domain.InvalidDeckException;
 import br.com.memdeck.deck.domain.Visibility;
+import br.com.memdeck.security.SecurityConfig;
 
 @WebMvcTest(DeckController.class)
+@Import(SecurityConfig.class)
+@WithMockUser
 class DeckControllerTest {
 
 	@Autowired
@@ -43,7 +49,7 @@ class DeckControllerTest {
 		Deck saved = Deck.create("Anatomy", "Bones of the body", Visibility.PRIVATE);
 		when(createDeck.execute(any())).thenReturn(saved);
 
-		mockMvc.perform(post("/api/decks")
+		mockMvc.perform(post("/api/decks").with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"name":"Anatomy","description":"Bones of the body","visibility":"PRIVATE"}
@@ -57,7 +63,7 @@ class DeckControllerTest {
 
 	@Test
 	void rejectsBlankNameWithoutCallingTheUseCase() throws Exception {
-		mockMvc.perform(post("/api/decks")
+		mockMvc.perform(post("/api/decks").with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"name":"   ","visibility":"PUBLIC"}
@@ -69,7 +75,7 @@ class DeckControllerTest {
 
 	@Test
 	void rejectsMissingVisibility() throws Exception {
-		mockMvc.perform(post("/api/decks")
+		mockMvc.perform(post("/api/decks").with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"name":"English"}
@@ -79,7 +85,7 @@ class DeckControllerTest {
 
 	@Test
 	void rejectsInvalidVisibility() throws Exception {
-		mockMvc.perform(post("/api/decks")
+		mockMvc.perform(post("/api/decks").with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"name":"English","visibility":"SECRET"}
@@ -91,7 +97,7 @@ class DeckControllerTest {
 	void translatesDomainValidationErrorTo400() throws Exception {
 		when(createDeck.execute(any())).thenThrow(new InvalidDeckException("Deck name must not be blank"));
 
-		mockMvc.perform(post("/api/decks")
+		mockMvc.perform(post("/api/decks").with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"name":"English","visibility":"PUBLIC"}

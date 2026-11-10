@@ -6,20 +6,24 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import br.com.memdeck.security.SecurityConfig;
 import br.com.memdeck.user.application.RegisterUserUseCase;
 import br.com.memdeck.user.domain.EmailAlreadyRegisteredException;
 import br.com.memdeck.user.domain.InvalidUserException;
 import br.com.memdeck.user.domain.User;
 
 @WebMvcTest(UserController.class)
+@Import(SecurityConfig.class)
 class UserControllerTest {
 
 	@Autowired
@@ -36,7 +40,7 @@ class UserControllerTest {
 	void registersUserAndNeverReturnsPasswordData() throws Exception {
 		when(registerUser.execute(any())).thenReturn(User.register("Julia", "julia@example.com", "secret-hash"));
 
-		mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
+		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").exists())
 				.andExpect(jsonPath("$.name").value("Julia"))
@@ -47,7 +51,7 @@ class UserControllerTest {
 
 	@Test
 	void rejectsInvalidEmailBeforeCallingTheUseCase() throws Exception {
-		mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content("""
+		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
 				{"name":"Julia","email":"nope","password":"correct-horse"}
 				""")).andExpect(status().isBadRequest());
 
@@ -56,7 +60,7 @@ class UserControllerTest {
 
 	@Test
 	void rejectsShortPasswordBeforeCallingTheUseCase() throws Exception {
-		mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content("""
+		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
 				{"name":"Julia","email":"julia@example.com","password":"short"}
 				""")).andExpect(status().isBadRequest());
 
@@ -67,7 +71,7 @@ class UserControllerTest {
 	void translatesDomainValidationErrorTo400() throws Exception {
 		when(registerUser.execute(any())).thenThrow(new InvalidUserException("Email is not valid"));
 
-		mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
+		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.detail").value("Email is not valid"));
 	}
@@ -76,7 +80,7 @@ class UserControllerTest {
 	void translatesDuplicateEmailTo409() throws Exception {
 		when(registerUser.execute(any())).thenThrow(new EmailAlreadyRegisteredException());
 
-		mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
+		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
 				.andExpect(status().isConflict());
 	}
 }

@@ -23,6 +23,7 @@ API REST do Memdeck, feita com Java 21, Spring Boot 4.1, Spring Data JPA, Postgr
    # DB_NAME=memdeck
    # DB_PORT=5432
    # DB_URL=jdbc:postgresql://localhost:5432/memdeck
+   # SESSION_COOKIE_SECURE=true   (troque para false apenas se o navegador recusar o cookie em http://localhost)
    ```
 
    Se mudar o `DB_PORT`, ajuste também a porta no `DB_URL`.

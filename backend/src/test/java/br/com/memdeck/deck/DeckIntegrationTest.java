@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 import java.util.UUID;
 
@@ -28,7 +30,7 @@ class DeckIntegrationTest {
 
 	@Test
 	void createsAndRetrievesDeckFromDatabase() throws Exception {
-		String location = mockMvc.perform(post("/api/decks")
+		String location = mockMvc.perform(post("/api/decks").with(user("tester")).with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"name":"  Basic English  ","description":"Vocabulary","visibility":"PUBLIC"}
@@ -37,7 +39,7 @@ class DeckIntegrationTest {
 				.andExpect(header().exists("Location"))
 				.andReturn().getResponse().getHeader("Location");
 
-		mockMvc.perform(get(location))
+		mockMvc.perform(get(location).with(user("tester")))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.name").value("Basic English"))
 				.andExpect(jsonPath("$.visibility").value("PUBLIC"));
@@ -45,7 +47,7 @@ class DeckIntegrationTest {
 
 	@Test
 	void returns404ForUnknownDeck() throws Exception {
-		mockMvc.perform(get("/api/decks/" + UUID.randomUUID()))
+		mockMvc.perform(get("/api/decks/" + UUID.randomUUID()).with(user("tester")))
 				.andExpect(status().isNotFound());
 	}
 }

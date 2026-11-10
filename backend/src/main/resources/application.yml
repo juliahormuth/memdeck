@@ -16,7 +16,13 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  session:
+    timeout: 30m
+    jdbc:
+      initialize-schema: never
 memdeck:
   security:
     # Base64 secret (at least 32 bytes decoded), kept outside the database. No default on purpose.
     password-pepper: ${PASSWORD_PEPPER}
+    # Set SESSION_COOKIE_SECURE=false only if the browser rejects the cookie on http://localhost
+    session-cookie-secure: ${SESSION_COOKIE_SECURE:true}
