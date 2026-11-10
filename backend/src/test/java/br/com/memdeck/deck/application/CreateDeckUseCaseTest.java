@@ -12,7 +12,7 @@ import br.com.memdeck.deck.domain.Visibility;
 class CreateDeckUseCaseTest {
 
 	private final InMemoryDeckGateway gateway = new InMemoryDeckGateway();
-	private final CreateDeckUseCase useCase = new CreateDeckUseCase(gateway);
+	private final CreateDeckUseCase useCase = new CreateDeckUseCaseImpl(gateway);
 
 	@Test
 	void savesTheCreatedDeck() {

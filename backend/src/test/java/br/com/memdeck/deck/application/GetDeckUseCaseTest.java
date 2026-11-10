@@ -14,7 +14,7 @@ import br.com.memdeck.deck.domain.Visibility;
 class GetDeckUseCaseTest {
 
 	private final InMemoryDeckGateway gateway = new InMemoryDeckGateway();
-	private final GetDeckUseCase useCase = new GetDeckUseCase(gateway);
+	private final GetDeckUseCase useCase = new GetDeckUseCaseImpl(gateway);
 
 	@Test
 	void returnsAnExistingDeck() {

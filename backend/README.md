@@ -1,28 +1,61 @@
-# Memdeck backend
+# Memdeck - Backend
 
-REST API for Memdeck, built with Java 21, Spring Boot 4.1, Spring Data JPA, PostgreSQL and Flyway.
+**Português** | [English](README.en.md)
 
-## Requirements
+API REST do Memdeck, feita com Java 21, Spring Boot 4.1, Spring Data JPA, PostgreSQL e Flyway.
+
+## Requisitos
+
 - Java 21
-- Maven (or use the included `./mvnw`)
-- Docker (local database and tests)
+- Maven (ou o `./mvnw` incluído)
+- Docker (banco local e testes)
 
-## Running locally
+## Como rodar localmente
+
+1. Crie o arquivo `.env` nesta pasta (ele não é versionado). A senha é obrigatória e não tem valor padrão:
+
+   ```properties
+   DB_USER=memdeck
+   DB_PASSWORD=escolha-uma-senha
+   # Opcionais, com estes valores padrão:
+   # DB_NAME=memdeck
+   # DB_PORT=5432
+   # DB_URL=jdbc:postgresql://localhost:5432/memdeck
+   ```
+
+   Se mudar o `DB_PORT`, ajuste também a porta no `DB_URL`.
+
+2. Suba o banco e a aplicação:
+
+   ```bash
+   docker compose up -d
+   ./mvnw spring-boot:run
+   ```
+
+O `.env` é lido tanto pelo Docker Compose quanto pela aplicação.
+
+## Documentação da API
+
+Com a aplicação rodando:
+
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- Documento OpenAPI (JSON): http://localhost:8080/v3/api-docs
+
+## Testes
+
 ```bash
-cp .env.example .env       
-docker compose up -d       
-./mvnw spring-boot:run
-```
-The `.env` file is read by both Docker Compose and the application. It is git-ignored.
-
-## Tests
-```bash
-./mvnw verify              
+./mvnw verify
 ```
 
-## Endpoints
-| Method | Path | Description |
-|---|---|---|
-| POST | `/api/decks` | Create a deck (`name`, `description`, `visibility`: `PUBLIC` or `PRIVATE`) |
-| GET | `/api/decks/{id}` | Get a deck by id |
+Os testes de integração usam Testcontainers e precisam do Docker.
 
+## Arquitetura
+
+Arquitetura Limpa organizada por funcionalidade. Cada funcionalidade (por exemplo, `deck`) tem as camadas:
+
+- `domain`: regras de negócio, em Java puro, sem framework
+- `application`: casos de uso e as interfaces (gateways) que eles precisam
+- `infrastructure`: persistência com JPA
+- `presentation`: controllers REST e DTOs
+
+Um teste com ArchUnit (`ArchitectureTest`) garante a regra de dependência entre as camadas.
