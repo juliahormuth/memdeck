@@ -1,6 +1,6 @@
 # Memdeck - Backend
 
-**Português** | [English](README.en.md)
+**Português** | [English](README.en.md) | [Deutsch](README.de.md)
 
 API REST do Memdeck, feita com Java 21, Spring Boot 4.1, Spring Data JPA, PostgreSQL e Flyway.
 

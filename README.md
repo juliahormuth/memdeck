@@ -1,6 +1,6 @@
 # Memdeck
 
-**Português** | [English](README.en.md)
+**Português** | [English](README.en.md) | [Deutsch](README.de.md)
 
 Trabalho de Conclusão de Curso - Pós-graduação em Engenharia de Software, Pontifícia Universidade Católica de Minas Gerais (PUC Minas).
 

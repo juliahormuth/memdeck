@@ -1,6 +1,6 @@
 # Memdeck
 
-[Português](README.md) | **English**
+[Português](README.md) | **English** | [Deutsch](README.de.md)
 
 Final course project - Software Engineering postgraduate program, Pontifical Catholic University of Minas Gerais (PUC Minas).
 
