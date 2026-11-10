@@ -15,14 +15,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import br.com.memdeck.deck.application.CreateDeckUseCase;
 import br.com.memdeck.deck.application.GetDeckUseCase;
 import br.com.memdeck.deck.domain.Deck;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/decks")
-@Tag(name = "Decks", description = "Create and retrieve flashcard decks")
 public class DeckController {
 
 	private final CreateDeckUseCase createDeck;
@@ -34,9 +30,6 @@ public class DeckController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Create a deck")
-	@ApiResponse(responseCode = "201", description = "Deck created; the Location header points to it")
-	@ApiResponse(responseCode = "400", description = "Invalid request (problem details)")
 	public ResponseEntity<DeckResponse> create(@Valid @RequestBody CreateDeckRequest request) {
 		Deck deck = createDeck.execute(request.toCommand());
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -47,9 +40,6 @@ public class DeckController {
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "Get a deck by id")
-	@ApiResponse(responseCode = "200", description = "Deck found")
-	@ApiResponse(responseCode = "404", description = "Deck not found (problem details)")
 	public DeckResponse findById(@PathVariable UUID id) {
 		return DeckResponse.from(getDeck.execute(id));
 	}

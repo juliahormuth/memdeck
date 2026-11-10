@@ -8,7 +8,6 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-/** Enforces the Clean Architecture dependency rule inside each feature. */
 @AnalyzeClasses(packages = "br.com.memdeck", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
 

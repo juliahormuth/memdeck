@@ -32,7 +32,6 @@ class DeckJpaModel {
 	private Instant createdAt;
 
 	protected DeckJpaModel() {
-		// required by JPA
 	}
 
 	DeckJpaModel(UUID id, String name, String description, Visibility visibility, Instant createdAt) {

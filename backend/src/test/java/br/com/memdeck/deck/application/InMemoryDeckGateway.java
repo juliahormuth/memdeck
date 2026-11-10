@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import br.com.memdeck.deck.domain.Deck;
 
-/** Test double: lets the use cases be tested without Spring or a database. */
 class InMemoryDeckGateway implements DeckGateway {
 
 	private final Map<UUID, Deck> store = new HashMap<>();

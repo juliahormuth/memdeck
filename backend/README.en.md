@@ -17,6 +17,8 @@ REST API for Memdeck, built with Java 21, Spring Boot 4.1, Spring Data JPA, Post
    ```properties
    DB_USER=memdeck
    DB_PASSWORD=choose-a-password
+   # Secret ("pepper") used when hashing passwords. Generate with: openssl rand -base64 48
+   PASSWORD_PEPPER=paste-the-generated-value
    # Optional, with these defaults:
    # DB_NAME=memdeck
    # DB_PORT=5432
@@ -24,6 +26,8 @@ REST API for Memdeck, built with Java 21, Spring Boot 4.1, Spring Data JPA, Post
    ```
 
    If you change `DB_PORT`, change the port in `DB_URL` as well.
+
+   `PASSWORD_PEPPER` is required (the application does not start without it) and must have at least 32 bytes in Base64. If it is lost or changed, existing passwords stop working.
 
 2. Start the database and the application:
 
@@ -33,13 +37,6 @@ REST API for Memdeck, built with Java 21, Spring Boot 4.1, Spring Data JPA, Post
    ```
 
 The `.env` file is read by both Docker Compose and the application.
-
-## API documentation
-
-With the application running:
-
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- OpenAPI document (JSON): http://localhost:8080/v3/api-docs
 
 ## Tests
 

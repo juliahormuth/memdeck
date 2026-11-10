@@ -16,3 +16,7 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+memdeck:
+  security:
+    # Base64 secret (at least 32 bytes decoded), kept outside the database. No default on purpose.
+    password-pepper: ${PASSWORD_PEPPER}

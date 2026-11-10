@@ -3,9 +3,6 @@ package br.com.memdeck.deck.domain;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Deck aggregate. Framework-free: it must not import Spring, JPA or any other library.
- */
 public class Deck {
 
 	public static final int NAME_MAX_LENGTH = 100;
@@ -25,7 +22,6 @@ public class Deck {
 		this.createdAt = createdAt;
 	}
 
-	/** Creates a brand new deck, enforcing the business rules. */
 	public static Deck create(String name, String description, Visibility visibility) {
 		if (name == null || name.isBlank()) {
 			throw new InvalidDeckException("Deck name must not be blank");
@@ -44,7 +40,6 @@ public class Deck {
 		return new Deck(UUID.randomUUID(), trimmedName, description, visibility, Instant.now());
 	}
 
-	/** Rebuilds a deck that was already persisted. Does not re-validate. */
 	public static Deck restore(UUID id, String name, String description, Visibility visibility, Instant createdAt) {
 		return new Deck(id, name, description, visibility, createdAt);
 	}
