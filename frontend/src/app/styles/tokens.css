@@ -1,0 +1,21 @@
+:root {
+	--color-navy: #05315d;
+	--color-blue-dark: #2a557c;
+	--color-blue: #4378a9;
+	--color-blue-light: #6aafe8;
+	--color-blue-gray: #82a1bc;
+	--color-blue-pastel: #aecde6;
+	--color-blue-pale: #deebf6;
+	--color-surface: #f8fbfd;
+	--color-ink: #0e1b29;
+	--color-white: #ffffff;
+	--color-danger: #d9534f;
+	--color-danger-pale: #fbeceb;
+
+	--radius-field: 12px;
+	--radius-button: 14px;
+	--radius-card: 16px;
+	--font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--sidebar-width: 264px;
+	--shadow-card: 0 2px 8px rgb(5 49 93 / 8%);
+}

@@ -1,0 +1,35 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-family);
+	font-size: 1rem;
+	line-height: 1.5;
+	color: var(--color-ink);
+	background: var(--color-surface);
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p {
+	margin: 0;
+}
+
+button,
+input {
+	font: inherit;
+}
+
+a {
+	color: var(--color-blue);
+}
+
+:focus-visible {
+	outline: 3px solid var(--color-blue-light);
+	outline-offset: 2px;
+}

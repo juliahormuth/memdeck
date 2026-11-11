@@ -1,0 +1,33 @@
+.card {
+	width: 100%;
+	max-width: 420px;
+}
+
+.title {
+	font-size: 2rem;
+	font-weight: 800;
+	line-height: 1.2;
+	color: var(--color-navy);
+}
+
+.subtitle {
+	margin-top: 6px;
+	color: var(--color-blue-dark);
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-top: 28px;
+}
+
+.footer {
+	margin-top: 24px;
+	text-align: center;
+	color: var(--color-blue-dark);
+}
+
+.footer a {
+	font-weight: 700;
+}
