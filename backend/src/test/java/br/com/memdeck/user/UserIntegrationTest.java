@@ -1,9 +1,10 @@
 package br.com.memdeck.user;
 
+import static br.com.memdeck.AuthTestSupport.csrfCookie;
+import static br.com.memdeck.AuthTestSupport.withCsrf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.memdeck.TestcontainersConfiguration;
+import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -33,14 +35,17 @@ class UserIntegrationTest {
 				{"name":"Integration User","email":"Integration@Example.com","password":"correct-horse-battery"}
 				""";
 
-		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body))
+		Cookie csrf = csrfCookie(mockMvc);
+
+		mockMvc.perform(withCsrf(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body), csrf))
 				.andExpect(status().isCreated());
 
 		String stored = jdbc.queryForObject("select password_hash from users where email = ?", String.class,
 				"integration@example.com");
 		assertThat(stored).startsWith("$argon2id$").doesNotContain("correct-horse-battery");
 
-		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body.replace("Integration@", "INTEGRATION@")))
+		mockMvc.perform(withCsrf(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+				.content(body.replace("Integration@", "INTEGRATION@")), csrf))
 				.andExpect(status().isConflict());
 	}
 }

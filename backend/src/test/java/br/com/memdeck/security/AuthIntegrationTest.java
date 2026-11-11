@@ -1,5 +1,6 @@
 package br.com.memdeck.security;
 
+import static br.com.memdeck.AuthTestSupport.csrfCookie;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,13 +33,6 @@ class AuthIntegrationTest {
 	@Autowired
 	JdbcTemplate jdbc;
 
-	private Cookie csrfCookie() throws Exception {
-		Cookie cookie = mockMvc.perform(get("/api/auth/me")).andExpect(status().isUnauthorized())
-				.andReturn().getResponse().getCookie("XSRF-TOKEN");
-		assertThat(cookie).as("the API must hand out a CSRF cookie even on a 401").isNotNull();
-		return cookie;
-	}
-
 	private String json(String email, String password) {
 		return "{\"name\":\"Auth User\",\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, password);
 	}
@@ -66,7 +60,7 @@ class AuthIntegrationTest {
 
 	@Test
 	void fullSessionLifecycle() throws Exception {
-		Cookie csrf = csrfCookie();
+		Cookie csrf = csrfCookie(mockMvc);
 		String email = "lifecycle@example.com";
 
 		assertThat(postJson("/api/auth/register", json(email, "correct-horse-battery"), csrf).getStatus()).isEqualTo(201);
@@ -97,7 +91,7 @@ class AuthIntegrationTest {
 
 	@Test
 	void unknownEmailAndWrongPasswordLookTheSame() throws Exception {
-		Cookie csrf = csrfCookie();
+		Cookie csrf = csrfCookie(mockMvc);
 		postJson("/api/auth/register", json("same@example.com", "correct-horse-battery"), csrf);
 
 		MockHttpServletResponse unknown = postJson("/api/auth/login", json("ghost@example.com", "correct-horse-battery"), csrf);
@@ -110,7 +104,7 @@ class AuthIntegrationTest {
 
 	@Test
 	void blocksLoginAfterRepeatedFailuresWithoutAffectingOtherAccounts() throws Exception {
-		Cookie csrf = csrfCookie();
+		Cookie csrf = csrfCookie(mockMvc);
 		postJson("/api/auth/register", json("throttled@example.com", "correct-horse-battery"), csrf);
 		postJson("/api/auth/register", json("bystander@example.com", "correct-horse-battery"), csrf);
 
