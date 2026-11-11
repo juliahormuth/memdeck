@@ -60,7 +60,7 @@ class AuthIntegrationTest {
 
 	@Test
 	void rejectsPostsWithoutACsrfToken() throws Exception {
-		mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
 				.content(json("nocsrf@example.com", "correct-horse-battery"))).andExpect(status().isForbidden());
 	}
 
@@ -69,7 +69,7 @@ class AuthIntegrationTest {
 		Cookie csrf = csrfCookie();
 		String email = "lifecycle@example.com";
 
-		assertThat(postJson("/api/users", json(email, "correct-horse-battery"), csrf).getStatus()).isEqualTo(201);
+		assertThat(postJson("/api/auth/register", json(email, "correct-horse-battery"), csrf).getStatus()).isEqualTo(201);
 
 		MockHttpServletResponse wrong = postJson("/api/auth/login", json(email, "wrong-password-123"), csrf);
 		assertThat(wrong.getStatus()).isEqualTo(401);
@@ -98,7 +98,7 @@ class AuthIntegrationTest {
 	@Test
 	void unknownEmailAndWrongPasswordLookTheSame() throws Exception {
 		Cookie csrf = csrfCookie();
-		postJson("/api/users", json("same@example.com", "correct-horse-battery"), csrf);
+		postJson("/api/auth/register", json("same@example.com", "correct-horse-battery"), csrf);
 
 		MockHttpServletResponse unknown = postJson("/api/auth/login", json("ghost@example.com", "correct-horse-battery"), csrf);
 		MockHttpServletResponse wrong = postJson("/api/auth/login", json("same@example.com", "wrong-password-123"), csrf);
@@ -111,8 +111,8 @@ class AuthIntegrationTest {
 	@Test
 	void blocksLoginAfterRepeatedFailuresWithoutAffectingOtherAccounts() throws Exception {
 		Cookie csrf = csrfCookie();
-		postJson("/api/users", json("throttled@example.com", "correct-horse-battery"), csrf);
-		postJson("/api/users", json("bystander@example.com", "correct-horse-battery"), csrf);
+		postJson("/api/auth/register", json("throttled@example.com", "correct-horse-battery"), csrf);
+		postJson("/api/auth/register", json("bystander@example.com", "correct-horse-battery"), csrf);
 
 		for (int i = 0; i < 5; i++) {
 			assertThat(postJson("/api/auth/login", json("throttled@example.com", "wrong-password-123"), csrf).getStatus())

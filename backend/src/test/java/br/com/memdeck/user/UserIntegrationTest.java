@@ -33,14 +33,14 @@ class UserIntegrationTest {
 				{"name":"Integration User","email":"Integration@Example.com","password":"correct-horse-battery"}
 				""";
 
-		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body))
+		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body))
 				.andExpect(status().isCreated());
 
 		String stored = jdbc.queryForObject("select password_hash from users where email = ?", String.class,
 				"integration@example.com");
 		assertThat(stored).startsWith("$argon2id$").doesNotContain("correct-horse-battery");
 
-		mockMvc.perform(post("/api/users").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body.replace("Integration@", "INTEGRATION@")))
+		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(body.replace("Integration@", "INTEGRATION@")))
 				.andExpect(status().isConflict());
 	}
 }

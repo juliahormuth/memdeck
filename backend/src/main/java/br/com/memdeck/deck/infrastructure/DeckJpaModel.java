@@ -12,7 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "deck")
+@Table(name = "decks")
 class DeckJpaModel {
 
 	@Id

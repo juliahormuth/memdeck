@@ -40,7 +40,7 @@ class RealServerSecurityTest {
 
 	@Test
 	void aPostWithoutCsrfTokenIsForbiddenNotUnauthorized() throws Exception {
-		HttpResponse<String> response = send(to("/api/users")
+		HttpResponse<String> response = send(to("/api/auth/register")
 				.header("Content-Type", "application/json")
 				.POST(BodyPublishers.ofString(
 						"{\"name\":\"A\",\"email\":\"a@example.com\",\"password\":\"correct-horse-battery\"}")));
