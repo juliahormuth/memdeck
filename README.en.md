@@ -11,14 +11,13 @@ Web platform to create and review flashcard decks with spaced repetition. It wor
 | Folder | Contents |
 |---|---|
 | [`backend/`](backend/README.en.md) | REST API in Java 21 and Spring Boot (Clean Architecture, organized by feature) |
-
-The front end (TypeScript, React and Vite) is yet to be added.
+| [`frontend/`](frontend/README.en.md) | Web interface in React, TypeScript and Vite (Clean Architecture, organized by feature) |
 
 ## Technologies
 
 - **Back end:** Java 21, Spring Boot 4, Spring Data JPA, Flyway
 - **Database:** PostgreSQL
-- **Front end (planned):** TypeScript, React, Vite
+- **Front end:** TypeScript, React, Vite
 - **CI/CD (planned):** GitHub Actions
 
 ## Status

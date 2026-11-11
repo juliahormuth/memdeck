@@ -11,14 +11,13 @@ Plataforma web para criação e revisão de baralhos de flashcards com repetiç�
 | Pasta | Conteúdo |
 |---|---|
 | [`backend/`](backend/README.md) | API REST em Java 21 e Spring Boot (Arquitetura Limpa, organizada por funcionalidade) |
-
-O front-end (TypeScript, React e Vite) ainda será adicionado.
+| [`frontend/`](frontend/README.md) | Interface web em React, TypeScript e Vite (Arquitetura Limpa, organizada por funcionalidade) |
 
 ## Tecnologias
 
 - **Back end:** Java 21, Spring Boot 4, Spring Data JPA, Flyway
 - **Banco de dados:** PostgreSQL
-- **Front end (planejado):** TypeScript, React, Vite
+- **Front end:** TypeScript, React, Vite
 - **CI/CD (planejado):** GitHub Actions
 
 ## Status

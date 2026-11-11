@@ -11,14 +11,13 @@ Webplattform zum Erstellen und Wiederholen von Karteikarten-Stapeln mit verteilt
 | Ordner | Inhalt |
 |---|---|
 | [`backend/`](backend/README.de.md) | REST-API in Java 21 und Spring Boot (Clean Architecture, nach Funktionalität organisiert) |
-
-Das Frontend (TypeScript, React und Vite) folgt noch.
+| [`frontend/`](frontend/README.de.md) | Weboberfläche in React, TypeScript und Vite (Clean Architecture, nach Funktionalität organisiert) |
 
 ## Technologien
 
 - **Backend:** Java 21, Spring Boot 4, Spring Data JPA, Flyway
 - **Datenbank:** PostgreSQL
-- **Frontend (geplant):** TypeScript, React, Vite
+- **Frontend:** TypeScript, React, Vite
 - **CI/CD (geplant):** GitHub Actions
 
 ## Status
