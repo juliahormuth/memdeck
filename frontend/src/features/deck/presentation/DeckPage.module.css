@@ -1,0 +1,49 @@
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	max-width: 720px;
+}
+
+.title {
+	font-size: 1.75rem;
+	font-weight: 800;
+	line-height: 1.2;
+	color: var(--color-navy);
+	overflow-wrap: anywhere;
+}
+
+.meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin-top: 8px;
+	color: var(--color-blue-dark);
+}
+
+.badge {
+	padding: 2px 12px;
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: var(--color-navy);
+	background: var(--color-blue-pale);
+	border-radius: 999px;
+}
+
+.description {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	color: var(--color-ink);
+}
+
+.empty {
+	color: var(--color-blue-gray);
+}
+
+.notFound {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+}

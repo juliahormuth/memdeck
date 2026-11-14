@@ -9,20 +9,25 @@ public class Deck {
 	public static final int DESCRIPTION_MAX_LENGTH = 500;
 
 	private final UUID id;
+	private final UUID ownerId;
 	private final String name;
 	private final String description;
 	private final Visibility visibility;
 	private final Instant createdAt;
 
-	private Deck(UUID id, String name, String description, Visibility visibility, Instant createdAt) {
+	private Deck(UUID id, UUID ownerId, String name, String description, Visibility visibility, Instant createdAt) {
 		this.id = id;
+		this.ownerId = ownerId;
 		this.name = name;
 		this.description = description;
 		this.visibility = visibility;
 		this.createdAt = createdAt;
 	}
 
-	public static Deck create(String name, String description, Visibility visibility) {
+	public static Deck create(UUID ownerId, String name, String description, Visibility visibility) {
+		if (ownerId == null) {
+			throw new InvalidDeckException("Deck owner is required");
+		}
 		if (name == null || name.isBlank()) {
 			throw new InvalidDeckException("Deck name must not be blank");
 		}
@@ -37,15 +42,28 @@ public class Deck {
 		if (visibility == null) {
 			throw new InvalidDeckException("Deck visibility is required");
 		}
-		return new Deck(UUID.randomUUID(), trimmedName, description, visibility, Instant.now());
+		return new Deck(UUID.randomUUID(), ownerId, trimmedName, description, visibility, Instant.now());
 	}
 
-	public static Deck restore(UUID id, String name, String description, Visibility visibility, Instant createdAt) {
-		return new Deck(id, name, description, visibility, createdAt);
+	public static Deck restore(UUID id, UUID ownerId, String name, String description, Visibility visibility,
+			Instant createdAt) {
+		return new Deck(id, ownerId, name, description, visibility, createdAt);
 	}
 
 	public UUID getId() {
 		return id;
+	}
+
+	public UUID getOwnerId() {
+		return ownerId;
+	}
+
+	public boolean isOwnedBy(UUID userId) {
+		return ownerId.equals(userId);
+	}
+
+	public boolean canBeViewedBy(UUID userId) {
+		return visibility == Visibility.PUBLIC || isOwnedBy(userId);
 	}
 
 	public String getName() {

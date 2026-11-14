@@ -42,6 +42,15 @@ describe('master layout', () => {
 		expect(within(menu).getByRole('link', { name: 'Início' })).toHaveAttribute('aria-current', 'page');
 	});
 
+	it('offers a New deck button in the menu that opens the form', async () => {
+		signedIn();
+		renderApp('/');
+
+		await userEvent.click(await screen.findByRole('link', { name: 'Novo baralho' }));
+
+		expect(await screen.findByRole('heading', { name: 'Novo baralho' })).toBeInTheDocument();
+	});
+
 	it('shows the signed-in user email', async () => {
 		signedIn();
 		renderApp('/');

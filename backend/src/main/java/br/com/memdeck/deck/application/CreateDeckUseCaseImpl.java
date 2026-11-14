@@ -17,7 +17,7 @@ public class CreateDeckUseCaseImpl implements CreateDeckUseCase {
 
 	@Override
 	public Deck execute(CreateDeckCommand command) {
-		Deck deck = Deck.create(command.name(), command.description(), command.visibility());
+		Deck deck = Deck.create(command.ownerId(), command.name(), command.description(), command.visibility());
 		return gateway.save(deck);
 	}
 }

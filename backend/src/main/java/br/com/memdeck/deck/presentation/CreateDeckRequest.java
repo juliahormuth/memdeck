@@ -1,5 +1,7 @@
 package br.com.memdeck.deck.presentation;
 
+import java.util.UUID;
+
 import br.com.memdeck.deck.application.CreateDeckCommand;
 import br.com.memdeck.deck.domain.Visibility;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +13,7 @@ public record CreateDeckRequest(
 		@Size(max = 500) String description,
 		@NotNull Visibility visibility) {
 
-	CreateDeckCommand toCommand() {
-		return new CreateDeckCommand(name, description, visibility);
+	CreateDeckCommand toCommand(UUID ownerId) {
+		return new CreateDeckCommand(ownerId, name, description, visibility);
 	}
 }

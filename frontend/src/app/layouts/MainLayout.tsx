@@ -1,6 +1,6 @@
-import { NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet } from 'react-router';
 import { useCurrentUser, useLogout } from '../../features/auth/presentation/authQueries';
-import { BookIcon, HomeIcon, LogoutIcon } from '../../shared/ui/icons';
+import { BookIcon, HomeIcon, LogoutIcon, PlusIcon } from '../../shared/ui/icons';
 import styles from './MainLayout.module.css';
 
 const menu = [{ to: '/', label: 'Início', icon: <HomeIcon />, end: true }];
@@ -27,6 +27,10 @@ export function MainLayout() {
 							</li>
 						))}
 					</ul>
+					<Link to="/decks/new" className={styles.newDeck} aria-label="Novo baralho">
+						<PlusIcon size={22} />
+						<span className={styles.newDeckLabel}>Novo baralho</span>
+					</Link>
 				</nav>
 				<div className={styles.user}>
 					<div className={styles.profile}>

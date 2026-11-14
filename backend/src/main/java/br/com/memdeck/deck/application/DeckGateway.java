@@ -1,5 +1,6 @@
 package br.com.memdeck.deck.application;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,4 +11,6 @@ public interface DeckGateway {
 	Deck save(Deck deck);
 
 	Optional<Deck> findById(UUID id);
+
+	List<Deck> findByOwnerNewestFirst(UUID ownerId);
 }

@@ -1,3 +1,4 @@
+import { ButtonLink } from '../../../shared/ui/ButtonLink';
 import styles from './HomePage.module.css';
 
 export function HomePage() {
@@ -12,7 +13,8 @@ export function HomePage() {
 				<h2 id="decks-empty-title" className={styles.emptyTitle}>
 					Seus baralhos aparecerão aqui
 				</h2>
-				<p className={styles.emptyText}>Em breve você poderá criar baralhos e revisar seus flashcards.</p>
+				<p className={styles.emptyText}>Crie um baralho para começar a estudar.</p>
+				<ButtonLink to="/decks/new">Criar baralho</ButtonLink>
 			</section>
 		</div>
 	);

@@ -10,6 +10,7 @@ final class DeckMapper {
 	static DeckJpaModel toModel(Deck deck) {
 		return new DeckJpaModel(
 				deck.getId(),
+				deck.getOwnerId(),
 				deck.getName(),
 				deck.getDescription(),
 				deck.getVisibility(),
@@ -19,6 +20,7 @@ final class DeckMapper {
 	static Deck toDomain(DeckJpaModel model) {
 		return Deck.restore(
 				model.getId(),
+				model.getOwnerId(),
 				model.getName(),
 				model.getDescription(),
 				model.getVisibility(),

@@ -6,5 +6,5 @@ import br.com.memdeck.deck.domain.Deck;
 
 public interface GetDeckUseCase {
 
-	Deck execute(UUID id);
+	Deck execute(UUID id, UUID requesterId);
 }

@@ -30,6 +30,15 @@ class DeckIntegrationTest {
 	@Autowired
 	MockMvc mockMvc;
 
+	private String createDeck(Session session, String name, String visibility) throws Exception {
+		return mockMvc.perform(withCsrf(post("/api/decks").cookie(session.session())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"name\":\"%s\",\"visibility\":\"%s\"}".formatted(name, visibility)), session.csrf()))
+				.andExpect(status().isCreated())
+				.andExpect(header().exists("Location"))
+				.andReturn().getResponse().getHeader("Location");
+	}
+
 	@Test
 	void createsAndRetrievesDeckFromDatabase() throws Exception {
 		Session session = registerAndLogin(mockMvc, uniqueEmail());
@@ -55,5 +64,43 @@ class DeckIntegrationTest {
 
 		mockMvc.perform(get("/api/decks/" + UUID.randomUUID()).cookie(session.session()))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void aPrivateDeckIsHiddenFromOtherUsersButAPublicOneIsNot() throws Exception {
+		Session owner = registerAndLogin(mockMvc, uniqueEmail());
+		Session stranger = registerAndLogin(mockMvc, uniqueEmail());
+		String privateDeck = createDeck(owner, "Secret", "PRIVATE");
+		String publicDeck = createDeck(owner, "Open", "PUBLIC");
+
+		mockMvc.perform(get(privateDeck).cookie(owner.session())).andExpect(status().isOk());
+		mockMvc.perform(get(privateDeck).cookie(stranger.session())).andExpect(status().isNotFound());
+		mockMvc.perform(get(publicDeck).cookie(stranger.session()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Open"));
+	}
+
+	@Test
+	void listsOnlyMyDecksNewestFirst() throws Exception {
+		Session me = registerAndLogin(mockMvc, uniqueEmail());
+		Session other = registerAndLogin(mockMvc, uniqueEmail());
+		createDeck(me, "First", "PRIVATE");
+		Thread.sleep(20);
+		createDeck(me, "Second", "PUBLIC");
+		createDeck(other, "Not mine", "PUBLIC");
+
+		mockMvc.perform(get("/api/decks").cookie(me.session()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$[0].name").value("Second"))
+				.andExpect(jsonPath("$[1].name").value("First"));
+		mockMvc.perform(get("/api/decks").cookie(other.session()))
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].name").value("Not mine"));
+	}
+
+	@Test
+	void listingRequiresALoggedUser() throws Exception {
+		mockMvc.perform(get("/api/decks")).andExpect(status().isUnauthorized());
 	}
 }

@@ -13,20 +13,37 @@ import br.com.memdeck.deck.domain.Visibility;
 
 class GetDeckUseCaseTest {
 
+	private static final UUID OWNER = UUID.randomUUID();
+	private static final UUID STRANGER = UUID.randomUUID();
+
 	private final InMemoryDeckGateway gateway = new InMemoryDeckGateway();
 	private final GetDeckUseCase useCase = new GetDeckUseCaseImpl(gateway);
 
 	@Test
-	void returnsAnExistingDeck() {
-		Deck saved = gateway.save(Deck.create("English", null, Visibility.PUBLIC));
+	void theOwnerReadsAPrivateDeck() {
+		Deck saved = gateway.save(Deck.create(OWNER, "Anatomy", null, Visibility.PRIVATE));
 
-		assertThat(useCase.execute(saved.getId())).isSameAs(saved);
+		assertThat(useCase.execute(saved.getId(), OWNER)).isSameAs(saved);
+	}
+
+	@Test
+	void aStrangerCannotReadAPrivateDeckAndGetsTheSameErrorAsForAMissingOne() {
+		Deck saved = gateway.save(Deck.create(OWNER, "Anatomy", null, Visibility.PRIVATE));
+
+		assertThatThrownBy(() -> useCase.execute(saved.getId(), STRANGER)).isInstanceOf(DeckNotFoundException.class);
+	}
+
+	@Test
+	void aStrangerReadsAPublicDeck() {
+		Deck saved = gateway.save(Deck.create(OWNER, "English", null, Visibility.PUBLIC));
+
+		assertThat(useCase.execute(saved.getId(), STRANGER)).isSameAs(saved);
 	}
 
 	@Test
 	void failsWhenTheDeckDoesNotExist() {
 		UUID unknown = UUID.randomUUID();
 
-		assertThatThrownBy(() -> useCase.execute(unknown)).isInstanceOf(DeckNotFoundException.class);
+		assertThatThrownBy(() -> useCase.execute(unknown, OWNER)).isInstanceOf(DeckNotFoundException.class);
 	}
 }

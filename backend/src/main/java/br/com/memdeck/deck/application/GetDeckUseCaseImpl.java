@@ -19,7 +19,11 @@ public class GetDeckUseCaseImpl implements GetDeckUseCase {
 	}
 
 	@Override
-	public Deck execute(UUID id) {
-		return gateway.findById(id).orElseThrow(() -> new DeckNotFoundException(id));
+	public Deck execute(UUID id, UUID requesterId) {
+		Deck deck = gateway.findById(id).orElseThrow(() -> new DeckNotFoundException(id));
+		if (!deck.canBeViewedBy(requesterId)) {
+			throw new DeckNotFoundException(id);
+		}
+		return deck;
 	}
 }

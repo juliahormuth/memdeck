@@ -33,6 +33,9 @@
 	position: fixed;
 	inset: auto 0 0 0;
 	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
 	padding: 8px;
 	background: var(--color-surface);
 	border-top: 1px solid var(--color-blue-pastel);
@@ -40,6 +43,7 @@
 
 .navList {
 	display: flex;
+	flex: 1;
 	justify-content: space-around;
 	margin: 0;
 	padding: 0;
@@ -62,6 +66,28 @@
 .navLink[aria-current='page'] {
 	font-weight: 800;
 	color: var(--color-navy);
+}
+
+.newDeck {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 52px;
+	height: 52px;
+	margin-top: -22px;
+	color: var(--color-white);
+	text-decoration: none;
+	background: var(--color-navy);
+	border-radius: 50%;
+	box-shadow: 0 4px 12px rgb(5 49 93 / 30%);
+}
+
+.newDeck:hover {
+	background: var(--color-blue-dark);
+}
+
+.newDeckLabel {
+	display: none;
 }
 
 .user {
@@ -142,6 +168,7 @@
 
 	.nav {
 		position: static;
+		display: block;
 		padding: 0;
 		background: none;
 		border-top: 0;
@@ -161,6 +188,21 @@
 
 	.navLink[aria-current='page'] {
 		background: var(--color-blue-pale);
+	}
+
+	.newDeck {
+		display: flex;
+		gap: 8px;
+		width: 100%;
+		height: 48px;
+		margin-top: 16px;
+		font-weight: 700;
+		border-radius: var(--radius-button);
+		box-shadow: none;
+	}
+
+	.newDeckLabel {
+		display: inline;
 	}
 
 	.user {

@@ -1,6 +1,8 @@
 package br.com.memdeck.deck.application;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,6 +22,14 @@ class InMemoryDeckGateway implements DeckGateway {
 	@Override
 	public Optional<Deck> findById(UUID id) {
 		return Optional.ofNullable(store.get(id));
+	}
+
+	@Override
+	public List<Deck> findByOwnerNewestFirst(UUID ownerId) {
+		return store.values().stream()
+				.filter(deck -> deck.isOwnedBy(ownerId))
+				.sorted(Comparator.comparing(Deck::getCreatedAt).reversed())
+				.toList();
 	}
 
 	int size() {

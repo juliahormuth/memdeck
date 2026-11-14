@@ -1,5 +1,6 @@
 package br.com.memdeck.deck.infrastructure;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,5 +26,10 @@ class DeckGatewayJpa implements DeckGateway {
 	@Override
 	public Optional<Deck> findById(UUID id) {
 		return repository.findById(id).map(DeckMapper::toDomain);
+	}
+
+	@Override
+	public List<Deck> findByOwnerNewestFirst(UUID ownerId) {
+		return repository.findByOwnerIdOrderByCreatedAtDesc(ownerId).stream().map(DeckMapper::toDomain).toList();
 	}
 }

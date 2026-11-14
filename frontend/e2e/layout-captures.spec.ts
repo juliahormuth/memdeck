@@ -18,5 +18,16 @@ test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 		await page
 			.getByRole('navigation', { name: 'Menu principal' })
 			.screenshot({ path: `${captureDir}/${name}-menu.png` });
+
+		await page.getByRole('link', { name: 'Novo baralho', exact: true }).click();
+		await expect(page.getByRole('heading', { name: 'Novo baralho' })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-novo-baralho.png`, fullPage: true });
+
+		await page.getByLabel('Nome').fill('Anatomia humana');
+		await page.getByLabel('Descrição (opcional)').fill('Ossos e músculos do corpo humano.');
+		await page.getByLabel(/Público/).check();
+		await page.getByRole('button', { name: 'Criar baralho' }).click();
+		await expect(page.getByRole('heading', { name: 'Anatomia humana' })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-baralho.png`, fullPage: true });
 	});
 });

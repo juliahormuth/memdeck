@@ -18,6 +18,9 @@ class DeckJpaModel {
 	@Id
 	private UUID id;
 
+	@Column(name = "owner_id", nullable = false)
+	private UUID ownerId;
+
 	@Column(nullable = false, length = 100)
 	private String name;
 
@@ -34,8 +37,9 @@ class DeckJpaModel {
 	protected DeckJpaModel() {
 	}
 
-	DeckJpaModel(UUID id, String name, String description, Visibility visibility, Instant createdAt) {
+	DeckJpaModel(UUID id, UUID ownerId, String name, String description, Visibility visibility, Instant createdAt) {
 		this.id = id;
+		this.ownerId = ownerId;
 		this.name = name;
 		this.description = description;
 		this.visibility = visibility;
@@ -44,6 +48,10 @@ class DeckJpaModel {
 
 	UUID getId() {
 		return id;
+	}
+
+	UUID getOwnerId() {
+		return ownerId;
 	}
 
 	String getName() {
