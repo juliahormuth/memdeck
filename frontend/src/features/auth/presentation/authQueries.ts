@@ -1,8 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { authUseCases } from '../composition';
 import type { Credentials, NewAccount } from '../application/AuthGateway';
 
 export const currentUserKey = ['auth', 'current-user'] as const;
+
+export function clearSessionData(queryClient: QueryClient) {
+	queryClient.setQueryData(currentUserKey, null);
+	queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== currentUserKey[0] });
+}
 
 export function useCurrentUser() {
 	return useQuery({
@@ -36,9 +42,6 @@ export function useLogout() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: () => authUseCases.logoutUser(),
-		onSuccess: () => {
-			queryClient.setQueryData(currentUserKey, null);
-			queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== currentUserKey[0] });
-		},
+		onSuccess: () => clearSessionData(queryClient),
 	});
 }
