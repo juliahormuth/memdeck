@@ -12,4 +12,6 @@ export interface DeckGateway {
 	delete(id: string): Promise<void>;
 	findById(id: string): Promise<Deck>;
 	listMine(): Promise<Deck[]>;
+	searchPublic(term: string): Promise<Deck[]>;
+	join(id: string): Promise<Deck>;
 }

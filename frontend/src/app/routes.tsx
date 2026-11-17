@@ -5,6 +5,7 @@ import { RedirectIfAuthenticated } from '../features/auth/presentation/RedirectI
 import { RegisterPage } from '../features/auth/presentation/RegisterPage';
 import { RequireAuth } from '../features/auth/presentation/RequireAuth';
 import { SessionExpiryBoundary } from '../features/auth/presentation/SessionExpiryBoundary';
+import { ExplorePage } from '../features/deck/presentation/ExplorePage';
 import { EditDeckPage } from '../features/deck/presentation/EditDeckPage';
 import { DeckPage } from '../features/deck/presentation/DeckPage';
 import { HomePage } from '../features/deck/presentation/HomePage';
@@ -37,6 +38,7 @@ export const routes: RouteObject[] = [
 						element: <MainLayout />,
 						children: [
 							{ path: '/', element: <HomePage /> },
+							{ path: '/explore', element: <ExplorePage /> },
 							{ path: '/decks/new', element: <NewDeckPage /> },
 							{ path: '/decks/:id', element: <DeckPage /> },
 							{ path: '/decks/:id/edit', element: <EditDeckPage /> },

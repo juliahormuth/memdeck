@@ -1,6 +1,6 @@
-import { DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
+import { AlreadyDeckMemberError, DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
 import { DECK_DESCRIPTION_MAX_LENGTH, DECK_NAME_MAX_LENGTH } from '../domain/rules';
-import type { Visibility } from '../domain/Deck';
+import type { DeckRole, Visibility } from '../domain/Deck';
 
 export const nameMessages: Record<string, string> = {
 	blank: 'Informe o nome do baralho.',
@@ -14,6 +14,12 @@ export const descriptionMessages: Record<string, string> = {
 export const visibilityLabels: Record<Visibility, string> = {
 	PUBLIC: 'Público',
 	PRIVATE: 'Privado',
+};
+
+export const roleLabels: Record<DeckRole, string> = {
+	OWNER: 'Dono',
+	EDITOR: 'Editor',
+	READER: 'Leitor',
 };
 
 export function messageForDeckError(error: unknown): string {
@@ -44,4 +50,14 @@ export function messageForDeleteDeckError(error: unknown): string {
 		return 'Esse baralho já não existe.';
 	}
 	return 'Não foi possível excluir o baralho. Tente novamente.';
+}
+
+export function messageForJoinDeckError(error: unknown): string {
+	if (error instanceof AlreadyDeckMemberError) {
+		return 'Você já participa deste baralho.';
+	}
+	if (error instanceof DeckNotFoundError) {
+		return 'Esse baralho não está mais disponível.';
+	}
+	return 'Não foi possível entrar no baralho. Tente novamente.';
 }

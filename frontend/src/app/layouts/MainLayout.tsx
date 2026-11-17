@@ -1,9 +1,12 @@
 import { Link, NavLink, Outlet } from 'react-router';
 import { useCurrentUser, useLogout } from '../../features/auth/presentation/authQueries';
-import { BookIcon, HomeIcon, LogoutIcon, PlusIcon } from '../../shared/ui/icons';
+import { BookIcon, GlobeIcon, HomeIcon, LogoutIcon, PlusIcon } from '../../shared/ui/icons';
 import styles from './MainLayout.module.css';
 
-const menu = [{ to: '/', label: 'Início', icon: <HomeIcon />, end: true }];
+const menu = [
+	{ to: '/', label: 'Início', icon: <HomeIcon />, end: true },
+	{ to: '/explore', label: 'Explorar', icon: <GlobeIcon />, end: false },
+];
 
 export function MainLayout() {
 	const { data: user } = useCurrentUser();

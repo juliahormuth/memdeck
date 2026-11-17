@@ -1,8 +1,8 @@
 import { ApiError } from '../../../shared/http/ApiError';
 import { httpClient } from '../../../shared/http/httpClient';
 import type { DeckGateway, NewDeck } from '../application/DeckGateway';
-import type { Deck, Visibility } from '../domain/Deck';
-import { DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
+import type { Deck, DeckRole, Visibility } from '../domain/Deck';
+import { AlreadyDeckMemberError, DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
 
 interface DeckDto {
 	id: string;
@@ -11,6 +11,7 @@ interface DeckDto {
 	visibility: Visibility;
 	createdAt: string;
 	ownedByMe: boolean;
+	role?: DeckRole | null;
 }
 
 function toDeck(dto: DeckDto): Deck {
@@ -21,6 +22,7 @@ function toDeck(dto: DeckDto): Deck {
 		visibility: dto.visibility,
 		createdAt: dto.createdAt,
 		ownedByMe: dto.ownedByMe,
+		role: dto.role ?? null,
 	};
 }
 
@@ -65,6 +67,22 @@ export class HttpDeckGateway implements DeckGateway {
 
 	async listMine(): Promise<Deck[]> {
 		return (await httpClient.get<DeckDto[]>('/api/decks')).map(toDeck);
+	}
+
+	async searchPublic(term: string): Promise<Deck[]> {
+		return (await httpClient.get<DeckDto[]>(`/api/decks/public?search=${encodeURIComponent(term)}`)).map(toDeck);
+	}
+
+	async join(id: string): Promise<Deck> {
+		try {
+			return toDeck(await httpClient.post<DeckDto>(`${deckPath(id)}/members`));
+		} catch (error) {
+			if (error instanceof ApiError) {
+				if (error.status === 404) throw new DeckNotFoundError();
+				if (error.status === 409) throw new AlreadyDeckMemberError();
+			}
+			throw error;
+		}
 	}
 
 	async findById(id: string): Promise<Deck> {

@@ -1,0 +1,53 @@
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.title {
+	font-size: 1.75rem;
+	font-weight: 800;
+	color: var(--color-navy);
+}
+
+.subtitle {
+	margin-top: 4px;
+	color: var(--color-blue-dark);
+}
+
+.search {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 12px;
+	max-width: 640px;
+}
+
+.field {
+	flex: 1 1 240px;
+}
+
+.empty {
+	color: var(--color-blue-gray);
+}
+
+.error {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+	gap: 16px;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.joined {
+	font-weight: 700;
+	color: var(--color-blue-dark);
+}

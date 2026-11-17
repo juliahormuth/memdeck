@@ -4,11 +4,11 @@ import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { ButtonLink } from '../../../shared/ui/ButtonLink';
 import { ConfirmDialog } from '../../../shared/ui/ConfirmDialog';
-import { PencilIcon, PlayIcon, TrashIcon } from '../../../shared/ui/icons';
+import { PencilIcon, PlayIcon, PlusIcon, TrashIcon } from '../../../shared/ui/icons';
 import { FlashcardList } from '../../flashcard/presentation/FlashcardList';
 import { DeckNotFoundError } from '../domain/errors';
-import { messageForDeleteDeckError } from './deckMessages';
-import { useDeck, useDeleteDeck } from './deckQueries';
+import { messageForDeleteDeckError, messageForJoinDeckError, roleLabels } from './deckMessages';
+import { useDeck, useDeleteDeck, useJoinDeck } from './deckQueries';
 import styles from './DeckPage.module.css';
 import { VisibilityBadge } from './VisibilityBadge';
 
@@ -17,6 +17,7 @@ export function DeckPage() {
 	const navigate = useNavigate();
 	const { data: deck, isPending, error } = useDeck(id);
 	const deleteDeck = useDeleteDeck();
+	const joinDeck = useJoinDeck();
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 
 	if (isPending) {
@@ -45,6 +46,12 @@ export function DeckPage() {
 							<PlayIcon size={18} />
 							Estudar
 						</ButtonLink>
+						{!deck.ownedByMe && !deck.role && (
+							<Button type="button" variant="secondary" loading={joinDeck.isPending} onClick={() => joinDeck.mutate(deck.id)}>
+								<PlusIcon size={18} />
+								Participar
+							</Button>
+						)}
 						{deck.ownedByMe && (
 							<>
 								<ButtonLink to={`/decks/${deck.id}/edit`} variant="secondary">
@@ -61,9 +68,11 @@ export function DeckPage() {
 				</div>
 				<div className={styles.meta}>
 					<VisibilityBadge visibility={deck.visibility} />
+					{deck.role && deck.role !== 'OWNER' && <span>Você participa como {roleLabels[deck.role]}</span>}
 					<span>Criado em {new Date(deck.createdAt).toLocaleDateString('pt-BR', { dateStyle: 'long' })}</span>
 				</div>
 			</header>
+			{joinDeck.isError && <Alert>{messageForJoinDeckError(joinDeck.error)}</Alert>}
 			{deck.description ? (
 				<p className={styles.description}>{deck.description}</p>
 			) : (

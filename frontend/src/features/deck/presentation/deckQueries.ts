@@ -5,6 +5,7 @@ import { deckUseCases } from '../composition';
 
 const deckKey = (id: string) => ['deck', id] as const;
 export const myDecksKey = ['decks', 'mine'] as const;
+const publicDecksKey = ['decks', 'public'] as const;
 
 export function useCreateDeck() {
 	const queryClient = useQueryClient();
@@ -53,6 +54,27 @@ export function useDeleteDeck() {
 			queryClient.removeQueries({ queryKey: deckKey(id) });
 			queryClient.removeQueries({ queryKey: ['flashcards', id] });
 			void queryClient.invalidateQueries({ queryKey: myDecksKey });
+		},
+	});
+}
+
+export function useSearchPublicDecks(term: string) {
+	return useQuery({
+		queryKey: [...publicDecksKey, term],
+		queryFn: () => deckUseCases.searchPublicDecks(term),
+		retry: false,
+		placeholderData: keepPreviousData,
+	});
+}
+
+export function useJoinDeck() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => deckUseCases.joinDeck(id),
+		onSuccess: (deck) => {
+			queryClient.setQueryData(deckKey(deck.id), deck);
+			void queryClient.invalidateQueries({ queryKey: myDecksKey });
+			void queryClient.invalidateQueries({ queryKey: publicDecksKey });
 		},
 	});
 }

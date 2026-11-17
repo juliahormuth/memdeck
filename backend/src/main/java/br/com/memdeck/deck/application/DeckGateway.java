@@ -1,5 +1,6 @@
 package br.com.memdeck.deck.application;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,4 +16,8 @@ public interface DeckGateway {
 	void deleteById(UUID id);
 
 	List<Deck> findByOwnerNewestFirst(UUID ownerId);
+
+	List<Deck> findAllById(Collection<UUID> ids);
+
+	List<Deck> searchPublicNewestFirst(UUID excludedOwnerId, String term, int limit);
 }

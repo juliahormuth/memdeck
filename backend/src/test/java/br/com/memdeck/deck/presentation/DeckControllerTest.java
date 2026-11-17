@@ -35,7 +35,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import br.com.memdeck.deck.application.CreateDeckCommand;
 import br.com.memdeck.deck.application.CreateDeckUseCase;
 import br.com.memdeck.deck.application.DeleteDeckUseCase;
+import br.com.memdeck.deck.application.DeckView;
 import br.com.memdeck.deck.application.GetDeckUseCase;
+import br.com.memdeck.deck.application.JoinDeckUseCase;
+import br.com.memdeck.deck.application.SearchPublicDecksUseCase;
+import br.com.memdeck.deck.domain.AlreadyDeckMemberException;
+import br.com.memdeck.deck.domain.DeckRole;
 import br.com.memdeck.deck.application.ListMyDecksUseCase;
 import br.com.memdeck.deck.application.UpdateDeckUseCase;
 import br.com.memdeck.deck.domain.Deck;
@@ -66,6 +71,12 @@ class DeckControllerTest {
 
 	@MockitoBean
 	ListMyDecksUseCase listMyDecks;
+
+	@MockitoBean
+	SearchPublicDecksUseCase searchPublicDecks;
+
+	@MockitoBean
+	JoinDeckUseCase joinDeck;
 
 	@MockitoBean
 	UpdateDeckUseCase updateDeck;
@@ -158,7 +169,7 @@ class DeckControllerTest {
 	void listsTheDecksOfTheLoggedUser() throws Exception {
 		Deck first = Deck.create(USER_ID, "Anatomy", null, Visibility.PRIVATE);
 		Deck second = Deck.create(USER_ID, "English", "Words", Visibility.PUBLIC);
-		when(listMyDecks.execute(USER_ID)).thenReturn(List.of(second, first));
+		when(listMyDecks.execute(USER_ID)).thenReturn(List.of(DeckView.ownedBy(second), DeckView.ownedBy(first)));
 
 		mockMvc.perform(get("/api/decks").with(authentication(USER)))
 				.andExpect(status().isOk())
@@ -171,7 +182,7 @@ class DeckControllerTest {
 	@Test
 	void asksForTheDeckOnBehalfOfTheLoggedUser() throws Exception {
 		Deck deck = Deck.create(USER_ID, "Anatomy", null, Visibility.PRIVATE);
-		when(getDeck.execute(deck.getId(), USER_ID)).thenReturn(deck);
+		when(getDeck.execute(deck.getId(), USER_ID)).thenReturn(DeckView.ownedBy(deck));
 
 		mockMvc.perform(get("/api/decks/" + deck.getId()).with(authentication(USER)))
 				.andExpect(status().isOk())
@@ -182,13 +193,83 @@ class DeckControllerTest {
 	void tellsWhetherTheLoggedUserOwnsTheDeck() throws Exception {
 		Deck mine = Deck.create(USER_ID, "Anatomy", null, Visibility.PUBLIC);
 		Deck notMine = Deck.create(UUID.randomUUID(), "English", null, Visibility.PUBLIC);
-		when(getDeck.execute(mine.getId(), USER_ID)).thenReturn(mine);
-		when(getDeck.execute(notMine.getId(), USER_ID)).thenReturn(notMine);
+		when(getDeck.execute(mine.getId(), USER_ID)).thenReturn(DeckView.ownedBy(mine));
+		when(getDeck.execute(notMine.getId(), USER_ID)).thenReturn(new DeckView(notMine, null));
 
 		mockMvc.perform(get("/api/decks/" + mine.getId()).with(authentication(USER)))
 				.andExpect(jsonPath("$.ownedByMe").value(true));
 		mockMvc.perform(get("/api/decks/" + notMine.getId()).with(authentication(USER)))
 				.andExpect(jsonPath("$.ownedByMe").value(false));
+	}
+
+	@Test
+	void showsTheRoleOfTheLoggedUserOnEachDeck() throws Exception {
+		Deck mine = Deck.create(USER_ID, "Anatomy", null, Visibility.PRIVATE);
+		Deck joined = Deck.create(UUID.randomUUID(), "English", null, Visibility.PUBLIC);
+		when(listMyDecks.execute(USER_ID))
+				.thenReturn(List.of(DeckView.ownedBy(mine), new DeckView(joined, DeckRole.READER)));
+
+		mockMvc.perform(get("/api/decks").with(authentication(USER)))
+				.andExpect(jsonPath("$[0].role").value("OWNER"))
+				.andExpect(jsonPath("$[1].role").value("READER"))
+				.andExpect(jsonPath("$[1].ownedByMe").value(false));
+	}
+
+	@Test
+	void searchesThePublicDecksWithTheTermAndReturnsTheRoleOfWhoAlreadyJoined() throws Exception {
+		Deck open = Deck.create(UUID.randomUUID(), "English", "Words", Visibility.PUBLIC);
+		Deck joined = Deck.create(UUID.randomUUID(), "English verbs", null, Visibility.PUBLIC);
+		when(searchPublicDecks.execute(USER_ID, "english"))
+				.thenReturn(List.of(new DeckView(open, null), new DeckView(joined, DeckRole.READER)));
+
+		mockMvc.perform(get("/api/decks/public").param("search", "english").with(authentication(USER)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$[0].name").value("English"))
+				.andExpect(jsonPath("$[0].role").doesNotExist())
+				.andExpect(jsonPath("$[1].role").value("READER"));
+	}
+
+	@Test
+	void searchesWithAnEmptyTermWhenNoneIsGiven() throws Exception {
+		when(searchPublicDecks.execute(USER_ID, "")).thenReturn(List.of());
+
+		mockMvc.perform(get("/api/decks/public").with(authentication(USER)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(0));
+	}
+
+	@Test
+	void joinsAPublicDeckAsAReader() throws Exception {
+		Deck deck = Deck.create(UUID.randomUUID(), "English", null, Visibility.PUBLIC);
+		when(joinDeck.execute(deck.getId(), USER_ID)).thenReturn(new DeckView(deck, DeckRole.READER));
+
+		mockMvc.perform(post("/api/decks/" + deck.getId() + "/members").with(authentication(USER)).with(csrf()))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.role").value("READER"))
+				.andExpect(jsonPath("$.ownedByMe").value(false));
+	}
+
+	@Test
+	void joiningAMissingOrPrivateDeckIs404AndJoiningTwiceIs409() throws Exception {
+		UUID missing = UUID.randomUUID();
+		UUID joined = UUID.randomUUID();
+		when(joinDeck.execute(missing, USER_ID)).thenThrow(new DeckNotFoundException(missing));
+		when(joinDeck.execute(joined, USER_ID)).thenThrow(new AlreadyDeckMemberException(joined));
+
+		mockMvc.perform(post("/api/decks/" + missing + "/members").with(authentication(USER)).with(csrf()))
+				.andExpect(status().isNotFound());
+		mockMvc.perform(post("/api/decks/" + joined + "/members").with(authentication(USER)).with(csrf()))
+				.andExpect(status().isConflict());
+	}
+
+	@Test
+	void searchAndJoinRequireALoggedUser() throws Exception {
+		mockMvc.perform(get("/api/decks/public")).andExpect(status().isUnauthorized());
+		mockMvc.perform(post("/api/decks/" + UUID.randomUUID() + "/members").with(csrf()))
+				.andExpect(status().isUnauthorized());
+
+		verifyNoInteractions(searchPublicDecks, joinDeck);
 	}
 
 	@Test

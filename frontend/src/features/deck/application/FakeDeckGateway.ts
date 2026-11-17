@@ -15,6 +15,7 @@ export class FakeDeckGateway implements DeckGateway {
 			visibility: deck.visibility,
 			createdAt: '2026-01-01T12:00:00Z',
 			ownedByMe: true,
+			role: 'OWNER',
 		};
 		this.decks.set(saved.id, saved);
 		return saved;
@@ -42,5 +43,21 @@ export class FakeDeckGateway implements DeckGateway {
 			throw new DeckNotFoundError();
 		}
 		return deck;
+	}
+
+	async searchPublic(term: string): Promise<Deck[]> {
+		const lowered = term.toLowerCase();
+		return [...this.decks.values()].filter(
+			(deck) =>
+				deck.visibility === 'PUBLIC' &&
+				!deck.ownedByMe &&
+				(deck.name.toLowerCase().includes(lowered) || (deck.description ?? '').toLowerCase().includes(lowered)),
+		);
+	}
+
+	async join(id: string): Promise<Deck> {
+		const joined: Deck = { ...(await this.findById(id)), role: 'READER' };
+		this.decks.set(id, joined);
+		return joined;
 	}
 }

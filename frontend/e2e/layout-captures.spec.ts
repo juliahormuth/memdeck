@@ -6,7 +6,7 @@ const captureDir = process.env.CAPTURE_DIR;
 test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 	test.skip(!captureDir, 'CAPTURE_DIR is not set');
 
-	test('login page and master layout', async ({ page }, testInfo) => {
+	test('login page and master layout', async ({ page, browser }, testInfo) => {
 		const name = testInfo.project.name;
 
 		await page.goto('/login');
@@ -49,6 +49,16 @@ test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 		await page.screenshot({ path: `${captureDir}/${name}-estudar-resposta.png`, fullPage: true });
 		await page.goBack();
 		await expect(page.getByRole('heading', { name: 'Anatomia humana' })).toBeVisible();
+
+		const readerContext = await browser.newContext({ viewport: page.viewportSize() ?? undefined });
+		const reader = await readerContext.newPage();
+		await registerThroughTheUi(reader, uniqueEmail());
+		await reader.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Explorar' }).click();
+		await reader.getByLabel('Pesquisar baralhos públicos').fill('Anatomia humana');
+		await reader.getByRole('button', { name: 'Pesquisar' }).click();
+		await expect(reader.getByRole('link', { name: 'Anatomia humana' }).first()).toBeVisible();
+		await reader.screenshot({ path: `${captureDir}/${name}-explorar.png`, fullPage: true });
+		await readerContext.close();
 
 		await createDeckThroughTheUi(page, 'Inglês básico', { description: 'Vocabulário do dia a dia.' });
 		await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Início' }).click();

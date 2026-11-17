@@ -23,3 +23,10 @@ export class DeckNotFoundError extends Error {
 		this.name = 'DeckNotFoundError';
 	}
 }
+
+export class AlreadyDeckMemberError extends Error {
+	constructor() {
+		super('User already takes part in this deck');
+		this.name = 'AlreadyDeckMemberError';
+	}
+}

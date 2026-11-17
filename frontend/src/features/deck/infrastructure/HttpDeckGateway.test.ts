@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { server } from '../../../test/server';
-import { DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
+import { AlreadyDeckMemberError, DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
 import { HttpDeckGateway } from './HttpDeckGateway';
 
 const dto = {
@@ -11,6 +11,7 @@ const dto = {
 	visibility: 'PRIVATE',
 	createdAt: '2026-01-01T12:00:00Z',
 	ownedByMe: true,
+	role: 'OWNER',
 };
 
 const gateway = new HttpDeckGateway();
@@ -132,5 +133,41 @@ describe('HttpDeckGateway', () => {
 		server.use(http.delete('*/api/decks/d1', () => HttpResponse.json({ detail: 'x' }, { status })));
 
 		await expect(gateway.delete('d1')).rejects.toBeInstanceOf(errorType);
+	});
+
+	it('searches the public decks with the encoded term and keeps the role', async () => {
+		let search: string | null = null;
+		server.use(
+			http.get('*/api/decks/public', ({ request }) => {
+				search = new URL(request.url).searchParams.get('search');
+				return HttpResponse.json([{ ...dto, ownedByMe: false, role: 'READER' }]);
+			}),
+		);
+
+		const decks = await gateway.searchPublic('inglês & verbos');
+
+		expect(search).toBe('inglês & verbos');
+		expect(decks[0]).toMatchObject({ ownedByMe: false, role: 'READER' });
+	});
+
+	it('maps a missing role to null', async () => {
+		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...dto, role: undefined })));
+
+		await expect(gateway.findById('d1')).resolves.toMatchObject({ role: null });
+	});
+
+	it('joins a deck with POST /api/decks/{id}/members', async () => {
+		server.use(http.post('*/api/decks/d1/members', () => HttpResponse.json({ ...dto, ownedByMe: false, role: 'READER' }, { status: 201 })));
+
+		await expect(gateway.join('d1')).resolves.toMatchObject({ role: 'READER' });
+	});
+
+	it.each([
+		[404, DeckNotFoundError],
+		[409, AlreadyDeckMemberError],
+	])('translates a %i answer when joining', async (status, errorType) => {
+		server.use(http.post('*/api/decks/d1/members', () => HttpResponse.json({ detail: 'x' }, { status })));
+
+		await expect(gateway.join('d1')).rejects.toBeInstanceOf(errorType);
 	});
 });
