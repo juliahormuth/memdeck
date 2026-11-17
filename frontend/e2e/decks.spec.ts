@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { registerThroughTheUi, uniqueEmail } from './helpers';
+import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail } from './helpers';
 
 test('creating a public deck from the menu opens its page', async ({ page }) => {
 	await registerThroughTheUi(page, uniqueEmail());
@@ -62,4 +62,48 @@ test('a visitor cannot open the new deck form', async ({ page }) => {
 	await page.goto('/decks/new');
 
 	await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible();
+});
+
+test('the home page lists my decks, newest first, and a card opens the deck', async ({ page }) => {
+	await registerThroughTheUi(page, uniqueEmail());
+	await createDeckThroughTheUi(page, 'Primeiro baralho', { description: 'O mais antigo' });
+	await createDeckThroughTheUi(page, 'Segundo baralho', { visibility: 'Público' });
+
+	await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Início' }).click();
+
+	const list = page.getByRole('list', { name: 'Seus baralhos' });
+	await expect(list.getByRole('heading', { level: 2 })).toHaveText(['Segundo baralho', 'Primeiro baralho']);
+	await expect(page.getByText('2 baralhos')).toBeVisible();
+
+	await list.getByRole('link', { name: 'Primeiro baralho' }).click();
+
+	await expect(page).toHaveURL(/\/decks\/[0-9a-f-]{36}$/);
+	await expect(page.getByRole('heading', { level: 1, name: 'Primeiro baralho' })).toBeVisible();
+	await expect(page.getByText('O mais antigo')).toBeVisible();
+});
+
+test('a new user does not see the decks of another user', async ({ page, browser }) => {
+	await registerThroughTheUi(page, uniqueEmail());
+	await createDeckThroughTheUi(page, 'Baralho secreto da primeira pessoa');
+
+	const otherContext = await browser.newContext({ baseURL: page.url().split('/decks')[0] });
+	const otherPage = await otherContext.newPage();
+	await registerThroughTheUi(otherPage, uniqueEmail());
+
+	await expect(otherPage.getByRole('heading', { name: 'Seus baralhos aparecerão aqui' })).toBeVisible();
+	await expect(otherPage.getByText('Baralho secreto da primeira pessoa')).toHaveCount(0);
+	await otherContext.close();
+});
+
+test('logging out hides the decks and another login on the same browser shows only its own', async ({ page }) => {
+	const first = uniqueEmail();
+	await registerThroughTheUi(page, first);
+	await createDeckThroughTheUi(page, 'Do primeiro usuario');
+	await page.getByRole('button', { name: 'Sair' }).click();
+	await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible();
+
+	await registerThroughTheUi(page, uniqueEmail());
+
+	await expect(page.getByRole('heading', { name: 'Seus baralhos aparecerão aqui' })).toBeVisible();
+	await expect(page.getByText('Do primeiro usuario')).toHaveCount(0);
 });

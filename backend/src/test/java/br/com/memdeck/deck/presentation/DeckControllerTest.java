@@ -2,13 +2,16 @@ package br.com.memdeck.deck.presentation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,11 +34,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.memdeck.deck.application.CreateDeckCommand;
 import br.com.memdeck.deck.application.CreateDeckUseCase;
+import br.com.memdeck.deck.application.DeleteDeckUseCase;
 import br.com.memdeck.deck.application.GetDeckUseCase;
 import br.com.memdeck.deck.application.ListMyDecksUseCase;
+import br.com.memdeck.deck.application.UpdateDeckUseCase;
 import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
+import br.com.memdeck.deck.application.UpdateDeckCommand;
 import br.com.memdeck.deck.domain.InvalidDeckException;
+import br.com.memdeck.deck.domain.NotDeckOwnerException;
 import br.com.memdeck.deck.domain.Visibility;
 import br.com.memdeck.security.AuthenticatedUser;
 import br.com.memdeck.security.SecurityConfig;
@@ -59,6 +66,12 @@ class DeckControllerTest {
 
 	@MockitoBean
 	ListMyDecksUseCase listMyDecks;
+
+	@MockitoBean
+	UpdateDeckUseCase updateDeck;
+
+	@MockitoBean
+	DeleteDeckUseCase deleteDeck;
 
 	@Test
 	void createsValidDeckForTheLoggedUserAndReturns201WithLocation() throws Exception {
@@ -166,6 +179,19 @@ class DeckControllerTest {
 	}
 
 	@Test
+	void tellsWhetherTheLoggedUserOwnsTheDeck() throws Exception {
+		Deck mine = Deck.create(USER_ID, "Anatomy", null, Visibility.PUBLIC);
+		Deck notMine = Deck.create(UUID.randomUUID(), "English", null, Visibility.PUBLIC);
+		when(getDeck.execute(mine.getId(), USER_ID)).thenReturn(mine);
+		when(getDeck.execute(notMine.getId(), USER_ID)).thenReturn(notMine);
+
+		mockMvc.perform(get("/api/decks/" + mine.getId()).with(authentication(USER)))
+				.andExpect(jsonPath("$.ownedByMe").value(true));
+		mockMvc.perform(get("/api/decks/" + notMine.getId()).with(authentication(USER)))
+				.andExpect(jsonPath("$.ownedByMe").value(false));
+	}
+
+	@Test
 	void translatesMissingDeckTo404() throws Exception {
 		UUID id = UUID.randomUUID();
 		when(getDeck.execute(id, USER_ID)).thenThrow(new DeckNotFoundException(id));
@@ -182,5 +208,66 @@ class DeckControllerTest {
 				.content("{\"name\":\"English\",\"visibility\":\"PUBLIC\"}")).andExpect(status().isUnauthorized());
 
 		verifyNoInteractions(createDeck, getDeck, listMyDecks);
+	}
+
+	@Test
+	void updatesTheDeckOnBehalfOfTheLoggedUser() throws Exception {
+		UUID id = UUID.randomUUID();
+		when(updateDeck.execute(any())).thenReturn(Deck.create(USER_ID, "Human anatomy", null, Visibility.PUBLIC));
+
+		mockMvc.perform(put("/api/decks/" + id).with(authentication(USER)).with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"name\":\"Human anatomy\",\"visibility\":\"PUBLIC\"}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Human anatomy"))
+				.andExpect(jsonPath("$.ownedByMe").value(true));
+
+		ArgumentCaptor<UpdateDeckCommand> command = ArgumentCaptor.forClass(UpdateDeckCommand.class);
+		verify(updateDeck).execute(command.capture());
+		assertThat(command.getValue().requesterId()).isEqualTo(USER_ID);
+		assertThat(command.getValue().deckId()).isEqualTo(id);
+	}
+
+	@Test
+	void rejectsAnInvalidUpdateWithoutCallingTheUseCase() throws Exception {
+		mockMvc.perform(put("/api/decks/" + UUID.randomUUID()).with(authentication(USER)).with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"name\":\" \",\"visibility\":\"PUBLIC\"}"))
+				.andExpect(status().isBadRequest());
+
+		verifyNoInteractions(updateDeck);
+	}
+
+	@Test
+	void translatesANonOwnerTo403AndAMissingDeckTo404WhenChanging() throws Exception {
+		UUID id = UUID.randomUUID();
+		when(updateDeck.execute(any())).thenThrow(new NotDeckOwnerException(id));
+		doThrow(new DeckNotFoundException(id)).when(deleteDeck).execute(id, USER_ID);
+
+		mockMvc.perform(put("/api/decks/" + id).with(authentication(USER)).with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"name\":\"x\",\"visibility\":\"PUBLIC\"}"))
+				.andExpect(status().isForbidden());
+		mockMvc.perform(delete("/api/decks/" + id).with(authentication(USER)).with(csrf()))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void deletesTheDeckAndAnswers204() throws Exception {
+		UUID id = UUID.randomUUID();
+
+		mockMvc.perform(delete("/api/decks/" + id).with(authentication(USER)).with(csrf()))
+				.andExpect(status().isNoContent());
+
+		verify(deleteDeck).execute(id, USER_ID);
+	}
+
+	@Test
+	void changingOrDeletingRequiresALoggedUser() throws Exception {
+		mockMvc.perform(put("/api/decks/" + UUID.randomUUID()).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+				.content("{\"name\":\"x\",\"visibility\":\"PUBLIC\"}")).andExpect(status().isUnauthorized());
+		mockMvc.perform(delete("/api/decks/" + UUID.randomUUID()).with(csrf())).andExpect(status().isUnauthorized());
+
+		verifyNoInteractions(updateDeck, deleteDeck);
 	}
 }

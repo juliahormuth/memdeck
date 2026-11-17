@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import br.com.memdeck.deck.domain.Deck;
 
-class InMemoryDeckGateway implements DeckGateway {
+public class InMemoryDeckGateway implements DeckGateway {
 
 	private final Map<UUID, Deck> store = new HashMap<>();
 
@@ -22,6 +22,11 @@ class InMemoryDeckGateway implements DeckGateway {
 	@Override
 	public Optional<Deck> findById(UUID id) {
 		return Optional.ofNullable(store.get(id));
+	}
+
+	@Override
+	public void deleteById(UUID id) {
+		store.remove(id);
 	}
 
 	@Override

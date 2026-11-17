@@ -3,8 +3,10 @@ package br.com.memdeck.deck;
 import static br.com.memdeck.AuthTestSupport.registerAndLogin;
 import static br.com.memdeck.AuthTestSupport.uniqueEmail;
 import static br.com.memdeck.AuthTestSupport.withCsrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,7 +79,9 @@ class DeckIntegrationTest {
 		mockMvc.perform(get(privateDeck).cookie(stranger.session())).andExpect(status().isNotFound());
 		mockMvc.perform(get(publicDeck).cookie(stranger.session()))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.name").value("Open"));
+				.andExpect(jsonPath("$.name").value("Open"))
+				.andExpect(jsonPath("$.ownedByMe").value(false));
+		mockMvc.perform(get(publicDeck).cookie(owner.session())).andExpect(jsonPath("$.ownedByMe").value(true));
 	}
 
 	@Test
@@ -102,5 +106,48 @@ class DeckIntegrationTest {
 	@Test
 	void listingRequiresALoggedUser() throws Exception {
 		mockMvc.perform(get("/api/decks")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void theOwnerEditsTheDeckAndOthersCannot() throws Exception {
+		Session owner = registerAndLogin(mockMvc, uniqueEmail());
+		Session stranger = registerAndLogin(mockMvc, uniqueEmail());
+		String privateDeck = createDeck(owner, "Secret", "PRIVATE");
+		String publicDeck = createDeck(owner, "Open", "PUBLIC");
+		String body = "{\"name\":\"  Renamed \",\"description\":\"New\",\"visibility\":\"PUBLIC\"}";
+
+		mockMvc.perform(withCsrf(put(privateDeck).cookie(owner.session())
+				.contentType(MediaType.APPLICATION_JSON).content(body), owner.csrf()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Renamed"))
+				.andExpect(jsonPath("$.visibility").value("PUBLIC"));
+		mockMvc.perform(get(privateDeck).cookie(stranger.session()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.description").value("New"));
+		mockMvc.perform(withCsrf(put(publicDeck).cookie(stranger.session())
+				.contentType(MediaType.APPLICATION_JSON).content(body), stranger.csrf()))
+				.andExpect(status().isForbidden());
+		mockMvc.perform(get(publicDeck).cookie(owner.session())).andExpect(jsonPath("$.name").value("Open"));
+	}
+
+	@Test
+	void theOwnerDeletesTheDeckWithItsFlashcardsAndOthersCannot() throws Exception {
+		Session owner = registerAndLogin(mockMvc, uniqueEmail());
+		Session stranger = registerAndLogin(mockMvc, uniqueEmail());
+		String deck = createDeck(owner, "Doomed", "PRIVATE");
+		String publicDeck = createDeck(owner, "Open", "PUBLIC");
+		mockMvc.perform(withCsrf(post(deck + "/flashcards").cookie(owner.session())
+				.contentType(MediaType.APPLICATION_JSON).content("{\"front\":\"x\",\"back\":\"y\"}"), owner.csrf()))
+				.andExpect(status().isCreated());
+
+		mockMvc.perform(withCsrf(delete(deck).cookie(stranger.session()), stranger.csrf()))
+				.andExpect(status().isNotFound());
+		mockMvc.perform(withCsrf(delete(publicDeck).cookie(stranger.session()), stranger.csrf()))
+				.andExpect(status().isForbidden());
+		mockMvc.perform(withCsrf(delete(deck).cookie(owner.session()), owner.csrf()))
+				.andExpect(status().isNoContent());
+
+		mockMvc.perform(get(deck).cookie(owner.session())).andExpect(status().isNotFound());
+		mockMvc.perform(get("/api/decks").cookie(owner.session())).andExpect(jsonPath("$.length()").value(1));
 	}
 }

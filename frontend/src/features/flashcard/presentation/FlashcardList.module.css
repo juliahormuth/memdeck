@@ -1,0 +1,110 @@
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.title {
+	font-size: 1.25rem;
+	font-weight: 800;
+	color: var(--color-navy);
+}
+
+.empty {
+	color: var(--color-blue-gray);
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 12px;
+	padding: 14px 16px;
+	background: var(--color-surface);
+	border: 1.5px solid var(--color-blue-pastel);
+	border-radius: var(--radius-field);
+}
+
+.side {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.label {
+	font-size: 0.6875rem;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--color-blue-gray);
+}
+
+.text {
+	display: -webkit-box;
+	overflow: hidden;
+	font-weight: 700;
+	color: var(--color-navy);
+	overflow-wrap: anywhere;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+}
+
+.iconButton {
+	width: 40px;
+	min-height: 40px;
+	padding: 0;
+	border: 0;
+	border-radius: 10px;
+}
+
+.deleteButton {
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	color: var(--color-danger);
+	cursor: pointer;
+	background: var(--color-danger-pale);
+	border: 0;
+	border-radius: 10px;
+}
+
+.deleteButton:hover {
+	background: #f6d9d7;
+}
+
+@media (min-width: 600px) {
+	.row {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 24px;
+	}
+
+	.side + .side {
+		padding-left: 24px;
+		border-left: 1.5px solid var(--color-blue-pastel);
+	}
+}

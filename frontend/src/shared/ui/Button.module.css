@@ -26,6 +26,25 @@
 	background: var(--color-blue-dark);
 }
 
+.secondary {
+	color: var(--color-navy);
+	background: var(--color-blue-pale);
+	border-color: var(--color-blue-pastel);
+}
+
+.secondary:hover:not(:disabled) {
+	background: var(--color-blue-pastel);
+}
+
+.danger {
+	color: var(--color-white);
+	background: var(--color-danger);
+}
+
+.danger:hover:not(:disabled) {
+	background: #b94541;
+}
+
 .ghost {
 	color: var(--color-blue);
 	background: transparent;

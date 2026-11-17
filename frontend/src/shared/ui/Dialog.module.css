@@ -1,0 +1,49 @@
+.dialog {
+	width: min(92vw, 420px);
+	padding: 32px 28px 28px;
+	color: var(--color-ink);
+	text-align: center;
+	background: var(--color-white);
+	border: 0;
+	border-radius: var(--radius-card);
+	box-shadow: 0 16px 48px rgb(5 49 93 / 30%);
+}
+
+.dialog::backdrop {
+	background: rgb(5 49 93 / 55%);
+}
+
+.icon {
+	display: grid;
+	place-items: center;
+	width: 56px;
+	height: 56px;
+	margin: 0 auto 16px;
+	color: var(--color-blue);
+	background: var(--color-blue-pale);
+	border-radius: 50%;
+}
+
+.iconDanger {
+	color: var(--color-danger);
+	background: var(--color-danger-pale);
+}
+
+.title {
+	font-size: 1.375rem;
+	font-weight: 800;
+	line-height: 1.25;
+	color: var(--color-navy);
+}
+
+.description {
+	margin-top: 8px;
+	color: var(--color-blue-dark);
+}
+
+.actions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 24px;
+}

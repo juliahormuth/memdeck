@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.deck.domain.InvalidDeckException;
+import br.com.memdeck.deck.domain.NotDeckOwnerException;
 
 @RestControllerAdvice(assignableTypes = DeckController.class)
 class DeckExceptionHandler {
@@ -14,6 +15,11 @@ class DeckExceptionHandler {
 	@ExceptionHandler(DeckNotFoundException.class)
 	ProblemDetail handleNotFound(DeckNotFoundException exception) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+	}
+
+	@ExceptionHandler(NotDeckOwnerException.class)
+	ProblemDetail handleNotOwner(NotDeckOwnerException exception) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
 	}
 
 	@ExceptionHandler(InvalidDeckException.class)

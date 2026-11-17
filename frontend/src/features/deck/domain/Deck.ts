@@ -6,4 +6,5 @@ export interface Deck {
 	description: string | null;
 	visibility: Visibility;
 	createdAt: string;
+	ownedByMe: boolean;
 }

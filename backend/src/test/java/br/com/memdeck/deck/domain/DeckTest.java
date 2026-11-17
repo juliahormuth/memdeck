@@ -100,4 +100,29 @@ class DeckTest {
 		assertThat(deck.canBeViewedBy(OWNER)).isTrue();
 		assertThat(deck.canBeViewedBy(UUID.randomUUID())).isTrue();
 	}
+
+	@Test
+	void changesNameDescriptionAndVisibilityKeepingIdentityOwnerAndDate() {
+		Deck deck = Deck.create(OWNER, "Anatomy", "Bones", Visibility.PRIVATE);
+
+		Deck changed = deck.withChanges("  Human anatomy ", null, Visibility.PUBLIC);
+
+		assertThat(changed.getId()).isEqualTo(deck.getId());
+		assertThat(changed.getOwnerId()).isEqualTo(OWNER);
+		assertThat(changed.getCreatedAt()).isEqualTo(deck.getCreatedAt());
+		assertThat(changed.getName()).isEqualTo("Human anatomy");
+		assertThat(changed.getDescription()).isNull();
+		assertThat(changed.getVisibility()).isEqualTo(Visibility.PUBLIC);
+	}
+
+	@Test
+	void changesAreValidatedLikeCreation() {
+		Deck deck = Deck.create(OWNER, "Anatomy", null, Visibility.PRIVATE);
+
+		assertThatThrownBy(() -> deck.withChanges(" ", null, Visibility.PUBLIC))
+				.isInstanceOf(InvalidDeckException.class);
+		assertThatThrownBy(() -> deck.withChanges("Anatomy", "a".repeat(Deck.DESCRIPTION_MAX_LENGTH + 1), Visibility.PUBLIC))
+				.isInstanceOf(InvalidDeckException.class);
+		assertThatThrownBy(() -> deck.withChanges("Anatomy", null, null)).isInstanceOf(InvalidDeckException.class);
+	}
 }

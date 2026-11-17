@@ -3,7 +3,7 @@ import type { LinkProps } from 'react-router';
 import styles from './Button.module.css';
 
 interface ButtonLinkProps extends LinkProps {
-	variant?: 'primary' | 'ghost';
+	variant?: 'primary' | 'secondary' | 'ghost';
 }
 
 export function ButtonLink({ variant = 'primary', className, ...rest }: ButtonLinkProps) {

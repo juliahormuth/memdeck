@@ -1,14 +1,23 @@
-import { useParams } from 'react-router';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { Alert } from '../../../shared/ui/Alert';
+import { Button } from '../../../shared/ui/Button';
 import { ButtonLink } from '../../../shared/ui/ButtonLink';
+import { ConfirmDialog } from '../../../shared/ui/ConfirmDialog';
+import { PencilIcon, TrashIcon } from '../../../shared/ui/icons';
+import { FlashcardList } from '../../flashcard/presentation/FlashcardList';
 import { DeckNotFoundError } from '../domain/errors';
-import { visibilityLabels } from './deckMessages';
-import { useDeck } from './deckQueries';
+import { messageForDeleteDeckError } from './deckMessages';
+import { useDeck, useDeleteDeck } from './deckQueries';
 import styles from './DeckPage.module.css';
+import { VisibilityBadge } from './VisibilityBadge';
 
 export function DeckPage() {
 	const { id = '' } = useParams();
+	const navigate = useNavigate();
 	const { data: deck, isPending, error } = useDeck(id);
+	const deleteDeck = useDeleteDeck();
+	const [confirmingDelete, setConfirmingDelete] = useState(false);
 
 	if (isPending) {
 		return <p role="status">Carregando...</p>;
@@ -29,9 +38,23 @@ export function DeckPage() {
 	return (
 		<article className={styles.page}>
 			<header>
-				<h1 className={styles.title}>{deck.name}</h1>
+				<div className={styles.titleRow}>
+					<h1 className={styles.title}>{deck.name}</h1>
+					{deck.ownedByMe && (
+						<div className={styles.actions}>
+							<ButtonLink to={`/decks/${deck.id}/edit`} variant="secondary">
+								<PencilIcon size={18} />
+								Editar
+							</ButtonLink>
+							<Button type="button" variant="ghost" onClick={() => setConfirmingDelete(true)}>
+								<TrashIcon size={18} />
+								Excluir
+							</Button>
+						</div>
+					)}
+				</div>
 				<div className={styles.meta}>
-					<span className={styles.badge}>{visibilityLabels[deck.visibility]}</span>
+					<VisibilityBadge visibility={deck.visibility} />
 					<span>Criado em {new Date(deck.createdAt).toLocaleDateString('pt-BR', { dateStyle: 'long' })}</span>
 				</div>
 			</header>
@@ -40,6 +63,22 @@ export function DeckPage() {
 			) : (
 				<p className={styles.empty}>Este baralho não tem descrição.</p>
 			)}
+			<FlashcardList deckId={deck.id} canEdit={deck.ownedByMe} />
+			<ConfirmDialog
+				open={confirmingDelete}
+				title="Excluir este baralho?"
+				description={`"${deck.name}" e todos os flashcards dele serão apagados. Essa ação não pode ser desfeita.`}
+				confirmLabel="Excluir baralho"
+				pending={deleteDeck.isPending}
+				error={deleteDeck.isError ? messageForDeleteDeckError(deleteDeck.error) : undefined}
+				onConfirm={() => deleteDeck.mutate(deck.id, { onSuccess: () => navigate('/', { replace: true }) })}
+				onCancel={() => {
+					if (!deleteDeck.isPending) {
+						deleteDeck.reset();
+						setConfirmingDelete(false);
+					}
+				}}
+			/>
 		</article>
 	);
 }

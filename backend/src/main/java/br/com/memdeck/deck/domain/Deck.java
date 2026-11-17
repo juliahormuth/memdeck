@@ -28,6 +28,16 @@ public class Deck {
 		if (ownerId == null) {
 			throw new InvalidDeckException("Deck owner is required");
 		}
+		return new Deck(UUID.randomUUID(), ownerId, validName(name), validDescription(description),
+				validVisibility(visibility), Instant.now());
+	}
+
+	public Deck withChanges(String name, String description, Visibility visibility) {
+		return new Deck(id, ownerId, validName(name), validDescription(description), validVisibility(visibility),
+				createdAt);
+	}
+
+	private static String validName(String name) {
 		if (name == null || name.isBlank()) {
 			throw new InvalidDeckException("Deck name must not be blank");
 		}
@@ -35,14 +45,22 @@ public class Deck {
 		if (trimmedName.length() > NAME_MAX_LENGTH) {
 			throw new InvalidDeckException("Deck name must have at most " + NAME_MAX_LENGTH + " characters");
 		}
+		return trimmedName;
+	}
+
+	private static String validDescription(String description) {
 		if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
 			throw new InvalidDeckException(
 					"Deck description must have at most " + DESCRIPTION_MAX_LENGTH + " characters");
 		}
+		return description;
+	}
+
+	private static Visibility validVisibility(Visibility visibility) {
 		if (visibility == null) {
 			throw new InvalidDeckException("Deck visibility is required");
 		}
-		return new Deck(UUID.randomUUID(), ownerId, trimmedName, description, visibility, Instant.now());
+		return visibility;
 	}
 
 	public static Deck restore(UUID id, UUID ownerId, String name, String description, Visibility visibility,

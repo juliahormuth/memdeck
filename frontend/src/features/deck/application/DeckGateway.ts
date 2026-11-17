@@ -8,5 +8,8 @@ export interface NewDeck {
 
 export interface DeckGateway {
 	create(deck: NewDeck): Promise<Deck>;
+	update(id: string, deck: NewDeck): Promise<Deck>;
+	delete(id: string): Promise<void>;
 	findById(id: string): Promise<Deck>;
+	listMine(): Promise<Deck[]>;
 }

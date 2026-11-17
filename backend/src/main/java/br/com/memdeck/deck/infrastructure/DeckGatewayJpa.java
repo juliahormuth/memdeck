@@ -29,6 +29,11 @@ class DeckGatewayJpa implements DeckGateway {
 	}
 
 	@Override
+	public void deleteById(UUID id) {
+		repository.deleteById(id);
+	}
+
+	@Override
 	public List<Deck> findByOwnerNewestFirst(UUID ownerId) {
 		return repository.findByOwnerIdOrderByCreatedAtDesc(ownerId).stream().map(DeckMapper::toDomain).toList();
 	}

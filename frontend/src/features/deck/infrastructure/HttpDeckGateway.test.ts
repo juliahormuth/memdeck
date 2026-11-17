@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { server } from '../../../test/server';
-import { DeckNotFoundError, InvalidDeckError } from '../domain/errors';
+import { DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
 import { HttpDeckGateway } from './HttpDeckGateway';
 
 const dto = {
@@ -10,6 +10,7 @@ const dto = {
 	description: 'Ossos',
 	visibility: 'PRIVATE',
 	createdAt: '2026-01-01T12:00:00Z',
+	ownedByMe: true,
 };
 
 const gateway = new HttpDeckGateway();
@@ -52,6 +53,29 @@ describe('HttpDeckGateway', () => {
 		await expect(gateway.create({ name: 'A', visibility: 'PRIVATE' })).rejects.toMatchObject({ status: 500 });
 	});
 
+	it('lists my decks with GET /api/decks and maps each one', async () => {
+		server.use(
+			http.get('*/api/decks', () => HttpResponse.json([dto, { ...dto, id: 'd2', name: 'English', description: null }])),
+		);
+
+		const decks = await gateway.listMine();
+
+		expect(decks).toHaveLength(2);
+		expect(decks[1]).toMatchObject({ id: 'd2', name: 'English', description: null });
+	});
+
+	it('returns an empty list when the user has no decks', async () => {
+		server.use(http.get('*/api/decks', () => HttpResponse.json([])));
+
+		await expect(gateway.listMine()).resolves.toEqual([]);
+	});
+
+	it('does not hide errors when listing', async () => {
+		server.use(http.get('*/api/decks', () => HttpResponse.json({}, { status: 500 })));
+
+		await expect(gateway.listMine()).rejects.toMatchObject({ status: 500 });
+	});
+
 	it('finds a deck by id', async () => {
 		server.use(http.get('*/api/decks/d1', () => HttpResponse.json(dto)));
 
@@ -68,5 +92,45 @@ describe('HttpDeckGateway', () => {
 		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({}, { status: 500 })));
 
 		await expect(gateway.findById('d1')).rejects.toMatchObject({ status: 500 });
+	});
+
+	it('updates a deck with PUT /api/decks/{id}', async () => {
+		let body: unknown;
+		server.use(
+			http.put('*/api/decks/d1', async ({ request }) => {
+				body = await request.json();
+				return HttpResponse.json({ ...dto, name: 'Novo nome' });
+			}),
+		);
+
+		const deck = await gateway.update('d1', { name: 'Novo nome', visibility: 'PRIVATE' });
+
+		expect(body).toEqual({ name: 'Novo nome', visibility: 'PRIVATE' });
+		expect(deck.name).toBe('Novo nome');
+	});
+
+	it.each([
+		[400, InvalidDeckError],
+		[403, NotDeckOwnerError],
+		[404, DeckNotFoundError],
+	])('translates a %i answer when updating', async (status, errorType) => {
+		server.use(http.put('*/api/decks/d1', () => HttpResponse.json({ detail: 'x' }, { status })));
+
+		await expect(gateway.update('d1', { name: 'a', visibility: 'PRIVATE' })).rejects.toBeInstanceOf(errorType);
+	});
+
+	it('deletes a deck with DELETE /api/decks/{id}', async () => {
+		server.use(http.delete('*/api/decks/d1', () => new HttpResponse(null, { status: 204 })));
+
+		await expect(gateway.delete('d1')).resolves.toBeUndefined();
+	});
+
+	it.each([
+		[403, NotDeckOwnerError],
+		[404, DeckNotFoundError],
+	])('translates a %i answer when deleting', async (status, errorType) => {
+		server.use(http.delete('*/api/decks/d1', () => HttpResponse.json({ detail: 'x' }, { status })));
+
+		await expect(gateway.delete('d1')).rejects.toBeInstanceOf(errorType);
 	});
 });

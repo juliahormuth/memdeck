@@ -10,6 +10,13 @@ export class InvalidDeckError extends Error {
 	}
 }
 
+export class NotDeckOwnerError extends Error {
+	constructor() {
+		super('Only the deck owner can change it');
+		this.name = 'NotDeckOwnerError';
+	}
+}
+
 export class DeckNotFoundError extends Error {
 	constructor() {
 		super('Deck not found');

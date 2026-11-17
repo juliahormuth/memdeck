@@ -11,14 +11,16 @@ public record DeckResponse(
 		String name,
 		String description,
 		Visibility visibility,
-		Instant createdAt) {
+		Instant createdAt,
+		boolean ownedByMe) {
 
-	static DeckResponse from(Deck deck) {
+	static DeckResponse from(Deck deck, UUID requesterId) {
 		return new DeckResponse(
 				deck.getId(),
 				deck.getName(),
 				deck.getDescription(),
 				deck.getVisibility(),
-				deck.getCreatedAt());
+				deck.getCreatedAt(),
+				deck.isOwnedBy(requesterId));
 	}
 }

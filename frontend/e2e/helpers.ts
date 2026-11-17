@@ -26,3 +26,20 @@ export async function loginThroughTheUi(page: Page, email: string, password: str
 	await page.getByLabel('Senha').fill(password);
 	await page.getByRole('button', { name: 'Entrar' }).click();
 }
+
+export async function createDeckThroughTheUi(
+	page: Page,
+	name: string,
+	options: { description?: string; visibility?: 'Público' | 'Privado' } = {},
+): Promise<void> {
+	await page.goto('/decks/new');
+	await page.getByLabel('Nome').fill(name);
+	if (options.description) {
+		await page.getByLabel('Descrição (opcional)').fill(options.description);
+	}
+	if (options.visibility === 'Público') {
+		await page.getByLabel(/Público/).check();
+	}
+	await page.getByRole('button', { name: 'Criar baralho' }).click();
+	await expect(page.getByRole('heading', { name })).toBeVisible();
+}

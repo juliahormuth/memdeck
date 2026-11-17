@@ -3,7 +3,22 @@ import { ApiError } from './ApiError';
 const CSRF_COOKIE = 'XSRF-TOKEN';
 const CSRF_HEADER = 'X-XSRF-TOKEN';
 
-type Method = 'GET' | 'POST';
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
+type UnauthorizedHandler = (path: string) => void;
+
+// a 401 on these routes is a credential problem, not an expired session
+const CREDENTIAL_PATHS = new Set(['/api/auth/login', '/api/auth/register', '/api/auth/logout']);
+
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export function onUnauthorized(handler: UnauthorizedHandler): () => void {
+	unauthorizedHandler = handler;
+	return () => {
+		if (unauthorizedHandler === handler) {
+			unauthorizedHandler = null;
+		}
+	};
+}
 
 function readCookie(name: string): string | null {
 	const entry = document.cookie.split('; ').find((cookie) => cookie.startsWith(`${name}=`));
@@ -54,6 +69,9 @@ async function toApiError(response: Response): Promise<ApiError> {
 async function execute<T>(method: Method, path: string, body?: unknown): Promise<T> {
 	const response = await send(method, path, body);
 	if (!response.ok) {
+		if (response.status === 401 && !CREDENTIAL_PATHS.has(path)) {
+			unauthorizedHandler?.(path);
+		}
 		throw await toApiError(response);
 	}
 	if (response.status === 204) {
@@ -65,4 +83,6 @@ async function execute<T>(method: Method, path: string, body?: unknown): Promise
 export const httpClient = {
 	get: <T>(path: string) => execute<T>('GET', path),
 	post: <T>(path: string, body?: unknown) => execute<T>('POST', path, body),
+	put: <T>(path: string, body?: unknown) => execute<T>('PUT', path, body),
+	delete: (path: string) => execute<void>('DELETE', path),
 };

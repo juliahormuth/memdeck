@@ -14,6 +14,13 @@
 	color: var(--color-blue-dark);
 }
 
+.blocked {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 16px;
+}
+
 .form {
 	display: flex;
 	flex-direction: column;

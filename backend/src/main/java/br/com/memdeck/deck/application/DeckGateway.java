@@ -12,5 +12,7 @@ public interface DeckGateway {
 
 	Optional<Deck> findById(UUID id);
 
+	void deleteById(UUID id);
+
 	List<Deck> findByOwnerNewestFirst(UUID ownerId);
 }

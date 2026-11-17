@@ -14,9 +14,26 @@ export class FakeDeckGateway implements DeckGateway {
 			description: deck.description ?? null,
 			visibility: deck.visibility,
 			createdAt: '2026-01-01T12:00:00Z',
+			ownedByMe: true,
 		};
 		this.decks.set(saved.id, saved);
 		return saved;
+	}
+
+	async update(id: string, deck: NewDeck): Promise<Deck> {
+		const current = await this.findById(id);
+		const updated: Deck = { ...current, name: deck.name, description: deck.description ?? null, visibility: deck.visibility };
+		this.decks.set(id, updated);
+		return updated;
+	}
+
+	async delete(id: string): Promise<void> {
+		await this.findById(id);
+		this.decks.delete(id);
+	}
+
+	async listMine(): Promise<Deck[]> {
+		return [...this.decks.values()].reverse();
 	}
 
 	async findById(id: string): Promise<Deck> {

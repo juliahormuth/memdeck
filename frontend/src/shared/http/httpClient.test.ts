@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { server } from '../../test/server';
 import { ApiError } from './ApiError';
-import { httpClient } from './httpClient';
+import { httpClient, onUnauthorized } from './httpClient';
 
 describe('httpClient', () => {
 	it('sends the CSRF cookie value in the X-XSRF-TOKEN header on POST', async () => {
@@ -84,5 +84,61 @@ describe('httpClient', () => {
 		server.use(http.get('*/api/thing', () => new HttpResponse('boom', { status: 500, statusText: 'Server Error' })));
 
 		await expect(httpClient.get('/api/thing')).rejects.toMatchObject({ status: 500, message: 'Server Error' });
+	});
+
+	describe('when the API answers 401', () => {
+		it('tells the registered handler which route was refused', async () => {
+			const refused: string[] = [];
+			const stop = onUnauthorized((path) => refused.push(path));
+			server.use(http.get('*/api/decks', () => HttpResponse.json({}, { status: 401 })));
+
+			await expect(httpClient.get('/api/decks')).rejects.toMatchObject({ status: 401 });
+
+			expect(refused).toEqual(['/api/decks']);
+			stop();
+		});
+
+		it.each(['/api/auth/login', '/api/auth/register', '/api/auth/logout'])(
+			'does not treat a 401 on %s as an expired session',
+			async (path) => {
+				document.cookie = 'XSRF-TOKEN=abc; path=/';
+				let called = false;
+				const stop = onUnauthorized(() => {
+					called = true;
+				});
+				server.use(http.post(`*${path}`, () => HttpResponse.json({}, { status: 401 })));
+
+				await expect(httpClient.post(path, {})).rejects.toMatchObject({ status: 401 });
+
+				expect(called).toBe(false);
+				stop();
+			},
+		);
+
+		it('does not call the handler for other errors', async () => {
+			let called = false;
+			const stop = onUnauthorized(() => {
+				called = true;
+			});
+			server.use(http.get('*/api/decks', () => HttpResponse.json({}, { status: 500 })));
+
+			await expect(httpClient.get('/api/decks')).rejects.toMatchObject({ status: 500 });
+
+			expect(called).toBe(false);
+			stop();
+		});
+
+		it('stops calling the handler after it is unregistered', async () => {
+			let calls = 0;
+			const stop = onUnauthorized(() => {
+				calls += 1;
+			});
+			stop();
+			server.use(http.get('*/api/decks', () => HttpResponse.json({}, { status: 401 })));
+
+			await expect(httpClient.get('/api/decks')).rejects.toMatchObject({ status: 401 });
+
+			expect(calls).toBe(0);
+		});
 	});
 });
