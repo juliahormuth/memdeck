@@ -10,6 +10,7 @@ import { DeckPage } from '../features/deck/presentation/DeckPage';
 import { HomePage } from '../features/deck/presentation/HomePage';
 import { NewDeckPage } from '../features/deck/presentation/NewDeckPage';
 import { FlashcardEditorPage } from '../features/flashcard/presentation/FlashcardEditorPage';
+import { StudyPage } from '../features/review/presentation/StudyPage';
 import { MainLayout } from './layouts/MainLayout';
 import { PublicLayout } from './layouts/PublicLayout';
 
@@ -39,6 +40,7 @@ export const routes: RouteObject[] = [
 							{ path: '/decks/new', element: <NewDeckPage /> },
 							{ path: '/decks/:id', element: <DeckPage /> },
 							{ path: '/decks/:id/edit', element: <EditDeckPage /> },
+							{ path: '/decks/:deckId/study', element: <StudyPage /> },
 							{ path: '/decks/:deckId/flashcards/new', element: <FlashcardEditorPage /> },
 							{ path: '/decks/:deckId/flashcards/:flashcardId/edit', element: <FlashcardEditorPage /> },
 						],

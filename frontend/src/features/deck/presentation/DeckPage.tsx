@@ -4,7 +4,7 @@ import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { ButtonLink } from '../../../shared/ui/ButtonLink';
 import { ConfirmDialog } from '../../../shared/ui/ConfirmDialog';
-import { PencilIcon, TrashIcon } from '../../../shared/ui/icons';
+import { PencilIcon, PlayIcon, TrashIcon } from '../../../shared/ui/icons';
 import { FlashcardList } from '../../flashcard/presentation/FlashcardList';
 import { DeckNotFoundError } from '../domain/errors';
 import { messageForDeleteDeckError } from './deckMessages';
@@ -40,18 +40,24 @@ export function DeckPage() {
 			<header>
 				<div className={styles.titleRow}>
 					<h1 className={styles.title}>{deck.name}</h1>
-					{deck.ownedByMe && (
-						<div className={styles.actions}>
-							<ButtonLink to={`/decks/${deck.id}/edit`} variant="secondary">
-								<PencilIcon size={18} />
-								Editar
-							</ButtonLink>
-							<Button type="button" variant="ghost" onClick={() => setConfirmingDelete(true)}>
-								<TrashIcon size={18} />
-								Excluir
-							</Button>
-						</div>
-					)}
+					<div className={styles.actions}>
+						<ButtonLink to={`/decks/${deck.id}/study`}>
+							<PlayIcon size={18} />
+							Estudar
+						</ButtonLink>
+						{deck.ownedByMe && (
+							<>
+								<ButtonLink to={`/decks/${deck.id}/edit`} variant="secondary">
+									<PencilIcon size={18} />
+									Editar
+								</ButtonLink>
+								<Button type="button" variant="ghost" onClick={() => setConfirmingDelete(true)}>
+									<TrashIcon size={18} />
+									Excluir
+								</Button>
+							</>
+						)}
+					</div>
 				</div>
 				<div className={styles.meta}>
 					<VisibilityBadge visibility={deck.visibility} />

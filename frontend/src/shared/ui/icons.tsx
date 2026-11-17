@@ -135,3 +135,11 @@ export function TrashIcon(props: IconProps) {
 		</Icon>
 	);
 }
+
+export function PlayIcon(props: IconProps) {
+	return (
+		<Icon {...props}>
+			<polygon points="6 4 20 12 6 20 6 4" />
+		</Icon>
+	);
+}

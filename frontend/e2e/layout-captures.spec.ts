@@ -41,6 +41,15 @@ test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 		await page.getByRole('alertdialog').getByRole('button', { name: 'Cancelar' }).click();
 		await expect(page.getByRole('alertdialog')).toBeHidden();
 
+		await page.getByRole('link', { name: 'Estudar' }).click();
+		await expect(page.getByRole('button', { name: 'Mostrar resposta' })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-estudar.png`, fullPage: true });
+		await page.getByRole('button', { name: 'Mostrar resposta' }).click();
+		await expect(page.getByRole('button', { name: /Bom/ })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-estudar-resposta.png`, fullPage: true });
+		await page.goBack();
+		await expect(page.getByRole('heading', { name: 'Anatomia humana' })).toBeVisible();
+
 		await createDeckThroughTheUi(page, 'Inglês básico', { description: 'Vocabulário do dia a dia.' });
 		await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Início' }).click();
 		await expect(page.getByRole('list', { name: 'Seus baralhos' })).toBeVisible();

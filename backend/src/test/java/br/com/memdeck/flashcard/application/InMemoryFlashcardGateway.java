@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import br.com.memdeck.flashcard.domain.Flashcard;
 
-class InMemoryFlashcardGateway implements FlashcardGateway {
+public class InMemoryFlashcardGateway implements FlashcardGateway {
 
 	private final List<Flashcard> store = new ArrayList<>();
 
