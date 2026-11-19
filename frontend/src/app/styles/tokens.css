@@ -12,6 +12,15 @@
 	--color-danger: #d9534f;
 	--color-danger-pale: #fbeceb;
 
+	--avatar-cat: #c8651b;
+	--avatar-dog: #8a5a3c;
+	--avatar-rabbit: #c2417f;
+	--avatar-bird: #2a7fba;
+	--avatar-fish: #0e8a8a;
+	--avatar-turtle: #3e8e41;
+	--avatar-squirrel: #a8520f;
+	--avatar-panda: #3b4a54;
+
 	--radius-field: 12px;
 	--radius-button: 14px;
 	--radius-card: 16px;

@@ -1,4 +1,4 @@
-export const AVATARS = ['BOOK', 'LAYERS', 'STAR', 'GLOBE', 'CLOCK', 'PENCIL', 'PLAY', 'USERS'] as const;
+export const AVATARS = ['CAT', 'DOG', 'RABBIT', 'BIRD', 'FISH', 'TURTLE', 'SQUIRREL', 'PANDA'] as const;
 
 export type AvatarKey = (typeof AVATARS)[number];
 

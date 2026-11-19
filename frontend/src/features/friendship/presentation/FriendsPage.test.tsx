@@ -5,9 +5,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/renderApp';
 import { server } from '../../../test/server';
 
-const incoming = { id: 'r1', direction: 'INCOMING', userId: 'u2', name: 'Bruno', avatar: 'STAR', createdAt: '2026-01-02T12:00:00Z' };
-const outgoing = { id: 'r2', direction: 'OUTGOING', userId: 'u3', name: 'Carla', avatar: 'BOOK', createdAt: '2026-01-03T12:00:00Z' };
-const friend = { userId: 'u4', name: 'Diego', avatar: 'GLOBE', since: '2026-01-01T12:00:00Z' };
+const incoming = { id: 'r1', direction: 'INCOMING', userId: 'u2', name: 'Bruno', avatar: 'DOG', createdAt: '2026-01-02T12:00:00Z' };
+const outgoing = { id: 'r2', direction: 'OUTGOING', userId: 'u3', name: 'Carla', avatar: 'CAT', createdAt: '2026-01-03T12:00:00Z' };
+const friend = { userId: 'u4', name: 'Diego', avatar: 'RABBIT', since: '2026-01-01T12:00:00Z' };
 
 describe('FriendsPage', () => {
 	beforeEach(() => {
@@ -83,7 +83,7 @@ describe('FriendsPage', () => {
 		server.use(
 			http.get('*/api/users/me/friend-requests', () => HttpResponse.json(accepted ? [] : [incoming])),
 			http.get('*/api/users/me/friends', () =>
-				HttpResponse.json(accepted ? [{ userId: 'u2', name: 'Bruno', avatar: 'STAR', since: '2026-01-04T12:00:00Z' }] : []),
+				HttpResponse.json(accepted ? [{ userId: 'u2', name: 'Bruno', avatar: 'DOG', since: '2026-01-04T12:00:00Z' }] : []),
 			),
 			http.post('*/api/users/me/friend-requests/r1/accept', () => {
 				accepted = true;

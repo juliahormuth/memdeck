@@ -8,14 +8,14 @@ export const nameMessages: Record<string, string> = {
 };
 
 export const avatarLabels: Record<AvatarKey, string> = {
-	BOOK: 'Livro',
-	LAYERS: 'Camadas',
-	STAR: 'Estrela',
-	GLOBE: 'Globo',
-	CLOCK: 'Relógio',
-	PENCIL: 'Lápis',
-	PLAY: 'Play',
-	USERS: 'Pessoas',
+	CAT: 'Gato',
+	DOG: 'Cachorro',
+	RABBIT: 'Coelho',
+	BIRD: 'Passarinho',
+	FISH: 'Peixe',
+	TURTLE: 'Tartaruga',
+	SQUIRREL: 'Esquilo',
+	PANDA: 'Panda',
 };
 
 export function messageForProfileError(error: unknown): string {

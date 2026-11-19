@@ -1,0 +1,17 @@
+ALTER TABLE users DROP CONSTRAINT ck_users_avatar;
+
+UPDATE users SET avatar = CASE avatar
+    WHEN 'LAYERS' THEN 'DOG'
+    WHEN 'STAR'   THEN 'RABBIT'
+    WHEN 'GLOBE'  THEN 'BIRD'
+    WHEN 'CLOCK'  THEN 'FISH'
+    WHEN 'PENCIL' THEN 'TURTLE'
+    WHEN 'PLAY'   THEN 'SQUIRREL'
+    WHEN 'USERS'  THEN 'PANDA'
+    ELSE 'CAT'
+END;
+
+ALTER TABLE users ALTER COLUMN avatar SET DEFAULT 'CAT';
+
+ALTER TABLE users ADD CONSTRAINT ck_users_avatar
+    CHECK (avatar IN ('CAT', 'DOG', 'RABBIT', 'BIRD', 'FISH', 'TURTLE', 'SQUIRREL', 'PANDA'));

@@ -54,7 +54,7 @@ export function MainLayout() {
 				</nav>
 				<div className={styles.user}>
 					<Link to="/profile" className={styles.profile} aria-label="Meu perfil">
-						<Avatar avatar={profile?.avatar ?? 'BOOK'} />
+						<Avatar avatar={profile?.avatar ?? 'CAT'} />
 						<span className={styles.email} title={user?.email}>
 							{user?.email}
 						</span>

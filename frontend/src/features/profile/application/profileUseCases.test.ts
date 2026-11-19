@@ -8,7 +8,7 @@ const profile: Profile = {
 	id: 'u1',
 	name: 'Julia',
 	email: 'julia@example.com',
-	avatar: 'BOOK',
+	avatar: 'CAT',
 	reviewedDays: 3,
 	streakDays: 2,
 	friends: 1,
@@ -22,10 +22,10 @@ describe('profile use cases', () => {
 	it('trims the name when updating and sends the avatar', async () => {
 		const gateway = new FakeProfileGateway(profile);
 
-		const updated = await updateProfile(gateway, { name: '  Julia Hormuth ', avatar: 'STAR' });
+		const updated = await updateProfile(gateway, { name: '  Julia Hormuth ', avatar: 'DOG' });
 
-		expect(gateway.updates).toEqual([{ name: 'Julia Hormuth', avatar: 'STAR' }]);
-		expect(updated).toMatchObject({ name: 'Julia Hormuth', avatar: 'STAR' });
+		expect(gateway.updates).toEqual([{ name: 'Julia Hormuth', avatar: 'DOG' }]);
+		expect(updated).toMatchObject({ name: 'Julia Hormuth', avatar: 'DOG' });
 	});
 
 	it('validates the name', () => {

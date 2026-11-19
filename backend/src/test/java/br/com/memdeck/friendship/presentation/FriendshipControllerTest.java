@@ -73,20 +73,20 @@ class FriendshipControllerTest {
 	@Test
 	void listsMyFriendsWithoutEmails() throws Exception {
 		when(listFriends.execute(USER_ID)).thenReturn(
-				List.of(new FriendView(OTHER_ID, "Bruno", Avatar.STAR, Instant.parse("2026-01-01T10:00:00Z"))));
+				List.of(new FriendView(OTHER_ID, "Bruno", Avatar.DOG, Instant.parse("2026-01-01T10:00:00Z"))));
 
 		mockMvc.perform(get("/api/users/me/friends").with(authentication(USER)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].userId").value(OTHER_ID.toString()))
 				.andExpect(jsonPath("$[0].name").value("Bruno"))
-				.andExpect(jsonPath("$[0].avatar").value("STAR"))
+				.andExpect(jsonPath("$[0].avatar").value("DOG"))
 				.andExpect(jsonPath("$[0].email").doesNotExist());
 	}
 
 	@Test
 	void listsTheFriendRequestsWithTheirDirection() throws Exception {
 		when(listFriendRequests.execute(USER_ID)).thenReturn(List.of(new FriendRequestView(REQUEST_ID,
-				FriendRequestView.Direction.INCOMING, OTHER_ID, "Bruno", Avatar.BOOK, Instant.parse("2026-01-01T10:00:00Z"))));
+				FriendRequestView.Direction.INCOMING, OTHER_ID, "Bruno", Avatar.CAT, Instant.parse("2026-01-01T10:00:00Z"))));
 
 		mockMvc.perform(get("/api/users/me/friend-requests").with(authentication(USER)))
 				.andExpect(jsonPath("$[0].id").value(REQUEST_ID.toString()))

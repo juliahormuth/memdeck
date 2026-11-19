@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/renderApp';
 import { server } from '../../../test/server';
 
-const profile = { id: 'u1', name: 'Julia', email: 'julia@example.com', avatar: 'BOOK', reviewedDays: 12, streakDays: 3, friends: 2 };
+const profile = { id: 'u1', name: 'Julia', email: 'julia@example.com', avatar: 'CAT', reviewedDays: 12, streakDays: 3, friends: 2 };
 
 describe('ProfilePage', () => {
 	beforeEach(() => {
@@ -44,22 +44,22 @@ describe('ProfilePage', () => {
 		server.use(
 			http.put('*/api/users/me', async ({ request }) => {
 				body = await request.json();
-				return HttpResponse.json({ ...profile, name: 'Julia Hormuth', avatar: 'STAR' });
+				return HttpResponse.json({ ...profile, name: 'Julia Hormuth', avatar: 'DOG' });
 			}),
 		);
 		renderApp('/profile');
 
 		const name = await screen.findByLabelText('Nome');
-		expect(screen.getByLabelText('Livro')).toBeChecked();
+		expect(screen.getByLabelText('Gato')).toBeChecked();
 		await userEvent.clear(name);
 		await userEvent.type(name, '  Julia Hormuth ');
-		await userEvent.click(screen.getByLabelText('Estrela'));
+		await userEvent.click(screen.getByLabelText('Cachorro'));
 		await userEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
 
 		expect(await screen.findByText('Perfil salvo.')).toBeInTheDocument();
-		expect(body).toEqual({ name: 'Julia Hormuth', avatar: 'STAR' });
+		expect(body).toEqual({ name: 'Julia Hormuth', avatar: 'DOG' });
 		expect(await screen.findByRole('heading', { name: 'Julia Hormuth' })).toBeInTheDocument();
-		expect(screen.getByLabelText('Estrela')).toBeChecked();
+		expect(screen.getByLabelText('Cachorro')).toBeChecked();
 	});
 
 	it('offers every platform icon', async () => {

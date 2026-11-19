@@ -148,7 +148,7 @@ class ReviewControllerTest {
 	void showsTheRankingMarkingTheLoggedUser() throws Exception {
 		UUID other = UUID.randomUUID();
 		when(getDeckRanking.execute(DECK_ID, USER_ID)).thenReturn(List.of(
-				new RankingEntry(1, other, "Rita", Avatar.STAR, 9), new RankingEntry(2, USER_ID, "Julia", Avatar.BOOK, 4)));
+				new RankingEntry(1, other, "Rita", Avatar.DOG, 9), new RankingEntry(2, USER_ID, "Julia", Avatar.CAT, 4)));
 
 		mockMvc.perform(get("/api/decks/" + DECK_ID + "/ranking").with(authentication(USER)))
 				.andExpect(status().isOk())

@@ -13,8 +13,8 @@ describe('HttpFriendshipGateway', () => {
 	});
 
 	it('lists friends and requests', async () => {
-		const friend = { userId: 'u2', name: 'Bruno', avatar: 'STAR', since: '2026-01-01T12:00:00Z' };
-		const request = { id: 'r1', direction: 'INCOMING', userId: 'u3', name: 'Carla', avatar: 'BOOK', createdAt: '2026-01-02T12:00:00Z' };
+		const friend = { userId: 'u2', name: 'Bruno', avatar: 'DOG', since: '2026-01-01T12:00:00Z' };
+		const request = { id: 'r1', direction: 'INCOMING', userId: 'u3', name: 'Carla', avatar: 'CAT', createdAt: '2026-01-02T12:00:00Z' };
 		server.use(
 			http.get('*/api/users/me/friends', () => HttpResponse.json([friend])),
 			http.get('*/api/users/me/friend-requests', () => HttpResponse.json([request])),

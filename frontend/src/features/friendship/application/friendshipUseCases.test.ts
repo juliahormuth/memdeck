@@ -11,8 +11,8 @@ import {
 	sendFriendRequest,
 } from './friendshipUseCases';
 
-const friend: Friend = { userId: 'u2', name: 'Bruno', avatar: 'STAR', since: '2026-01-01T12:00:00Z' };
-const request: FriendRequest = { id: 'r1', direction: 'INCOMING', userId: 'u3', name: 'Carla', avatar: 'BOOK', createdAt: '2026-01-02T12:00:00Z' };
+const friend: Friend = { userId: 'u2', name: 'Bruno', avatar: 'DOG', since: '2026-01-01T12:00:00Z' };
+const request: FriendRequest = { id: 'r1', direction: 'INCOMING', userId: 'u3', name: 'Carla', avatar: 'CAT', createdAt: '2026-01-02T12:00:00Z' };
 
 describe('friendship use cases', () => {
 	it('lists friends and requests', async () => {

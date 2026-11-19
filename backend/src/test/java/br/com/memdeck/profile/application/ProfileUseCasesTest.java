@@ -38,7 +38,7 @@ class ProfileUseCasesTest {
 		ProfileView view = getProfile.execute(julia.getId());
 
 		assertThat(view.user().getName()).isEqualTo("Julia");
-		assertThat(view.user().getAvatar()).isEqualTo(Avatar.BOOK);
+		assertThat(view.user().getAvatar()).isEqualTo(Avatar.CAT);
 		assertThat(view.reviewedDays()).isZero();
 		assertThat(view.streakDays()).isZero();
 		assertThat(view.friends()).isZero();
@@ -63,19 +63,19 @@ class ProfileUseCasesTest {
 
 	@Test
 	void changesTheNameAndTheAvatarKeepingTheEmail() {
-		User updated = updateProfile.execute(new UpdateProfileCommand(julia.getId(), "  Julia Hormuth ", Avatar.STAR));
+		User updated = updateProfile.execute(new UpdateProfileCommand(julia.getId(), "  Julia Hormuth ", Avatar.DOG));
 
 		assertThat(updated.getName()).isEqualTo("Julia Hormuth");
-		assertThat(updated.getAvatar()).isEqualTo(Avatar.STAR);
+		assertThat(updated.getAvatar()).isEqualTo(Avatar.DOG);
 		assertThat(updated.getEmail()).isEqualTo("julia@example.com");
 		assertThat(getProfile.execute(julia.getId()).user().getName()).isEqualTo("Julia Hormuth");
 	}
 
 	@Test
 	void rejectsABlankOrTooLongNameAndAMissingAvatar() {
-		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(julia.getId(), "  ", Avatar.BOOK)))
+		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(julia.getId(), "  ", Avatar.CAT)))
 				.isInstanceOf(InvalidUserException.class);
-		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(julia.getId(), "a".repeat(101), Avatar.BOOK)))
+		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(julia.getId(), "a".repeat(101), Avatar.CAT)))
 				.isInstanceOf(InvalidUserException.class);
 		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(julia.getId(), "Julia", null)))
 				.isInstanceOf(InvalidUserException.class);
@@ -87,7 +87,7 @@ class ProfileUseCasesTest {
 		UUID unknown = UUID.randomUUID();
 
 		assertThatThrownBy(() -> getProfile.execute(unknown)).isInstanceOf(UserNotFoundException.class);
-		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(unknown, "x", Avatar.BOOK)))
+		assertThatThrownBy(() -> updateProfile.execute(new UpdateProfileCommand(unknown, "x", Avatar.CAT)))
 				.isInstanceOf(UserNotFoundException.class);
 	}
 }

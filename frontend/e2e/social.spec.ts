@@ -41,13 +41,13 @@ test('the user edits the name and the icon on the profile and sees the activity 
 	await expect(stats.getByText('dias revisados')).toBeVisible();
 
 	await page.getByLabel('Nome').fill('Julia Hormuth');
-	await page.getByLabel('Estrela').check({ force: true });
+	await page.getByLabel('Cachorro').check({ force: true });
 	await page.getByRole('button', { name: 'Salvar alterações' }).click();
 	await expect(page.getByText('Perfil salvo.')).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Julia Hormuth' })).toBeVisible();
 	await page.reload();
 	await expect(page.getByRole('heading', { name: 'Julia Hormuth' })).toBeVisible();
-	await expect(page.getByLabel('Estrela')).toBeChecked();
+	await expect(page.getByLabel('Cachorro')).toBeChecked();
 
 	await createDeckThroughTheUi(page, 'Atividade');
 	const deckUrl = page.url();

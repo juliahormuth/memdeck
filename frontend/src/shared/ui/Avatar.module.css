@@ -3,6 +3,5 @@
 	flex: none;
 	place-items: center;
 	color: var(--color-white);
-	background: var(--color-blue);
 	border-radius: 50%;
 }

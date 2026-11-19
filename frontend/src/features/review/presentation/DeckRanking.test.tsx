@@ -14,9 +14,9 @@ const deckDto = {
 	role: 'READER',
 };
 const ranking = [
-	{ position: 1, userId: 'u2', name: 'Rita', avatar: 'STAR', reviewedFlashcards: 9, me: false },
-	{ position: 1, userId: 'u3', name: 'Eduardo', avatar: 'BOOK', reviewedFlashcards: 9, me: false },
-	{ position: 3, userId: 'u1', name: 'Julia', avatar: 'BOOK', reviewedFlashcards: 1, me: true },
+	{ position: 1, userId: 'u2', name: 'Rita', avatar: 'DOG', reviewedFlashcards: 9, me: false },
+	{ position: 1, userId: 'u3', name: 'Eduardo', avatar: 'CAT', reviewedFlashcards: 9, me: false },
+	{ position: 3, userId: 'u1', name: 'Julia', avatar: 'CAT', reviewedFlashcards: 1, me: true },
 ];
 
 describe('DeckRanking', () => {

@@ -97,7 +97,7 @@ class SocialIntegrationTest {
 
 		profile(session).andExpect(status().isOk())
 				.andExpect(jsonPath("$.email").value(email))
-				.andExpect(jsonPath("$.avatar").value("BOOK"))
+				.andExpect(jsonPath("$.avatar").value("CAT"))
 				.andExpect(jsonPath("$.reviewedDays").value(0))
 				.andExpect(jsonPath("$.streakDays").value(0))
 				.andExpect(jsonPath("$.friends").value(0))
@@ -108,23 +108,23 @@ class SocialIntegrationTest {
 	void changesTheNameAndTheAvatarAndKeepsThemAcrossRequests() throws Exception {
 		Session session = registerAndLogin(mockMvc, uniqueEmail());
 
-		updateProfile(session, "{\"name\":\"  Julia Hormuth \",\"avatar\":\"STAR\"}").andExpect(status().isOk())
-				.andExpect(jsonPath("$.name").value("Julia Hormuth")).andExpect(jsonPath("$.avatar").value("STAR"));
+		updateProfile(session, "{\"name\":\"  Julia Hormuth \",\"avatar\":\"DOG\"}").andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Julia Hormuth")).andExpect(jsonPath("$.avatar").value("DOG"));
 
-		profile(session).andExpect(jsonPath("$.name").value("Julia Hormuth")).andExpect(jsonPath("$.avatar").value("STAR"));
+		profile(session).andExpect(jsonPath("$.name").value("Julia Hormuth")).andExpect(jsonPath("$.avatar").value("DOG"));
 		assertThat(jdbc.queryForObject("SELECT avatar FROM users WHERE id = ?::uuid", String.class, userId(session)))
-				.isEqualTo("STAR");
+				.isEqualTo("DOG");
 	}
 
 	@Test
 	void rejectsAnInvalidNameOrAvatarAndChangesNothing() throws Exception {
 		Session session = registerAndLogin(mockMvc, uniqueEmail());
 
-		updateProfile(session, "{\"name\":\" \",\"avatar\":\"STAR\"}").andExpect(status().isBadRequest());
+		updateProfile(session, "{\"name\":\" \",\"avatar\":\"DOG\"}").andExpect(status().isBadRequest());
 		updateProfile(session, "{\"name\":\"Julia\",\"avatar\":\"ROCKET\"}").andExpect(status().isBadRequest());
 		updateProfile(session, "{\"name\":\"Julia\"}").andExpect(status().isBadRequest());
 
-		profile(session).andExpect(jsonPath("$.avatar").value("BOOK"));
+		profile(session).andExpect(jsonPath("$.avatar").value("CAT"));
 	}
 
 	@Test

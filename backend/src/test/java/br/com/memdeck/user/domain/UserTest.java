@@ -46,27 +46,27 @@ class UserTest {
 
 	@Test
 	void aNewUserGetsTheDefaultAvatar() {
-		assertThat(User.register("Julia", "julia@example.com", "hash").getAvatar()).isEqualTo(Avatar.BOOK);
+		assertThat(User.register("Julia", "julia@example.com", "hash").getAvatar()).isEqualTo(Avatar.CAT);
 	}
 
 	@Test
 	void changesTheNameAndAvatarKeepingIdentityEmailAndPassword() {
 		User user = User.register("Julia", "julia@example.com", "hash");
 
-		User changed = user.withProfile("  Julia Hormuth ", Avatar.GLOBE);
+		User changed = user.withProfile("  Julia Hormuth ", Avatar.RABBIT);
 
 		assertThat(changed.getId()).isEqualTo(user.getId());
 		assertThat(changed.getEmail()).isEqualTo("julia@example.com");
 		assertThat(changed.getPasswordHash()).isEqualTo("hash");
 		assertThat(changed.getName()).isEqualTo("Julia Hormuth");
-		assertThat(changed.getAvatar()).isEqualTo(Avatar.GLOBE);
+		assertThat(changed.getAvatar()).isEqualTo(Avatar.RABBIT);
 	}
 
 	@Test
 	void rejectsAnInvalidProfileChange() {
 		User user = User.register("Julia", "julia@example.com", "hash");
 
-		assertThatThrownBy(() -> user.withProfile(" ", Avatar.BOOK)).isInstanceOf(InvalidUserException.class);
+		assertThatThrownBy(() -> user.withProfile(" ", Avatar.CAT)).isInstanceOf(InvalidUserException.class);
 		assertThatThrownBy(() -> user.withProfile("Julia", null)).isInstanceOf(InvalidUserException.class);
 	}
 }

@@ -67,7 +67,7 @@ class ProfileControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.name").value("Julia"))
 				.andExpect(jsonPath("$.email").value("julia@example.com"))
-				.andExpect(jsonPath("$.avatar").value("BOOK"))
+				.andExpect(jsonPath("$.avatar").value("CAT"))
 				.andExpect(jsonPath("$.reviewedDays").value(12))
 				.andExpect(jsonPath("$.streakDays").value(4))
 				.andExpect(jsonPath("$.friends").value(2))
@@ -76,25 +76,25 @@ class ProfileControllerTest {
 
 	@Test
 	void updatesTheNameAndTheAvatarOfTheLoggedUser() throws Exception {
-		User changed = User.register("Julia H", "julia@example.com", "hash").withProfile("Julia H", Avatar.STAR);
+		User changed = User.register("Julia H", "julia@example.com", "hash").withProfile("Julia H", Avatar.DOG);
 		when(getProfile.execute(USER_ID)).thenReturn(view(changed));
 
 		mockMvc.perform(put("/api/users/me").with(authentication(USER)).with(csrf())
-				.contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Julia H\",\"avatar\":\"STAR\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Julia H\",\"avatar\":\"DOG\"}"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.name").value("Julia H"))
-				.andExpect(jsonPath("$.avatar").value("STAR"));
+				.andExpect(jsonPath("$.avatar").value("DOG"));
 
 		ArgumentCaptor<UpdateProfileCommand> command = ArgumentCaptor.forClass(UpdateProfileCommand.class);
 		verify(updateProfile).execute(command.capture());
 		assertThat(command.getValue().userId()).isEqualTo(USER_ID);
-		assertThat(command.getValue().avatar()).isEqualTo(Avatar.STAR);
+		assertThat(command.getValue().avatar()).isEqualTo(Avatar.DOG);
 	}
 
 	@Test
 	void rejectsABlankNameATooLongNameAndAnUnknownOrMissingAvatar() throws Exception {
-		for (String body : List.of("{\"name\":\" \",\"avatar\":\"STAR\"}",
-				"{\"name\":\"%s\",\"avatar\":\"STAR\"}".formatted("a".repeat(101)), "{\"name\":\"Julia\"}",
+		for (String body : List.of("{\"name\":\" \",\"avatar\":\"DOG\"}",
+				"{\"name\":\"%s\",\"avatar\":\"DOG\"}".formatted("a".repeat(101)), "{\"name\":\"Julia\"}",
 				"{\"name\":\"Julia\",\"avatar\":\"ROCKET\"}")) {
 			mockMvc.perform(put("/api/users/me").with(authentication(USER)).with(csrf())
 					.contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
@@ -108,7 +108,7 @@ class ProfileControllerTest {
 		when(updateProfile.execute(any())).thenThrow(new InvalidUserException("Name must not be blank"));
 
 		mockMvc.perform(put("/api/users/me").with(authentication(USER)).with(csrf())
-				.contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Julia\",\"avatar\":\"STAR\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Julia\",\"avatar\":\"DOG\"}"))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.detail").value("Name must not be blank"));
 	}
@@ -117,7 +117,7 @@ class ProfileControllerTest {
 	void requiresALoggedUser() throws Exception {
 		mockMvc.perform(get("/api/users/me")).andExpect(status().isUnauthorized());
 		mockMvc.perform(put("/api/users/me").with(csrf()).contentType(MediaType.APPLICATION_JSON)
-				.content("{\"name\":\"Julia\",\"avatar\":\"STAR\"}")).andExpect(status().isUnauthorized());
+				.content("{\"name\":\"Julia\",\"avatar\":\"DOG\"}")).andExpect(status().isUnauthorized());
 
 		verifyNoInteractions(getProfile, updateProfile);
 	}

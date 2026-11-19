@@ -34,7 +34,7 @@ public class User {
 		if (passwordHash == null || passwordHash.isBlank()) {
 			throw new InvalidUserException("Password hash is required");
 		}
-		return new User(UUID.randomUUID(), trimmedName, normalizedEmail, passwordHash, Avatar.BOOK, Instant.now());
+		return new User(UUID.randomUUID(), trimmedName, normalizedEmail, passwordHash, Avatar.CAT, Instant.now());
 	}
 
 	public static User restore(UUID id, String name, String email, String passwordHash, Avatar avatar,
