@@ -69,7 +69,7 @@ export function DeckPage() {
 									<PencilIcon size={18} />
 									Editar
 								</ButtonLink>
-								<Button type="button" variant="ghost" onClick={() => setConfirmingDelete(true)}>
+								<Button type="button" variant="dangerSoft" onClick={() => setConfirmingDelete(true)}>
 									<TrashIcon size={18} />
 									Excluir
 								</Button>

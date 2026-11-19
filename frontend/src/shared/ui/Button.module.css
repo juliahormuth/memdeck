@@ -45,6 +45,15 @@
 	background: #b94541;
 }
 
+.dangerSoft {
+	color: var(--color-danger);
+	background: var(--color-danger-pale);
+}
+
+.dangerSoft:hover:not(:disabled) {
+	background: #f6d9d7;
+}
+
 .ghost {
 	color: var(--color-blue);
 	background: transparent;

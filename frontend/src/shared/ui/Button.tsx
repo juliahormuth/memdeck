@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import styles from './Button.module.css';
 
 interface ButtonProps extends ComponentProps<'button'> {
-	variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+	variant?: 'primary' | 'secondary' | 'danger' | 'dangerSoft' | 'ghost';
 	fullWidth?: boolean;
 	loading?: boolean;
 }
