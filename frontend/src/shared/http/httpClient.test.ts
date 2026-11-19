@@ -50,6 +50,13 @@ describe('httpClient', () => {
 		expect(header).toBeNull();
 	});
 
+	it('returns undefined for a successful response without a body, such as 202', async () => {
+		document.cookie = 'XSRF-TOKEN=token; path=/';
+		server.use(http.post('*/api/decks/d1/invitations', () => new HttpResponse(null, { status: 202 })));
+
+		await expect(httpClient.post('/api/decks/d1/invitations', {})).resolves.toBeUndefined();
+	});
+
 	it('returns undefined for 204 responses', async () => {
 		document.cookie = 'XSRF-TOKEN=abc-123; path=/';
 		server.use(http.post('*/api/auth/logout', () => new HttpResponse(null, { status: 204 })));

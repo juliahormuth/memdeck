@@ -1,7 +1,7 @@
 import { ApiError } from '../../../shared/http/ApiError';
 import { httpClient } from '../../../shared/http/httpClient';
 import type { DeckGateway, NewDeck } from '../application/DeckGateway';
-import type { Deck, DeckRole, Visibility } from '../domain/Deck';
+import type { Deck, DeckMember, DeckRole, Visibility } from '../domain/Deck';
 import { AlreadyDeckMemberError, DeckNotFoundError, InvalidDeckError, NotDeckOwnerError } from '../domain/errors';
 
 interface DeckDto {
@@ -82,6 +82,31 @@ export class HttpDeckGateway implements DeckGateway {
 				if (error.status === 409) throw new AlreadyDeckMemberError();
 			}
 			throw error;
+		}
+	}
+
+	async leave(id: string): Promise<void> {
+		try {
+			await httpClient.delete(`${deckPath(id)}/members/me`);
+		} catch (error) {
+			if (error instanceof ApiError && error.status === 404) throw new DeckNotFoundError();
+			throw error;
+		}
+	}
+
+	async listMembers(id: string): Promise<DeckMember[]> {
+		try {
+			return await httpClient.get<DeckMember[]>(`${deckPath(id)}/members`);
+		} catch (error) {
+			throw translateChangeError(error, () => new DeckNotFoundError());
+		}
+	}
+
+	async removeMember(id: string, userId: string): Promise<void> {
+		try {
+			await httpClient.delete(`${deckPath(id)}/members/${encodeURIComponent(userId)}`);
+		} catch (error) {
+			throw translateChangeError(error, () => new DeckNotFoundError());
 		}
 	}
 

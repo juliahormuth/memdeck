@@ -74,10 +74,8 @@ async function execute<T>(method: Method, path: string, body?: unknown): Promise
 		}
 		throw await toApiError(response);
 	}
-	if (response.status === 204) {
-		return undefined as T;
-	}
-	return (await response.json()) as T;
+	const text = await response.text();
+	return (text ? JSON.parse(text) : undefined) as T;
 }
 
 export const httpClient = {

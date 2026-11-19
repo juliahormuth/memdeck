@@ -41,6 +41,11 @@ class UserGatewayJpa implements UserGateway {
 	}
 
 	@Override
+	public Optional<User> findById(UUID id) {
+		return repository.findById(id).map(UserMapper::toDomain);
+	}
+
+	@Override
 	public List<User> findAllById(Collection<UUID> ids) {
 		return repository.findAllById(ids).stream().map(UserMapper::toDomain).toList();
 	}

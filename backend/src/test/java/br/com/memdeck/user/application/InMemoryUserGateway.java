@@ -30,6 +30,11 @@ public class InMemoryUserGateway implements UserGateway {
 	}
 
 	@Override
+	public Optional<User> findById(UUID id) {
+		return byEmail.values().stream().filter(user -> user.getId().equals(id)).findFirst();
+	}
+
+	@Override
 	public List<User> findAllById(Collection<UUID> ids) {
 		return byEmail.values().stream().filter(user -> ids.contains(user.getId())).toList();
 	}

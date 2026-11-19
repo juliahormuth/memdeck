@@ -1,3 +1,4 @@
+import type { RankingEntry } from '../domain/RankingEntry';
 import type { ReviewGrade } from '../domain/ReviewGrade';
 import type { ReviewResult } from '../domain/ReviewResult';
 import type { StudyCard } from '../domain/StudyCard';
@@ -10,6 +11,10 @@ export class FakeReviewGateway implements ReviewGateway {
 
 	async listStudyQueue(): Promise<StudyCard[]> {
 		return this.queue;
+	}
+
+	async getRanking(): Promise<RankingEntry[]> {
+		return [];
 	}
 
 	async recordReview(deckId: string, flashcardId: string, grade: ReviewGrade): Promise<ReviewResult> {

@@ -1,4 +1,4 @@
-import type { Deck, Visibility } from '../domain/Deck';
+import type { Deck, DeckMember, Visibility } from '../domain/Deck';
 
 export interface NewDeck {
 	name: string;
@@ -14,4 +14,7 @@ export interface DeckGateway {
 	listMine(): Promise<Deck[]>;
 	searchPublic(term: string): Promise<Deck[]>;
 	join(id: string): Promise<Deck>;
+	leave(id: string): Promise<void>;
+	listMembers(id: string): Promise<DeckMember[]>;
+	removeMember(id: string, userId: string): Promise<void>;
 }

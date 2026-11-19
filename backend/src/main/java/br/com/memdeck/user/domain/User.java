@@ -16,17 +16,40 @@ public class User {
 	private final String name;
 	private final String email;
 	private final String passwordHash;
+	private final Avatar avatar;
 	private final Instant createdAt;
 
-	private User(UUID id, String name, String email, String passwordHash, Instant createdAt) {
+	private User(UUID id, String name, String email, String passwordHash, Avatar avatar, Instant createdAt) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.passwordHash = passwordHash;
+		this.avatar = avatar;
 		this.createdAt = createdAt;
 	}
 
 	public static User register(String name, String email, String passwordHash) {
+		String trimmedName = validName(name);
+		String normalizedEmail = normalizeEmail(email);
+		if (passwordHash == null || passwordHash.isBlank()) {
+			throw new InvalidUserException("Password hash is required");
+		}
+		return new User(UUID.randomUUID(), trimmedName, normalizedEmail, passwordHash, Avatar.BOOK, Instant.now());
+	}
+
+	public static User restore(UUID id, String name, String email, String passwordHash, Avatar avatar,
+			Instant createdAt) {
+		return new User(id, name, email, passwordHash, avatar, createdAt);
+	}
+
+	public User withProfile(String newName, Avatar newAvatar) {
+		if (newAvatar == null) {
+			throw new InvalidUserException("Avatar is required");
+		}
+		return new User(id, validName(newName), email, passwordHash, newAvatar, createdAt);
+	}
+
+	private static String validName(String name) {
 		if (name == null || name.isBlank()) {
 			throw new InvalidUserException("Name must not be blank");
 		}
@@ -34,15 +57,7 @@ public class User {
 		if (trimmedName.length() > NAME_MAX_LENGTH) {
 			throw new InvalidUserException("Name must have at most " + NAME_MAX_LENGTH + " characters");
 		}
-		String normalizedEmail = normalizeEmail(email);
-		if (passwordHash == null || passwordHash.isBlank()) {
-			throw new InvalidUserException("Password hash is required");
-		}
-		return new User(UUID.randomUUID(), trimmedName, normalizedEmail, passwordHash, Instant.now());
-	}
-
-	public static User restore(UUID id, String name, String email, String passwordHash, Instant createdAt) {
-		return new User(id, name, email, passwordHash, createdAt);
+		return trimmedName;
 	}
 
 	public static String normalizeEmail(String email) {
@@ -70,6 +85,10 @@ public class User {
 
 	public String getPasswordHash() {
 		return passwordHash;
+	}
+
+	public Avatar getAvatar() {
+		return avatar;
 	}
 
 	public Instant getCreatedAt() {

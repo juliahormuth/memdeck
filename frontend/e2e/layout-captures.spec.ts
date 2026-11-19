@@ -52,12 +52,27 @@ test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 
 		const readerContext = await browser.newContext({ viewport: page.viewportSize() ?? undefined });
 		const reader = await readerContext.newPage();
-		await registerThroughTheUi(reader, uniqueEmail());
+		const readerEmail = uniqueEmail();
+		await registerThroughTheUi(reader, readerEmail);
 		await reader.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: 'Explorar' }).click();
 		await reader.getByLabel('Pesquisar baralhos públicos').fill('Anatomia humana');
 		await reader.getByRole('button', { name: 'Pesquisar' }).click();
 		await expect(reader.getByRole('link', { name: 'Anatomia humana' }).first()).toBeVisible();
 		await reader.screenshot({ path: `${captureDir}/${name}-explorar.png`, fullPage: true });
+		await page.getByLabel('Convidar por e-mail').fill(readerEmail);
+		await page.getByLabel('Papel').selectOption({ label: 'Editor' });
+		await page.getByRole('button', { name: 'Convidar' }).click();
+		await expect(page.getByRole('list', { name: 'Convites pendentes' })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-participantes.png`, fullPage: true });
+		await reader.goto('/invitations');
+		await expect(reader.getByRole('list', { name: 'Convites pendentes' })).toBeVisible();
+		await reader.screenshot({ path: `${captureDir}/${name}-convites.png`, fullPage: true });
+		await page.goto('/profile');
+		await expect(page.getByRole('list', { name: 'Sua atividade' })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-perfil.png`, fullPage: true });
+		await page.goto('/friends');
+		await expect(page.getByRole('heading', { name: 'Amigos', exact: true })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-amigos.png`, fullPage: true });
 		await readerContext.close();
 
 		await createDeckThroughTheUi(page, 'Inglês básico', { description: 'Vocabulário do dia a dia.' });

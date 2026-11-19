@@ -12,6 +12,7 @@ const deckDto = {
 	visibility: 'PRIVATE',
 	createdAt: '2026-01-01T12:00:00Z',
 	ownedByMe: true,
+	role: 'OWNER',
 };
 const first = { id: 'f1', front: 'Úmero?', back: 'Osso do braço', newCard: true };
 const second = { id: 'f2', front: 'Rádio?', back: 'Osso do antebraço', newCard: false };
@@ -131,7 +132,7 @@ describe('StudyPage', () => {
 	});
 
 	it('offers the study button to someone who does not own the deck', async () => {
-		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false, visibility: 'PUBLIC' })));
+		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false, role: null, visibility: 'PUBLIC' })));
 		renderApp('/decks/d1');
 
 		expect(await screen.findByRole('link', { name: 'Estudar' })).toBeInTheDocument();

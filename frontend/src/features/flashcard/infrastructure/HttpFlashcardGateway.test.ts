@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { server } from '../../../test/server';
-import { FlashcardDeckNotFoundError, FlashcardNotFoundError, InvalidFlashcardError, NotDeckOwnerError } from '../domain/errors';
+import { FlashcardDeckNotFoundError, FlashcardNotFoundError, InvalidFlashcardError, NotDeckEditorError } from '../domain/errors';
 import { HttpFlashcardGateway } from './HttpFlashcardGateway';
 
 const dto = { id: 'f1', deckId: 'd1', front: 'Úmero?', back: 'Osso do braço', createdAt: '2026-01-01T12:00:00Z' };
@@ -30,7 +30,7 @@ describe('HttpFlashcardGateway', () => {
 
 	it.each([
 		[400, InvalidFlashcardError],
-		[403, NotDeckOwnerError],
+		[403, NotDeckEditorError],
 		[404, FlashcardDeckNotFoundError],
 	])('translates a %i answer when creating', async (status, errorType) => {
 		server.use(http.post('*/api/decks/d1/flashcards', () => HttpResponse.json({ detail: 'x' }, { status })));
@@ -67,7 +67,7 @@ describe('HttpFlashcardGateway', () => {
 
 	it.each([
 		[400, InvalidFlashcardError],
-		[403, NotDeckOwnerError],
+		[403, NotDeckEditorError],
 		[404, FlashcardNotFoundError],
 	])('translates a %i answer when updating', async (status, errorType) => {
 		server.use(http.put('*/api/decks/d1/flashcards/f1', () => HttpResponse.json({ detail: 'x' }, { status })));
@@ -82,7 +82,7 @@ describe('HttpFlashcardGateway', () => {
 	});
 
 	it.each([
-		[403, NotDeckOwnerError],
+		[403, NotDeckEditorError],
 		[404, FlashcardNotFoundError],
 	])('translates a %i answer when deleting', async (status, errorType) => {
 		server.use(http.delete('*/api/decks/d1/flashcards/f1', () => HttpResponse.json({ detail: 'x' }, { status })));

@@ -12,6 +12,7 @@ const deckDto = {
 	visibility: 'PRIVATE',
 	createdAt: '2026-01-01T12:00:00Z',
 	ownedByMe: true,
+	role: 'OWNER',
 };
 const first = { id: 'f1', deckId: 'd1', front: 'Úmero?', back: 'Osso do braço', createdAt: '2026-01-01T12:00:00Z' };
 const second = { id: 'f2', deckId: 'd1', front: 'Rádio?', back: 'Antebraço', createdAt: '2026-01-02T12:00:00Z' };
@@ -38,7 +39,7 @@ describe('FlashcardList', () => {
 
 	it('shows no edit or delete actions to someone who does not own the deck', async () => {
 		server.use(
-			http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false })),
+			http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false, role: null })),
 			http.get('*/api/decks/d1/flashcards', () => HttpResponse.json([first])),
 		);
 		renderApp('/decks/d1');
@@ -98,6 +99,6 @@ describe('FlashcardList', () => {
 		await userEvent.click(await screen.findByRole('button', { name: 'Excluir flashcard' }));
 		await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Excluir flashcard' }));
 
-		expect(await screen.findByText('Só o dono do baralho pode excluir flashcards.')).toBeInTheDocument();
+		expect(await screen.findByText('Só o dono ou um editor do baralho pode excluir flashcards.')).toBeInTheDocument();
 	});
 });

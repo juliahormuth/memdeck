@@ -50,4 +50,11 @@ describe('HttpReviewGateway', () => {
 
 		await expect(gateway.listStudyQueue('d1')).rejects.not.toBeInstanceOf(StudyDeckNotFoundError);
 	});
+
+	it('gets the ranking of a deck', async () => {
+		const entry = { position: 1, userId: 'u1', name: 'Julia', avatar: 'BOOK', reviewedFlashcards: 3, me: true };
+		server.use(http.get('*/api/decks/d1/ranking', () => HttpResponse.json([entry])));
+
+		await expect(gateway.getRanking('d1')).resolves.toEqual([entry]);
+	});
 });

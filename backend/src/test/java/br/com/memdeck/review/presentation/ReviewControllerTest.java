@@ -31,7 +31,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.flashcard.domain.Flashcard;
 import br.com.memdeck.flashcard.domain.FlashcardNotFoundException;
+import br.com.memdeck.deck.domain.NotDeckParticipantException;
+import br.com.memdeck.review.application.GetDeckRankingUseCase;
+import br.com.memdeck.review.application.RankingEntry;
 import br.com.memdeck.review.application.ListStudyQueueUseCase;
+import br.com.memdeck.user.domain.Avatar;
 import br.com.memdeck.review.application.RecordReviewCommand;
 import br.com.memdeck.review.application.RecordReviewUseCase;
 import br.com.memdeck.review.application.StudyCard;
@@ -60,6 +64,9 @@ class ReviewControllerTest {
 
 	@MockitoBean
 	RecordReviewUseCase recordReview;
+
+	@MockitoBean
+	GetDeckRankingUseCase getDeckRanking;
 
 	@Test
 	void returnsTheStudyQueueForTheLoggedUser() throws Exception {
@@ -135,5 +142,28 @@ class ReviewControllerTest {
 				.andExpect(status().isForbidden());
 
 		verifyNoInteractions(recordReview);
+	}
+
+	@Test
+	void showsTheRankingMarkingTheLoggedUser() throws Exception {
+		UUID other = UUID.randomUUID();
+		when(getDeckRanking.execute(DECK_ID, USER_ID)).thenReturn(List.of(
+				new RankingEntry(1, other, "Rita", Avatar.STAR, 9), new RankingEntry(2, USER_ID, "Julia", Avatar.BOOK, 4)));
+
+		mockMvc.perform(get("/api/decks/" + DECK_ID + "/ranking").with(authentication(USER)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].position").value(1))
+				.andExpect(jsonPath("$[0].name").value("Rita"))
+				.andExpect(jsonPath("$[0].reviewedFlashcards").value(9))
+				.andExpect(jsonPath("$[0].me").value(false))
+				.andExpect(jsonPath("$[1].me").value(true));
+	}
+
+	@Test
+	void theRankingIsForbiddenToNonParticipantsAndHiddenForPrivateDecks() throws Exception {
+		when(getDeckRanking.execute(DECK_ID, USER_ID)).thenThrow(new NotDeckParticipantException(DECK_ID));
+
+		mockMvc.perform(get("/api/decks/" + DECK_ID + "/ranking").with(authentication(USER))).andExpect(status().isForbidden());
+		mockMvc.perform(get("/api/decks/" + DECK_ID + "/ranking")).andExpect(status().isUnauthorized());
 	}
 }

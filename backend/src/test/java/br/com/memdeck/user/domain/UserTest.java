@@ -43,4 +43,30 @@ class UserTest {
 	void rejectsMissingPasswordHash() {
 		assertThatThrownBy(() -> User.register("Julia", "a@b.com", " ")).isInstanceOf(InvalidUserException.class);
 	}
+
+	@Test
+	void aNewUserGetsTheDefaultAvatar() {
+		assertThat(User.register("Julia", "julia@example.com", "hash").getAvatar()).isEqualTo(Avatar.BOOK);
+	}
+
+	@Test
+	void changesTheNameAndAvatarKeepingIdentityEmailAndPassword() {
+		User user = User.register("Julia", "julia@example.com", "hash");
+
+		User changed = user.withProfile("  Julia Hormuth ", Avatar.GLOBE);
+
+		assertThat(changed.getId()).isEqualTo(user.getId());
+		assertThat(changed.getEmail()).isEqualTo("julia@example.com");
+		assertThat(changed.getPasswordHash()).isEqualTo("hash");
+		assertThat(changed.getName()).isEqualTo("Julia Hormuth");
+		assertThat(changed.getAvatar()).isEqualTo(Avatar.GLOBE);
+	}
+
+	@Test
+	void rejectsAnInvalidProfileChange() {
+		User user = User.register("Julia", "julia@example.com", "hash");
+
+		assertThatThrownBy(() -> user.withProfile(" ", Avatar.BOOK)).isInstanceOf(InvalidUserException.class);
+		assertThatThrownBy(() -> user.withProfile("Julia", null)).isInstanceOf(InvalidUserException.class);
+	}
 }

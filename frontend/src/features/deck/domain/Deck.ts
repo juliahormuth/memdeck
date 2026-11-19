@@ -10,3 +10,14 @@ export interface Deck {
 	ownedByMe: boolean;
 	role: DeckRole | null;
 }
+
+export interface DeckMember {
+	userId: string;
+	name: string;
+	role: Exclude<DeckRole, 'OWNER'>;
+	joinedAt: string;
+}
+
+export function canEditFlashcards(deck: Deck): boolean {
+	return deck.role === 'OWNER' || deck.role === 'EDITOR';
+}

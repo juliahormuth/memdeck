@@ -12,6 +12,7 @@ const deckDto = {
 	visibility: 'PRIVATE',
 	createdAt: '2026-01-01T12:00:00Z',
 	ownedByMe: true,
+	role: 'OWNER',
 };
 
 describe('EditDeckPage', () => {
@@ -72,7 +73,7 @@ describe('EditDeckPage', () => {
 	});
 
 	it('does not offer the form to someone who does not own the deck', async () => {
-		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false })));
+		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false, role: null })));
 		renderApp('/decks/d1/edit');
 
 		expect(await screen.findByText('Só o dono do baralho pode editá-lo.')).toBeInTheDocument();

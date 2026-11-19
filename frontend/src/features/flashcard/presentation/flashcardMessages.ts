@@ -1,4 +1,4 @@
-import { FlashcardDeckNotFoundError, FlashcardNotFoundError, InvalidFlashcardError, NotDeckOwnerError } from '../domain/errors';
+import { FlashcardDeckNotFoundError, FlashcardNotFoundError, InvalidFlashcardError, NotDeckEditorError } from '../domain/errors';
 import { FLASHCARD_BACK_MAX_LENGTH, FLASHCARD_FRONT_MAX_LENGTH } from '../domain/rules';
 
 export const frontMessages: Record<string, string> = {
@@ -15,8 +15,8 @@ export function messageForFlashcardError(error: unknown): string {
 	if (error instanceof InvalidFlashcardError) {
 		return 'Os dados do flashcard são inválidos. Revise os campos.';
 	}
-	if (error instanceof NotDeckOwnerError) {
-		return 'Só o dono do baralho pode adicionar flashcards.';
+	if (error instanceof NotDeckEditorError) {
+		return 'Só o dono ou um editor do baralho pode adicionar flashcards.';
 	}
 	if (error instanceof FlashcardDeckNotFoundError) {
 		return 'Esse baralho não existe mais ou você não tem acesso a ele.';
@@ -28,8 +28,8 @@ export function messageForFlashcardError(error: unknown): string {
 }
 
 export function messageForDeleteFlashcardError(error: unknown): string {
-	if (error instanceof NotDeckOwnerError) {
-		return 'Só o dono do baralho pode excluir flashcards.';
+	if (error instanceof NotDeckEditorError) {
+		return 'Só o dono ou um editor do baralho pode excluir flashcards.';
 	}
 	if (error instanceof FlashcardNotFoundError) {
 		return 'Esse flashcard já não existe.';

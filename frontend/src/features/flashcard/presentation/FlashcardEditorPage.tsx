@@ -10,6 +10,7 @@ import { ButtonLink } from '../../../shared/ui/ButtonLink';
 import { ArrowLeftIcon, StarIcon } from '../../../shared/ui/icons';
 import { Select } from '../../../shared/ui/Select';
 import { TextArea } from '../../../shared/ui/TextArea';
+import { canEditFlashcards } from '../../deck/domain/Deck';
 import type { Deck } from '../../deck/domain/Deck';
 import { useDeck, useMyDecks } from '../../deck/presentation/deckQueries';
 import type { Flashcard } from '../domain/Flashcard';
@@ -42,11 +43,11 @@ export function FlashcardEditorPage() {
 			</div>
 		);
 	}
-	if (!deck.ownedByMe) {
+	if (!canEditFlashcards(deck)) {
 		return (
 			<div className={styles.blocked}>
 				<h1 className={styles.title}>{flashcardId ? 'Editar flashcard' : 'Novo flashcard'}</h1>
-				<p>Só o dono do baralho pode {flashcardId ? 'editar' : 'adicionar'} flashcards.</p>
+				<p>Só o dono ou um editor do baralho pode {flashcardId ? 'editar' : 'adicionar'} flashcards.</p>
 				<ButtonLink to={`/decks/${deck.id}`}>Voltar ao baralho</ButtonLink>
 			</div>
 		);
@@ -148,7 +149,7 @@ function FlashcardEditor({ deck, flashcard, switchingDeck }: { deck: Deck; flash
 						disabled={editing}
 						onChange={(event) => navigate(`/decks/${event.target.value}/flashcards/new`, { replace: true })}
 					>
-						{(myDecks ?? [deck]).map((option) => (
+						{(myDecks?.filter(canEditFlashcards) ?? [deck]).map((option) => (
 							<option key={option.id} value={option.id}>
 								{option.name}
 							</option>

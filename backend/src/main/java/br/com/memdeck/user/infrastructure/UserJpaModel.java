@@ -3,8 +3,11 @@ package br.com.memdeck.user.infrastructure;
 import java.time.Instant;
 import java.util.UUID;
 
+import br.com.memdeck.user.domain.Avatar;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -24,17 +27,22 @@ class UserJpaModel {
 	@Column(name = "password_hash", nullable = false, length = 255)
 	private String passwordHash;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 20)
+	private Avatar avatar;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
 	protected UserJpaModel() {
 	}
 
-	UserJpaModel(UUID id, String name, String email, String passwordHash, Instant createdAt) {
+	UserJpaModel(UUID id, String name, String email, String passwordHash, Avatar avatar, Instant createdAt) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.passwordHash = passwordHash;
+		this.avatar = avatar;
 		this.createdAt = createdAt;
 	}
 
@@ -52,6 +60,10 @@ class UserJpaModel {
 
 	String getPasswordHash() {
 		return passwordHash;
+	}
+
+	Avatar getAvatar() {
+		return avatar;
 	}
 
 	Instant getCreatedAt() {

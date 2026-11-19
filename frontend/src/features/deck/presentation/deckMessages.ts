@@ -22,6 +22,12 @@ export const roleLabels: Record<DeckRole, string> = {
 	READER: 'Leitor',
 };
 
+export const roleDescriptions: Record<DeckRole, string> = {
+	OWNER: 'Dono do baralho.',
+	EDITOR: 'Pode estudar e também criar, editar e excluir flashcards.',
+	READER: 'Pode estudar o baralho e ver seus flashcards.',
+};
+
 export function messageForDeckError(error: unknown): string {
 	if (error instanceof InvalidDeckError) {
 		return 'Os dados do baralho são inválidos. Revise os campos.';
@@ -60,4 +66,21 @@ export function messageForJoinDeckError(error: unknown): string {
 		return 'Esse baralho não está mais disponível.';
 	}
 	return 'Não foi possível entrar no baralho. Tente novamente.';
+}
+
+export function messageForLeaveDeckError(error: unknown): string {
+	if (error instanceof DeckNotFoundError) {
+		return 'Você já não participa deste baralho.';
+	}
+	return 'Não foi possível sair do baralho. Tente novamente.';
+}
+
+export function messageForRemoveMemberError(error: unknown): string {
+	if (error instanceof NotDeckOwnerError) {
+		return 'Só o dono do baralho pode remover participantes.';
+	}
+	if (error instanceof DeckNotFoundError) {
+		return 'Essa pessoa já não participa do baralho.';
+	}
+	return 'Não foi possível remover o participante. Tente novamente.';
 }

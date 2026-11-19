@@ -78,3 +78,35 @@ export function useJoinDeck() {
 		},
 	});
 }
+
+export function useDeckMembers(id: string, enabled: boolean) {
+	return useQuery({
+		queryKey: ['deck', id, 'members'],
+		queryFn: () => deckUseCases.listDeckMembers(id),
+		retry: false,
+		enabled,
+	});
+}
+
+export function useRemoveDeckMember(id: string) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (userId: string) => deckUseCases.removeDeckMember(id, userId),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ['deck', id, 'members'] });
+		},
+	});
+}
+
+export function useLeaveDeck() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => deckUseCases.leaveDeck(id),
+		onSuccess: (_result, id) => {
+			queryClient.removeQueries({ queryKey: deckKey(id) });
+			queryClient.removeQueries({ queryKey: ['flashcards', id] });
+			void queryClient.invalidateQueries({ queryKey: myDecksKey });
+			void queryClient.invalidateQueries({ queryKey: publicDecksKey });
+		},
+	});
+}

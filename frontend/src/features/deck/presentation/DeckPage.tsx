@@ -4,11 +4,14 @@ import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { ButtonLink } from '../../../shared/ui/ButtonLink';
 import { ConfirmDialog } from '../../../shared/ui/ConfirmDialog';
-import { PencilIcon, PlayIcon, PlusIcon, TrashIcon } from '../../../shared/ui/icons';
+import { LogoutIcon, PencilIcon, PlayIcon, PlusIcon, TrashIcon } from '../../../shared/ui/icons';
 import { FlashcardList } from '../../flashcard/presentation/FlashcardList';
+import { DeckRanking } from '../../review/presentation/DeckRanking';
+import { DeckTeamPanel } from './DeckTeamPanel';
+import { canEditFlashcards } from '../domain/Deck';
 import { DeckNotFoundError } from '../domain/errors';
-import { messageForDeleteDeckError, messageForJoinDeckError, roleLabels } from './deckMessages';
-import { useDeck, useDeleteDeck, useJoinDeck } from './deckQueries';
+import { messageForDeleteDeckError, messageForJoinDeckError, messageForLeaveDeckError, roleLabels } from './deckMessages';
+import { useDeck, useDeleteDeck, useJoinDeck, useLeaveDeck } from './deckQueries';
 import styles from './DeckPage.module.css';
 import { VisibilityBadge } from './VisibilityBadge';
 
@@ -18,6 +21,8 @@ export function DeckPage() {
 	const { data: deck, isPending, error } = useDeck(id);
 	const deleteDeck = useDeleteDeck();
 	const joinDeck = useJoinDeck();
+	const leaveDeck = useLeaveDeck();
+	const [confirmingLeave, setConfirmingLeave] = useState(false);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
 
 	if (isPending) {
@@ -52,6 +57,12 @@ export function DeckPage() {
 								Participar
 							</Button>
 						)}
+						{(deck.role === 'EDITOR' || deck.role === 'READER') && (
+							<Button type="button" variant="ghost" onClick={() => setConfirmingLeave(true)}>
+								<LogoutIcon size={18} />
+								Sair do baralho
+							</Button>
+						)}
 						{deck.ownedByMe && (
 							<>
 								<ButtonLink to={`/decks/${deck.id}/edit`} variant="secondary">
@@ -78,7 +89,26 @@ export function DeckPage() {
 			) : (
 				<p className={styles.empty}>Este baralho não tem descrição.</p>
 			)}
-			<FlashcardList deckId={deck.id} canEdit={deck.ownedByMe} />
+			<FlashcardList deckId={deck.id} canEdit={canEditFlashcards(deck)} />
+			{deck.role && <DeckRanking deckId={deck.id} />}
+			{deck.ownedByMe && <DeckTeamPanel deckId={deck.id} />}
+			{(deck.role === 'EDITOR' || deck.role === 'READER') && (
+				<ConfirmDialog
+					open={confirmingLeave}
+					title="Sair deste baralho?"
+					description={`Você deixa de participar de "${deck.name}". ${deck.visibility === 'PRIVATE' ? 'Como ele é privado, só volta a ver o baralho se for convidado de novo.' : 'Como ele é público, você pode entrar de novo quando quiser.'}`}
+					confirmLabel="Sair do baralho"
+					pending={leaveDeck.isPending}
+					error={leaveDeck.isError ? messageForLeaveDeckError(leaveDeck.error) : undefined}
+					onConfirm={() => leaveDeck.mutate(deck.id, { onSuccess: () => navigate('/', { replace: true }) })}
+					onCancel={() => {
+						if (!leaveDeck.isPending) {
+							leaveDeck.reset();
+							setConfirmingLeave(false);
+						}
+					}}
+				/>
+			)}
 			<ConfirmDialog
 				open={confirmingDelete}
 				title="Excluir este baralho?"

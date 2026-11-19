@@ -82,7 +82,7 @@ test('another user can read a public deck flashcards but cannot add to it; a pri
 	await expect(stranger.getByText('Aberto?')).toBeVisible();
 	await expect(stranger.getByRole('link', { name: 'Novo flashcard' })).toHaveCount(0);
 	await stranger.goto(`${publicUrl}/flashcards/new`);
-	await expect(stranger.getByText('Só o dono do baralho pode adicionar flashcards.')).toBeVisible();
+	await expect(stranger.getByText('Só o dono ou um editor do baralho pode adicionar flashcards.')).toBeVisible();
 	await stranger.goto(privateUrl);
 	await expect(stranger.getByRole('heading', { name: 'Baralho não encontrado' })).toBeVisible();
 	await strangerContext.close();

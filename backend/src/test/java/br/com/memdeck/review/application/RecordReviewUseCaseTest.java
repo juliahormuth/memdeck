@@ -33,7 +33,8 @@ class RecordReviewUseCaseTest {
 	private final InMemoryDeckGateway decks = new InMemoryDeckGateway();
 	private final InMemoryFlashcardGateway flashcards = new InMemoryFlashcardGateway();
 	private final InMemoryReviewGateway reviews = new InMemoryReviewGateway(flashcards);
-	private final RecordReviewUseCase useCase = new RecordReviewUseCaseImpl(new DeckAccessFinder(decks, new InMemoryDeckMemberGateway()), flashcards, reviews, clock);
+	private final InMemoryReviewLogGateway logs = new InMemoryReviewLogGateway();
+	private final RecordReviewUseCase useCase = new RecordReviewUseCaseImpl(new DeckAccessFinder(decks, new InMemoryDeckMemberGateway()), flashcards, reviews, logs, clock);
 
 	private Deck deck(Visibility visibility) {
 		return decks.save(Deck.create(OWNER, "Anatomy", null, visibility));
@@ -114,5 +115,19 @@ class RecordReviewUseCaseTest {
 		assertThatThrownBy(() -> useCase.execute(
 				new RecordReviewCommand(OWNER, deck.getId(), UUID.randomUUID(), ReviewGrade.GOOD)))
 				.isInstanceOf(FlashcardNotFoundException.class);
+	}
+
+	@Test
+	void everyReviewIsLoggedOncePerCardAndDayForTheProfileAndTheRanking() {
+		Deck deck = deck(Visibility.PRIVATE);
+		Flashcard card = card(deck);
+		RecordReviewCommand good = new RecordReviewCommand(OWNER, deck.getId(), card.getId(), ReviewGrade.GOOD);
+
+		useCase.execute(good);
+		useCase.execute(good);
+
+		assertThat(logs.size()).isEqualTo(1);
+		assertThat(logs.findReviewedDays(OWNER)).containsExactly(TODAY);
+		assertThat(logs.countReviewedByUser(deck.getId())).containsEntry(OWNER, 1L);
 	}
 }

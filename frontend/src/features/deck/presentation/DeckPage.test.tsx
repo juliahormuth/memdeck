@@ -12,6 +12,7 @@ const deckDto = {
 	visibility: 'PUBLIC',
 	createdAt: '2026-01-01T12:00:00Z',
 	ownedByMe: true,
+	role: 'OWNER',
 };
 
 describe('DeckPage', () => {
@@ -76,7 +77,7 @@ describe('DeckPage', () => {
 	});
 
 	it('does not offer to add flashcards to a deck owned by someone else', async () => {
-		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false })));
+		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false, role: null })));
 		renderApp('/decks/d1');
 
 		expect(await screen.findByText('Este baralho ainda não tem flashcards.')).toBeInTheDocument();
@@ -92,7 +93,7 @@ describe('DeckPage', () => {
 	});
 
 	it('does not offer edit or delete to someone who does not own the deck', async () => {
-		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false })));
+		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, ownedByMe: false, role: null })));
 		renderApp('/decks/d1');
 
 		await screen.findByRole('heading', { name: 'Anatomia' });

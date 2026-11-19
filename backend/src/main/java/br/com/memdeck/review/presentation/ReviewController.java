@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.memdeck.review.application.GetDeckRankingUseCase;
 import br.com.memdeck.review.application.ListStudyQueueUseCase;
 import br.com.memdeck.review.application.RecordReviewUseCase;
 import br.com.memdeck.security.AuthenticatedUser;
@@ -22,16 +23,26 @@ public class ReviewController {
 
 	private final ListStudyQueueUseCase listStudyQueue;
 	private final RecordReviewUseCase recordReview;
+	private final GetDeckRankingUseCase getDeckRanking;
 
-	public ReviewController(ListStudyQueueUseCase listStudyQueue, RecordReviewUseCase recordReview) {
+	public ReviewController(ListStudyQueueUseCase listStudyQueue, RecordReviewUseCase recordReview,
+			GetDeckRankingUseCase getDeckRanking) {
 		this.listStudyQueue = listStudyQueue;
 		this.recordReview = recordReview;
+		this.getDeckRanking = getDeckRanking;
 	}
 
 	@GetMapping("/study")
 	public List<StudyCardResponse> studyQueue(@AuthenticationPrincipal AuthenticatedUser user,
 			@PathVariable UUID deckId) {
 		return listStudyQueue.execute(deckId, user.id()).stream().map(StudyCardResponse::from).toList();
+	}
+
+	@GetMapping("/ranking")
+	public List<RankingEntryResponse> ranking(@AuthenticationPrincipal AuthenticatedUser user,
+			@PathVariable UUID deckId) {
+		return getDeckRanking.execute(deckId, user.id()).stream()
+				.map(entry -> RankingEntryResponse.from(entry, user.id())).toList();
 	}
 
 	@PostMapping("/flashcards/{flashcardId}/reviews")

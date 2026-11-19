@@ -1,16 +1,28 @@
 import { Link, NavLink, Outlet } from 'react-router';
 import { useCurrentUser, useLogout } from '../../features/auth/presentation/authQueries';
-import { BookIcon, GlobeIcon, HomeIcon, LogoutIcon, PlusIcon } from '../../shared/ui/icons';
+import { useFriendRequests } from '../../features/friendship/presentation/friendshipQueries';
+import { useMyInvitations } from '../../features/invitation/presentation/invitationQueries';
+import { useProfile } from '../../features/profile/presentation/profileQueries';
+import { Avatar } from '../../shared/ui/Avatar';
+import { GlobeIcon, HomeIcon, LogoutIcon, MailIcon, PlusIcon, UsersIcon } from '../../shared/ui/icons';
 import styles from './MainLayout.module.css';
 
 const menu = [
 	{ to: '/', label: 'Início', icon: <HomeIcon />, end: true },
 	{ to: '/explore', label: 'Explorar', icon: <GlobeIcon />, end: false },
+	{ to: '/invitations', label: 'Convites', icon: <MailIcon />, end: false },
+	{ to: '/friends', label: 'Amigos', icon: <UsersIcon />, end: false },
 ];
 
 export function MainLayout() {
 	const { data: user } = useCurrentUser();
 	const logout = useLogout();
+	const { data: invitations } = useMyInvitations();
+	const pendingInvitations = invitations?.length ?? 0;
+	const { data: profile } = useProfile();
+	const { data: friendRequests } = useFriendRequests();
+	const pendingFriendRequests = friendRequests?.filter((request) => request.direction === 'INCOMING').length ?? 0;
+	const badgeFor = (path: string) => (path === '/invitations' ? pendingInvitations : path === '/friends' ? pendingFriendRequests : 0);
 
 	return (
 		<div className={styles.shell}>
@@ -26,6 +38,11 @@ export function MainLayout() {
 								<NavLink to={item.to} end={item.end} className={styles.navLink}>
 									{item.icon}
 									{item.label}
+									{badgeFor(item.to) > 0 && (
+										<span className={styles.badge} aria-label={`${badgeFor(item.to)} pendentes`}>
+											{badgeFor(item.to)}
+										</span>
+									)}
 								</NavLink>
 							</li>
 						))}
@@ -36,14 +53,12 @@ export function MainLayout() {
 					</Link>
 				</nav>
 				<div className={styles.user}>
-					<div className={styles.profile}>
-						<span className={styles.avatar}>
-							<BookIcon />
-						</span>
+					<Link to="/profile" className={styles.profile} aria-label="Meu perfil">
+						<Avatar avatar={profile?.avatar ?? 'BOOK'} />
 						<span className={styles.email} title={user?.email}>
 							{user?.email}
 						</span>
-					</div>
+					</Link>
 					<button type="button" className={styles.logout} aria-label="Sair" disabled={logout.isPending} onClick={() => logout.mutate()}>
 						<LogoutIcon />
 						<span className={styles.logoutLabel}>Sair</span>

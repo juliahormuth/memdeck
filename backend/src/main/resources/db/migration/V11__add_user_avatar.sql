@@ -1,0 +1,4 @@
+ALTER TABLE users ADD COLUMN avatar VARCHAR(20) NOT NULL DEFAULT 'BOOK';
+
+ALTER TABLE users ADD CONSTRAINT ck_users_avatar
+    CHECK (avatar IN ('BOOK', 'LAYERS', 'STAR', 'GLOBE', 'CLOCK', 'PENCIL', 'PLAY', 'USERS'));

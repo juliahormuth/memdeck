@@ -1,5 +1,5 @@
 import { DeckNotFoundError } from '../domain/errors';
-import type { Deck } from '../domain/Deck';
+import type { Deck, DeckMember } from '../domain/Deck';
 import type { DeckGateway, NewDeck } from './DeckGateway';
 
 export class FakeDeckGateway implements DeckGateway {
@@ -59,5 +59,23 @@ export class FakeDeckGateway implements DeckGateway {
 		const joined: Deck = { ...(await this.findById(id)), role: 'READER' };
 		this.decks.set(id, joined);
 		return joined;
+	}
+
+	readonly members: DeckMember[] = [];
+
+	async leave(id: string): Promise<void> {
+		const left: Deck = { ...(await this.findById(id)), role: null };
+		this.decks.set(id, left);
+	}
+
+	async listMembers(id: string): Promise<DeckMember[]> {
+		await this.findById(id);
+		return this.members;
+	}
+
+	async removeMember(id: string, userId: string): Promise<void> {
+		await this.findById(id);
+		const index = this.members.findIndex((member) => member.userId === userId);
+		if (index >= 0) this.members.splice(index, 1);
 	}
 }

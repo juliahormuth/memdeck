@@ -170,4 +170,41 @@ describe('HttpDeckGateway', () => {
 
 		await expect(gateway.join('d1')).rejects.toBeInstanceOf(errorType);
 	});
+
+	it('lists the members of a deck, removes one and leaves the deck', async () => {
+		const member = { userId: 'u2', name: 'Rita', role: 'READER', joinedAt: '2026-01-02T12:00:00Z' };
+		const deleted: string[] = [];
+		server.use(
+			http.get('*/api/decks/d1/members', () => HttpResponse.json([member])),
+			http.delete('*/api/decks/d1/members/u2', () => {
+				deleted.push('u2');
+				return new HttpResponse(null, { status: 204 });
+			}),
+			http.delete('*/api/decks/d1/members/me', () => {
+				deleted.push('me');
+				return new HttpResponse(null, { status: 204 });
+			}),
+		);
+
+		await expect(gateway.listMembers('d1')).resolves.toEqual([member]);
+		await gateway.removeMember('d1', 'u2');
+		await gateway.leave('d1');
+
+		expect(deleted).toEqual(['u2', 'me']);
+	});
+
+	it.each([
+		[403, NotDeckOwnerError],
+		[404, DeckNotFoundError],
+	])('translates a %i answer when listing members', async (status, errorType) => {
+		server.use(http.get('*/api/decks/d1/members', () => HttpResponse.json({ detail: 'x' }, { status })));
+
+		await expect(gateway.listMembers('d1')).rejects.toBeInstanceOf(errorType);
+	});
+
+	it('translates 404 when leaving', async () => {
+		server.use(http.delete('*/api/decks/d1/members/me', () => HttpResponse.json({ detail: 'x' }, { status: 404 })));
+
+		await expect(gateway.leave('d1')).rejects.toBeInstanceOf(DeckNotFoundError);
+	});
 });

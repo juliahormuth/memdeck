@@ -3,7 +3,10 @@ import type { CreateDeckCommand } from './application/createDeck';
 import { deleteDeck } from './application/deleteDeck';
 import { getDeck } from './application/getDeck';
 import { joinDeck } from './application/joinDeck';
+import { leaveDeck } from './application/leaveDeck';
+import { listDeckMembers } from './application/listDeckMembers';
 import { listMyDecks } from './application/listMyDecks';
+import { removeDeckMember } from './application/removeDeckMember';
 import { searchPublicDecks } from './application/searchPublicDecks';
 import { updateDeck } from './application/updateDeck';
 import type { UpdateDeckCommand } from './application/updateDeck';
@@ -19,4 +22,7 @@ export const deckUseCases = {
 	deleteDeck: (id: string) => deleteDeck(gateway, id),
 	searchPublicDecks: (term: string) => searchPublicDecks(gateway, term),
 	joinDeck: (id: string) => joinDeck(gateway, id),
+	leaveDeck: (id: string) => leaveDeck(gateway, id),
+	listDeckMembers: (id: string) => listDeckMembers(gateway, id),
+	removeDeckMember: (id: string, userId: string) => removeDeckMember(gateway, id, userId),
 };

@@ -99,6 +99,6 @@ test('another user sees no edit or delete controls on a public deck and cannot o
 	await stranger.goto(`${deckUrl}/edit`);
 	await expect(stranger.getByText('Só o dono do baralho pode editá-lo.')).toBeVisible();
 	await stranger.goto(flashcardEdit ?? '');
-	await expect(stranger.getByText('Só o dono do baralho pode editar flashcards.')).toBeVisible();
+	await expect(stranger.getByText('Só o dono ou um editor do baralho pode editar flashcards.')).toBeVisible();
 	await strangerContext.close();
 });

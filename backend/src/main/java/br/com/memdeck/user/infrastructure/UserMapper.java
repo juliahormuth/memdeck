@@ -13,6 +13,7 @@ final class UserMapper {
 				user.getName(),
 				user.getEmail(),
 				user.getPasswordHash(),
+				user.getAvatar(),
 				user.getCreatedAt());
 	}
 
@@ -22,6 +23,7 @@ final class UserMapper {
 				model.getName(),
 				model.getEmail(),
 				model.getPasswordHash(),
+				model.getAvatar(),
 				model.getCreatedAt());
 	}
 }

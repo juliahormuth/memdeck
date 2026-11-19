@@ -3,6 +3,7 @@ import { httpClient } from '../../../shared/http/httpClient';
 import type { ReviewGateway } from '../application/ReviewGateway';
 import { StudyDeckNotFoundError, StudyFlashcardNotFoundError } from '../domain/errors';
 import type { ReviewGrade } from '../domain/ReviewGrade';
+import type { RankingEntry } from '../domain/RankingEntry';
 import type { ReviewResult } from '../domain/ReviewResult';
 import type { StudyCard } from '../domain/StudyCard';
 
@@ -31,6 +32,10 @@ export class HttpReviewGateway implements ReviewGateway {
 			}
 			throw error;
 		}
+	}
+
+	async getRanking(deckId: string): Promise<RankingEntry[]> {
+		return httpClient.get<RankingEntry[]>(`${deckPath(deckId)}/ranking`);
 	}
 
 	async recordReview(deckId: string, flashcardId: string, grade: ReviewGrade): Promise<ReviewResult> {

@@ -2,7 +2,7 @@ import { ApiError } from '../../../shared/http/ApiError';
 import { httpClient } from '../../../shared/http/httpClient';
 import type { FlashcardGateway, NewFlashcard } from '../application/FlashcardGateway';
 import type { Flashcard } from '../domain/Flashcard';
-import { FlashcardDeckNotFoundError, FlashcardNotFoundError, InvalidFlashcardError, NotDeckOwnerError } from '../domain/errors';
+import { FlashcardDeckNotFoundError, FlashcardNotFoundError, InvalidFlashcardError, NotDeckEditorError } from '../domain/errors';
 
 interface FlashcardDto {
 	id: string;
@@ -22,7 +22,7 @@ const flashcardPath = (deckId: string, id: string) => `${flashcardsPath(deckId)}
 function translateChangeError(error: unknown, badRequest: () => Error): unknown {
 	if (error instanceof ApiError) {
 		if (error.status === 400) return badRequest();
-		if (error.status === 403) return new NotDeckOwnerError();
+		if (error.status === 403) return new NotDeckEditorError();
 		if (error.status === 404) return new FlashcardNotFoundError();
 	}
 	return error;
@@ -35,7 +35,7 @@ export class HttpFlashcardGateway implements FlashcardGateway {
 		} catch (error) {
 			if (error instanceof ApiError) {
 				if (error.status === 400) throw new InvalidFlashcardError({});
-				if (error.status === 403) throw new NotDeckOwnerError();
+				if (error.status === 403) throw new NotDeckEditorError();
 				if (error.status === 404) throw new FlashcardDeckNotFoundError();
 			}
 			throw error;

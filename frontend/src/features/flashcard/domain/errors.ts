@@ -24,9 +24,9 @@ export class FlashcardNotFoundError extends Error {
 	}
 }
 
-export class NotDeckOwnerError extends Error {
+export class NotDeckEditorError extends Error {
 	constructor() {
-		super('Only the deck owner can change it');
-		this.name = 'NotDeckOwnerError';
+		super('Only the deck owner or an editor can change flashcards');
+		this.name = 'NotDeckEditorError';
 	}
 }

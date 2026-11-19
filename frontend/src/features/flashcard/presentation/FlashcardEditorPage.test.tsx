@@ -12,6 +12,7 @@ const deckDto = {
 	visibility: 'PRIVATE',
 	createdAt: '2026-01-01T12:00:00Z',
 	ownedByMe: true,
+	role: 'OWNER',
 };
 const otherDeckDto = { ...deckDto, id: 'd2', name: 'Inglês' };
 const flashcardDto = { id: 'f1', deckId: 'd1', front: 'Úmero?', back: 'Osso do braço', createdAt: '2026-01-01T12:00:00Z' };
@@ -113,14 +114,14 @@ describe('FlashcardEditorPage', () => {
 		await userEvent.type(screen.getByLabelText('Verso (resposta ou tradução)'), 'b');
 		await userEvent.click(screen.getByRole('button', { name: 'Salvar flashcard' }));
 
-		expect(await screen.findByRole('alert')).toHaveTextContent('Só o dono do baralho pode adicionar flashcards.');
+		expect(await screen.findByRole('alert')).toHaveTextContent('Só o dono ou um editor do baralho pode adicionar flashcards.');
 	});
 
 	it('does not offer the form for a deck the user does not own', async () => {
-		server.use(http.get('*/api/decks/d3', () => HttpResponse.json({ ...deckDto, id: 'd3', ownedByMe: false })));
+		server.use(http.get('*/api/decks/d3', () => HttpResponse.json({ ...deckDto, id: 'd3', ownedByMe: false, role: null })));
 		renderApp('/decks/d3/flashcards/new');
 
-		expect(await screen.findByText('Só o dono do baralho pode adicionar flashcards.')).toBeInTheDocument();
+		expect(await screen.findByText('Só o dono ou um editor do baralho pode adicionar flashcards.')).toBeInTheDocument();
 		expect(screen.queryByRole('button', { name: 'Salvar flashcard' })).not.toBeInTheDocument();
 	});
 

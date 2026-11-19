@@ -1,0 +1,76 @@
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	max-width: 720px;
+}
+
+.title {
+	font-size: 1.75rem;
+	font-weight: 800;
+	color: var(--color-navy);
+}
+
+.subtitle {
+	margin-top: 4px;
+	color: var(--color-blue-dark);
+}
+
+.form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 12px;
+}
+
+.field {
+	flex: 1 1 260px;
+}
+
+.note {
+	color: var(--color-blue-dark);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.sectionTitle {
+	font-size: 1.125rem;
+	font-weight: 800;
+	color: var(--color-navy);
+}
+
+.empty {
+	color: var(--color-blue-gray);
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 8px 8px 12px;
+	background: var(--color-surface);
+	border: 1.5px solid var(--color-blue-pastel);
+	border-radius: var(--radius-field);
+}
+
+.name {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-weight: 700;
+	color: var(--color-navy);
+	overflow-wrap: anywhere;
+}

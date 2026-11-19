@@ -11,6 +11,9 @@ import { DeckPage } from '../features/deck/presentation/DeckPage';
 import { HomePage } from '../features/deck/presentation/HomePage';
 import { NewDeckPage } from '../features/deck/presentation/NewDeckPage';
 import { FlashcardEditorPage } from '../features/flashcard/presentation/FlashcardEditorPage';
+import { FriendsPage } from '../features/friendship/presentation/FriendsPage';
+import { ProfilePage } from '../features/profile/presentation/ProfilePage';
+import { InvitationsPage } from '../features/invitation/presentation/InvitationsPage';
 import { StudyPage } from '../features/review/presentation/StudyPage';
 import { MainLayout } from './layouts/MainLayout';
 import { PublicLayout } from './layouts/PublicLayout';
@@ -38,6 +41,9 @@ export const routes: RouteObject[] = [
 						element: <MainLayout />,
 						children: [
 							{ path: '/', element: <HomePage /> },
+							{ path: '/profile', element: <ProfilePage /> },
+							{ path: '/friends', element: <FriendsPage /> },
+							{ path: '/invitations', element: <InvitationsPage /> },
 							{ path: '/explore', element: <ExplorePage /> },
 							{ path: '/decks/new', element: <NewDeckPage /> },
 							{ path: '/decks/:id', element: <DeckPage /> },

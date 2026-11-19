@@ -19,3 +19,11 @@ export function useRecordReview() {
 		mutationFn: (command: RecordReviewCommand) => reviewUseCases.recordReview(command),
 	});
 }
+
+export function useDeckRanking(deckId: string) {
+	return useQuery({
+		queryKey: ['deck', deckId, 'ranking'],
+		queryFn: () => reviewUseCases.getDeckRanking(deckId),
+		retry: false,
+	});
+}

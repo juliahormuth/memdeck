@@ -15,5 +15,7 @@ public interface UserGateway {
 
 	Optional<User> findByEmail(String email);
 
+	Optional<User> findById(UUID id);
+
 	List<User> findAllById(Collection<UUID> ids);
 }

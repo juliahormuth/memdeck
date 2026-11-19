@@ -18,13 +18,15 @@ public class RecordReviewUseCaseImpl implements RecordReviewUseCase {
 	private final DeckAccessFinder access;
 	private final FlashcardGateway flashcards;
 	private final ReviewGateway reviews;
+	private final ReviewLogGateway logs;
 	private final Clock clock;
 
 	public RecordReviewUseCaseImpl(DeckAccessFinder access, FlashcardGateway flashcards, ReviewGateway reviews,
-			Clock clock) {
+			ReviewLogGateway logs, Clock clock) {
 		this.access = access;
 		this.flashcards = flashcards;
 		this.reviews = reviews;
+		this.logs = logs;
 		this.clock = clock;
 	}
 
@@ -40,6 +42,8 @@ public class RecordReviewUseCaseImpl implements RecordReviewUseCase {
 				.map(existing -> existing.review(command.grade(), today))
 				.orElseGet(() -> ReviewSchedule.firstReview(command.requesterId(), command.flashcardId(),
 						command.grade(), today));
-		return reviews.save(updated);
+		ReviewSchedule saved = reviews.save(updated);
+		logs.recordOncePerDay(command.requesterId(), command.deckId(), command.flashcardId(), today);
+		return saved;
 	}
 }
