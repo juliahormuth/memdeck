@@ -18,7 +18,7 @@ class DeleteDeckUseCaseTest {
 	private static final UUID STRANGER = UUID.randomUUID();
 
 	private final InMemoryDeckGateway gateway = new InMemoryDeckGateway();
-	private final DeleteDeckUseCase useCase = new DeleteDeckUseCaseImpl(new OwnedDeckFinder(gateway), gateway);
+	private final DeleteDeckUseCase useCase = new DeleteDeckUseCaseImpl(new DeckAccessFinder(gateway, new InMemoryDeckMemberGateway()), gateway);
 
 	@Test
 	void theOwnerDeletesTheDeck() {

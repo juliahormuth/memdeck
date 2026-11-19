@@ -9,16 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DeleteDeckUseCaseImpl implements DeleteDeckUseCase {
 
-	private final OwnedDeckFinder ownedDeck;
+	private final DeckAccessFinder access;
 	private final DeckGateway gateway;
 
-	public DeleteDeckUseCaseImpl(OwnedDeckFinder ownedDeck, DeckGateway gateway) {
-		this.ownedDeck = ownedDeck;
+	public DeleteDeckUseCaseImpl(DeckAccessFinder access, DeckGateway gateway) {
+		this.access = access;
 		this.gateway = gateway;
 	}
 
 	@Override
 	public void execute(UUID deckId, UUID requesterId) {
-		gateway.deleteById(ownedDeck.find(deckId, requesterId).getId());
+		gateway.deleteById(access.owned(deckId, requesterId).deck().getId());
 	}
 }

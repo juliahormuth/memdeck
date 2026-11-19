@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.flashcard.domain.FlashcardNotFoundException;
 import br.com.memdeck.flashcard.domain.InvalidFlashcardException;
+import br.com.memdeck.deck.domain.NotDeckEditorException;
 import br.com.memdeck.deck.domain.NotDeckOwnerException;
 
 @RestControllerAdvice(assignableTypes = FlashcardController.class)
@@ -25,6 +26,11 @@ class FlashcardExceptionHandler {
 
 	@ExceptionHandler(NotDeckOwnerException.class)
 	ProblemDetail handleNotOwner(NotDeckOwnerException exception) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
+	}
+
+	@ExceptionHandler(NotDeckEditorException.class)
+	ProblemDetail handleNotEditor(NotDeckEditorException exception) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, exception.getMessage());
 	}
 

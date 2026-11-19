@@ -1,6 +1,9 @@
 package br.com.memdeck.user.application;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import br.com.memdeck.user.domain.User;
 
@@ -11,4 +14,6 @@ public interface UserGateway {
 	boolean existsByEmail(String email);
 
 	Optional<User> findByEmail(String email);
+
+	List<User> findAllById(Collection<UUID> ids);
 }

@@ -20,7 +20,22 @@ public class DeckMember {
 	}
 
 	public static DeckMember joinAsReader(UUID deckId, UUID userId) {
-		return new DeckMember(UUID.randomUUID(), deckId, userId, DeckRole.READER, Instant.now());
+		return join(deckId, userId, DeckRole.READER);
+	}
+
+	public static DeckMember join(UUID deckId, UUID userId, DeckRole role) {
+		return new DeckMember(UUID.randomUUID(), deckId, userId, validRole(role), Instant.now());
+	}
+
+	public DeckMember withRole(DeckRole newRole) {
+		return new DeckMember(id, deckId, userId, validRole(newRole), joinedAt);
+	}
+
+	private static DeckRole validRole(DeckRole role) {
+		if (role != DeckRole.EDITOR && role != DeckRole.READER) {
+			throw new InvalidDeckException("A member must be an editor or a reader");
+		}
+		return role;
 	}
 
 	public static DeckMember restore(UUID id, UUID deckId, UUID userId, DeckRole role, Instant joinedAt) {

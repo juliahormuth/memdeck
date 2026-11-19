@@ -13,7 +13,9 @@ import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
+import br.com.memdeck.deck.application.DeckAccessFinder;
 import br.com.memdeck.deck.application.InMemoryDeckGateway;
+import br.com.memdeck.deck.application.InMemoryDeckMemberGateway;
 import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.deck.domain.Visibility;
@@ -32,7 +34,7 @@ class ListStudyQueueUseCaseTest {
 	private final InMemoryDeckGateway decks = new InMemoryDeckGateway();
 	private final InMemoryFlashcardGateway flashcards = new InMemoryFlashcardGateway();
 	private final InMemoryReviewGateway reviews = new InMemoryReviewGateway(flashcards);
-	private final ListStudyQueueUseCase useCase = new ListStudyQueueUseCaseImpl(decks, flashcards, reviews, clock);
+	private final ListStudyQueueUseCase useCase = new ListStudyQueueUseCaseImpl(new DeckAccessFinder(decks, new InMemoryDeckMemberGateway()), flashcards, reviews, clock);
 
 	private Deck deck(Visibility visibility) {
 		return decks.save(Deck.create(OWNER, "Anatomy", null, visibility));

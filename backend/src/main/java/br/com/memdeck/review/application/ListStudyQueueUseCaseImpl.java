@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.memdeck.deck.application.DeckGateway;
-import br.com.memdeck.deck.domain.DeckNotFoundException;
+import br.com.memdeck.deck.application.DeckAccessFinder;
 import br.com.memdeck.flashcard.application.FlashcardGateway;
 import br.com.memdeck.flashcard.domain.Flashcard;
 import br.com.memdeck.review.domain.ReviewSchedule;
@@ -25,14 +24,14 @@ public class ListStudyQueueUseCaseImpl implements ListStudyQueueUseCase {
 
 	public static final int NEW_CARDS_PER_DAY = 20;
 
-	private final DeckGateway decks;
+	private final DeckAccessFinder access;
 	private final FlashcardGateway flashcards;
 	private final ReviewGateway reviews;
 	private final Clock clock;
 
-	public ListStudyQueueUseCaseImpl(DeckGateway decks, FlashcardGateway flashcards, ReviewGateway reviews,
+	public ListStudyQueueUseCaseImpl(DeckAccessFinder access, FlashcardGateway flashcards, ReviewGateway reviews,
 			Clock clock) {
-		this.decks = decks;
+		this.access = access;
 		this.flashcards = flashcards;
 		this.reviews = reviews;
 		this.clock = clock;
@@ -40,9 +39,7 @@ public class ListStudyQueueUseCaseImpl implements ListStudyQueueUseCase {
 
 	@Override
 	public List<StudyCard> execute(UUID deckId, UUID requesterId) {
-		decks.findById(deckId)
-				.filter(found -> found.canBeViewedBy(requesterId))
-				.orElseThrow(() -> new DeckNotFoundException(deckId));
+		access.viewable(deckId, requesterId);
 		LocalDate today = LocalDate.now(clock);
 
 		Map<UUID, Flashcard> cardsById = flashcards.findByDeckNewestFirst(deckId).stream()

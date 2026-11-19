@@ -34,6 +34,16 @@ class DeckMemberGatewayJpa implements DeckMemberGateway {
 		return repository.findByUserId(userId).stream().map(DeckMemberGatewayJpa::toDomain).toList();
 	}
 
+	@Override
+	public List<DeckMember> findByDeck(UUID deckId) {
+		return repository.findByDeckIdOrderByJoinedAtAsc(deckId).stream().map(DeckMemberGatewayJpa::toDomain).toList();
+	}
+
+	@Override
+	public void deleteById(UUID id) {
+		repository.deleteById(id);
+	}
+
 	private static DeckMember toDomain(DeckMemberJpaModel model) {
 		return DeckMember.restore(model.getId(), model.getDeckId(), model.getUserId(), model.getRole(),
 				model.getJoinedAt());

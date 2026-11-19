@@ -9,16 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DeleteFlashcardUseCaseImpl implements DeleteFlashcardUseCase {
 
-	private final OwnedFlashcardFinder ownedFlashcard;
+	private final EditableFlashcardFinder editableFlashcard;
 	private final FlashcardGateway flashcards;
 
-	public DeleteFlashcardUseCaseImpl(OwnedFlashcardFinder ownedFlashcard, FlashcardGateway flashcards) {
-		this.ownedFlashcard = ownedFlashcard;
+	public DeleteFlashcardUseCaseImpl(EditableFlashcardFinder editableFlashcard, FlashcardGateway flashcards) {
+		this.editableFlashcard = editableFlashcard;
 		this.flashcards = flashcards;
 	}
 
 	@Override
 	public void execute(UUID deckId, UUID flashcardId, UUID requesterId) {
-		flashcards.deleteById(ownedFlashcard.find(deckId, flashcardId, requesterId).getId());
+		flashcards.deleteById(editableFlashcard.find(deckId, flashcardId, requesterId).getId());
 	}
 }

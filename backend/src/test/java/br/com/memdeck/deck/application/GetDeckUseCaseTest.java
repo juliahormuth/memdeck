@@ -20,7 +20,7 @@ class GetDeckUseCaseTest {
 
 	private final InMemoryDeckGateway gateway = new InMemoryDeckGateway();
 	private final InMemoryDeckMemberGateway members = new InMemoryDeckMemberGateway();
-	private final GetDeckUseCase useCase = new GetDeckUseCaseImpl(gateway, members);
+	private final GetDeckUseCase useCase = new GetDeckUseCaseImpl(new DeckAccessFinder(gateway, members));
 
 	@Test
 	void theOwnerReadsAPrivateDeck() {

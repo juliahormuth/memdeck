@@ -8,13 +8,14 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import br.com.memdeck.deck.application.InMemoryDeckGateway;
-import br.com.memdeck.deck.application.OwnedDeckFinder;
+import br.com.memdeck.deck.application.DeckAccessFinder;
+import br.com.memdeck.deck.application.InMemoryDeckMemberGateway;
 import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.deck.domain.Visibility;
 import br.com.memdeck.flashcard.domain.Flashcard;
 import br.com.memdeck.flashcard.domain.InvalidFlashcardException;
-import br.com.memdeck.deck.domain.NotDeckOwnerException;
+import br.com.memdeck.deck.domain.NotDeckEditorException;
 
 class CreateFlashcardUseCaseTest {
 
@@ -23,7 +24,7 @@ class CreateFlashcardUseCaseTest {
 
 	private final InMemoryDeckGateway decks = new InMemoryDeckGateway();
 	private final InMemoryFlashcardGateway flashcards = new InMemoryFlashcardGateway();
-	private final CreateFlashcardUseCase useCase = new CreateFlashcardUseCaseImpl(new OwnedDeckFinder(decks), flashcards);
+	private final CreateFlashcardUseCase useCase = new CreateFlashcardUseCaseImpl(new DeckAccessFinder(decks, new InMemoryDeckMemberGateway()), flashcards);
 
 	@Test
 	void theOwnerAddsAFlashcardToTheirDeck() {
@@ -49,7 +50,7 @@ class CreateFlashcardUseCaseTest {
 		Deck deck = decks.save(Deck.create(OWNER, "English", null, Visibility.PUBLIC));
 
 		assertThatThrownBy(() -> useCase.execute(new CreateFlashcardCommand(STRANGER, deck.getId(), "Hello", "Olá")))
-				.isInstanceOf(NotDeckOwnerException.class);
+				.isInstanceOf(NotDeckEditorException.class);
 		assertThat(flashcards.size()).isZero();
 	}
 

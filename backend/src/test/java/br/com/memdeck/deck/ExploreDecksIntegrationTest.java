@@ -158,16 +158,18 @@ class ExploreDecksIntegrationTest {
 	}
 
 	@Test
-	void aDeckTurnedPrivateDisappearsFromTheReadersListAndComesBackWhenPublicAgain() throws Exception {
+	void aJoinedDeckStaysAvailableToItsReaderAfterTheOwnerMakesItPrivate() throws Exception {
 		Session owner = registerAndLogin(mockMvc, uniqueEmail());
 		Session reader = registerAndLogin(mockMvc, uniqueEmail());
 		String deckId = createDeck(owner, unique("Flip"), null, "PUBLIC");
 		join(reader, deckId).andExpect(status().isCreated());
 
 		changeVisibility(owner, deckId, "PRIVATE");
-		mockMvc.perform(get("/api/decks").cookie(reader.session())).andExpect(jsonPath("$.length()").value(0));
-		changeVisibility(owner, deckId, "PUBLIC");
+
 		mockMvc.perform(get("/api/decks").cookie(reader.session())).andExpect(jsonPath("$.length()").value(1));
+		mockMvc.perform(get("/api/decks/" + deckId).cookie(reader.session()))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.role").value("READER"));
+		mockMvc.perform(get("/api/decks/" + deckId + "/study").cookie(reader.session())).andExpect(status().isOk());
 	}
 
 	@Test

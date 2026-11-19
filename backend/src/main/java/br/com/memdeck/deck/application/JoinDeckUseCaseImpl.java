@@ -6,31 +6,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.memdeck.deck.domain.AlreadyDeckMemberException;
-import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckMember;
-import br.com.memdeck.deck.domain.DeckNotFoundException;
 
 @Service
 @Transactional
 public class JoinDeckUseCaseImpl implements JoinDeckUseCase {
 
-	private final DeckGateway decks;
+	private final DeckAccessFinder access;
 	private final DeckMemberGateway members;
 
-	public JoinDeckUseCaseImpl(DeckGateway decks, DeckMemberGateway members) {
-		this.decks = decks;
+	public JoinDeckUseCaseImpl(DeckAccessFinder access, DeckMemberGateway members) {
+		this.access = access;
 		this.members = members;
 	}
 
 	@Override
 	public DeckView execute(UUID deckId, UUID requesterId) {
-		Deck deck = decks.findById(deckId)
-				.filter(found -> found.canBeViewedBy(requesterId))
-				.orElseThrow(() -> new DeckNotFoundException(deckId));
-		if (deck.isOwnedBy(requesterId) || members.findByDeckAndUser(deckId, requesterId).isPresent()) {
+		DeckAccess found = access.viewable(deckId, requesterId);
+		if (found.role() != null) {
 			throw new AlreadyDeckMemberException(deckId);
 		}
 		DeckMember member = members.save(DeckMember.joinAsReader(deckId, requesterId));
-		return new DeckView(deck, member.getRole());
+		return new DeckView(found.deck(), member.getRole());
 	}
 }

@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import br.com.memdeck.deck.domain.DeckMember;
 
-class InMemoryDeckMemberGateway implements DeckMemberGateway {
+public class InMemoryDeckMemberGateway implements DeckMemberGateway {
 
 	private final List<DeckMember> store = new ArrayList<>();
 
@@ -30,7 +30,17 @@ class InMemoryDeckMemberGateway implements DeckMemberGateway {
 		return store.stream().filter(member -> member.getUserId().equals(userId)).toList();
 	}
 
-	int size() {
+	@Override
+	public List<DeckMember> findByDeck(UUID deckId) {
+		return store.stream().filter(member -> member.getDeckId().equals(deckId)).toList();
+	}
+
+	@Override
+	public void deleteById(UUID id) {
+		store.removeIf(member -> member.getId().equals(id));
+	}
+
+	public int size() {
 		return store.size();
 	}
 }

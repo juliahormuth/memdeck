@@ -8,7 +8,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import br.com.memdeck.deck.application.DeckAccessFinder;
 import br.com.memdeck.deck.application.InMemoryDeckGateway;
+import br.com.memdeck.deck.application.InMemoryDeckMemberGateway;
 import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
 import br.com.memdeck.deck.domain.Visibility;
@@ -21,7 +23,7 @@ class ListDeckFlashcardsUseCaseTest {
 
 	private final InMemoryDeckGateway decks = new InMemoryDeckGateway();
 	private final InMemoryFlashcardGateway flashcards = new InMemoryFlashcardGateway();
-	private final ListDeckFlashcardsUseCase useCase = new ListDeckFlashcardsUseCaseImpl(decks, flashcards);
+	private final ListDeckFlashcardsUseCase useCase = new ListDeckFlashcardsUseCaseImpl(new DeckAccessFinder(decks, new InMemoryDeckMemberGateway()), flashcards);
 
 	@Test
 	void theOwnerListsOnlyTheFlashcardsOfThatDeckNewestFirst() throws InterruptedException {

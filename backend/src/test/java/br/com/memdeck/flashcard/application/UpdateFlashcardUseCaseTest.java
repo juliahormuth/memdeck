@@ -8,10 +8,11 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import br.com.memdeck.deck.application.InMemoryDeckGateway;
-import br.com.memdeck.deck.application.OwnedDeckFinder;
+import br.com.memdeck.deck.application.DeckAccessFinder;
+import br.com.memdeck.deck.application.InMemoryDeckMemberGateway;
 import br.com.memdeck.deck.domain.Deck;
 import br.com.memdeck.deck.domain.DeckNotFoundException;
-import br.com.memdeck.deck.domain.NotDeckOwnerException;
+import br.com.memdeck.deck.domain.NotDeckEditorException;
 import br.com.memdeck.deck.domain.Visibility;
 import br.com.memdeck.flashcard.domain.Flashcard;
 import br.com.memdeck.flashcard.domain.FlashcardNotFoundException;
@@ -25,7 +26,7 @@ class UpdateFlashcardUseCaseTest {
 	private final InMemoryDeckGateway decks = new InMemoryDeckGateway();
 	private final InMemoryFlashcardGateway flashcards = new InMemoryFlashcardGateway();
 	private final UpdateFlashcardUseCase useCase = new UpdateFlashcardUseCaseImpl(
-			new OwnedFlashcardFinder(new OwnedDeckFinder(decks), flashcards), flashcards);
+			new EditableFlashcardFinder(new DeckAccessFinder(decks, new InMemoryDeckMemberGateway()), flashcards), flashcards);
 
 	@Test
 	void theOwnerChangesTheText() {
@@ -49,7 +50,7 @@ class UpdateFlashcardUseCaseTest {
 		assertThatThrownBy(() -> useCase.execute(new UpdateFlashcardCommand(STRANGER, hidden.getId(), hiddenCard.getId(), "x", "y")))
 				.isInstanceOf(DeckNotFoundException.class);
 		assertThatThrownBy(() -> useCase.execute(new UpdateFlashcardCommand(STRANGER, open.getId(), openCard.getId(), "x", "y")))
-				.isInstanceOf(NotDeckOwnerException.class);
+				.isInstanceOf(NotDeckEditorException.class);
 		assertThat(flashcards.findById(openCard.getId()).orElseThrow().getFront()).isEqualTo("Hello");
 	}
 

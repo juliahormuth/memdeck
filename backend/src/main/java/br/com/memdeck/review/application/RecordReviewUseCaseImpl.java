@@ -6,8 +6,7 @@ import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.memdeck.deck.application.DeckGateway;
-import br.com.memdeck.deck.domain.DeckNotFoundException;
+import br.com.memdeck.deck.application.DeckAccessFinder;
 import br.com.memdeck.flashcard.application.FlashcardGateway;
 import br.com.memdeck.flashcard.domain.FlashcardNotFoundException;
 import br.com.memdeck.review.domain.ReviewSchedule;
@@ -16,14 +15,14 @@ import br.com.memdeck.review.domain.ReviewSchedule;
 @Transactional
 public class RecordReviewUseCaseImpl implements RecordReviewUseCase {
 
-	private final DeckGateway decks;
+	private final DeckAccessFinder access;
 	private final FlashcardGateway flashcards;
 	private final ReviewGateway reviews;
 	private final Clock clock;
 
-	public RecordReviewUseCaseImpl(DeckGateway decks, FlashcardGateway flashcards, ReviewGateway reviews,
+	public RecordReviewUseCaseImpl(DeckAccessFinder access, FlashcardGateway flashcards, ReviewGateway reviews,
 			Clock clock) {
-		this.decks = decks;
+		this.access = access;
 		this.flashcards = flashcards;
 		this.reviews = reviews;
 		this.clock = clock;
@@ -31,9 +30,7 @@ public class RecordReviewUseCaseImpl implements RecordReviewUseCase {
 
 	@Override
 	public ReviewSchedule execute(RecordReviewCommand command) {
-		decks.findById(command.deckId())
-				.filter(found -> found.canBeViewedBy(command.requesterId()))
-				.orElseThrow(() -> new DeckNotFoundException(command.deckId()));
+		access.viewable(command.deckId(), command.requesterId());
 		flashcards.findById(command.flashcardId())
 				.filter(found -> found.getDeckId().equals(command.deckId()))
 				.orElseThrow(() -> new FlashcardNotFoundException(command.flashcardId()));

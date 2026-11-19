@@ -20,7 +20,7 @@ class JoinDeckUseCaseTest {
 
 	private final InMemoryDeckGateway decks = new InMemoryDeckGateway();
 	private final InMemoryDeckMemberGateway members = new InMemoryDeckMemberGateway();
-	private final JoinDeckUseCase useCase = new JoinDeckUseCaseImpl(decks, members);
+	private final JoinDeckUseCase useCase = new JoinDeckUseCaseImpl(new DeckAccessFinder(decks, members), members);
 
 	@Test
 	void aUserJoinsAPublicDeckAsAReader() {

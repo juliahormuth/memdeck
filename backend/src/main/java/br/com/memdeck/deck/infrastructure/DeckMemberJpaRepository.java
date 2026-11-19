@@ -11,4 +11,6 @@ interface DeckMemberJpaRepository extends JpaRepository<DeckMemberJpaModel, UUID
 	Optional<DeckMemberJpaModel> findByDeckIdAndUserId(UUID deckId, UUID userId);
 
 	List<DeckMemberJpaModel> findByUserId(UUID userId);
+
+	List<DeckMemberJpaModel> findByDeckIdOrderByJoinedAtAsc(UUID deckId);
 }

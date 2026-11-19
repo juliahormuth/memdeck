@@ -9,17 +9,17 @@ import br.com.memdeck.deck.domain.Deck;
 @Transactional
 public class UpdateDeckUseCaseImpl implements UpdateDeckUseCase {
 
-	private final OwnedDeckFinder ownedDeck;
+	private final DeckAccessFinder access;
 	private final DeckGateway gateway;
 
-	public UpdateDeckUseCaseImpl(OwnedDeckFinder ownedDeck, DeckGateway gateway) {
-		this.ownedDeck = ownedDeck;
+	public UpdateDeckUseCaseImpl(DeckAccessFinder access, DeckGateway gateway) {
+		this.access = access;
 		this.gateway = gateway;
 	}
 
 	@Override
 	public Deck execute(UpdateDeckCommand command) {
-		Deck deck = ownedDeck.find(command.deckId(), command.requesterId());
+		Deck deck = access.owned(command.deckId(), command.requesterId()).deck();
 		return gateway.save(deck.withChanges(command.name(), command.description(), command.visibility()));
 	}
 }

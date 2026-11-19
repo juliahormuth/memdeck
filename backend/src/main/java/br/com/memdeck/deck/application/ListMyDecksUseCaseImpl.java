@@ -29,9 +29,7 @@ public class ListMyDecksUseCaseImpl implements ListMyDecksUseCase {
 	public List<DeckView> execute(UUID userId) {
 		Map<UUID, DeckRole> joinedRoles = members.findByUser(userId).stream()
 				.collect(Collectors.toMap(DeckMember::getDeckId, DeckMember::getRole));
-		// A deck turned private after joining is hidden until it is public again, like any private deck of someone else.
 		Stream<DeckView> joined = gateway.findAllById(joinedRoles.keySet()).stream()
-				.filter(deck -> deck.canBeViewedBy(userId))
 				.map(deck -> new DeckView(deck, joinedRoles.get(deck.getId())));
 		Stream<DeckView> owned = gateway.findByOwnerNewestFirst(userId).stream().map(DeckView::ownedBy);
 		return Stream.concat(owned, joined)

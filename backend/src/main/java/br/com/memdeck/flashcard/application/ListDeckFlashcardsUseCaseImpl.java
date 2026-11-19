@@ -6,27 +6,24 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.memdeck.deck.application.DeckGateway;
-import br.com.memdeck.deck.domain.DeckNotFoundException;
+import br.com.memdeck.deck.application.DeckAccessFinder;
 import br.com.memdeck.flashcard.domain.Flashcard;
 
 @Service
 @Transactional(readOnly = true)
 public class ListDeckFlashcardsUseCaseImpl implements ListDeckFlashcardsUseCase {
 
-	private final DeckGateway decks;
+	private final DeckAccessFinder access;
 	private final FlashcardGateway flashcards;
 
-	public ListDeckFlashcardsUseCaseImpl(DeckGateway decks, FlashcardGateway flashcards) {
-		this.decks = decks;
+	public ListDeckFlashcardsUseCaseImpl(DeckAccessFinder access, FlashcardGateway flashcards) {
+		this.access = access;
 		this.flashcards = flashcards;
 	}
 
 	@Override
 	public List<Flashcard> execute(UUID deckId, UUID requesterId) {
-		decks.findById(deckId)
-				.filter(found -> found.canBeViewedBy(requesterId))
-				.orElseThrow(() -> new DeckNotFoundException(deckId));
+		access.viewable(deckId, requesterId);
 		return flashcards.findByDeckNewestFirst(deckId);
 	}
 }

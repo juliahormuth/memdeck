@@ -19,7 +19,7 @@ class UpdateDeckUseCaseTest {
 	private static final UUID STRANGER = UUID.randomUUID();
 
 	private final InMemoryDeckGateway gateway = new InMemoryDeckGateway();
-	private final UpdateDeckUseCase useCase = new UpdateDeckUseCaseImpl(new OwnedDeckFinder(gateway), gateway);
+	private final UpdateDeckUseCase useCase = new UpdateDeckUseCaseImpl(new DeckAccessFinder(gateway, new InMemoryDeckMemberGateway()), gateway);
 
 	@Test
 	void theOwnerChangesTheDeck() {

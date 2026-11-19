@@ -56,11 +56,11 @@ class ListMyDecksUseCaseTest {
 	}
 
 	@Test
-	void hidesAJoinedDeckThatTheOwnerMadePrivateAgain() {
+	void keepsAJoinedDeckThatTheOwnerMadePrivateAgain() {
 		Deck joined = gateway.save(Deck.restore(UUID.randomUUID(), SOMEONE_ELSE, "Joined", null, Visibility.PRIVATE,
 				Instant.parse("2026-01-02T10:00:00Z")));
 		members.save(DeckMember.joinAsReader(joined.getId(), ME));
 
-		assertThat(useCase.execute(ME)).isEmpty();
+		assertThat(useCase.execute(ME)).extracting(view -> view.deck().getName()).containsExactly("Joined");
 	}
 }

@@ -13,4 +13,8 @@ public interface DeckMemberGateway {
 	Optional<DeckMember> findByDeckAndUser(UUID deckId, UUID userId);
 
 	List<DeckMember> findByUser(UUID userId);
+
+	List<DeckMember> findByDeck(UUID deckId);
+
+	void deleteById(UUID id);
 }
