@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -33,10 +33,26 @@ describe('DeckTeamPanel', () => {
 		await screen.findByRole('heading', { name: 'Anatomia' });
 
 		expect(screen.queryByRole('heading', { name: 'Participantes' })).not.toBeInTheDocument();
-		expect(screen.queryByLabelText('Convidar por e-mail')).not.toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: 'Adicionar participante' })).not.toBeInTheDocument();
 	});
 
-	it('invites by e-mail with the chosen role and answers the same whether or not the account exists', async () => {
+	async function openAddDialog() {
+		await userEvent.click(await screen.findByRole('button', { name: 'Adicionar participante' }));
+		return screen.findByRole('dialog', { name: 'Adicionar participante' });
+	}
+
+	it('shows only the participants until the add button is used', async () => {
+		server.use(http.get('*/api/decks/d1/members', () => HttpResponse.json([rita])));
+		renderApp('/decks/d1');
+
+		await screen.findByRole('list', { name: 'Participantes' });
+
+		expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+		expect(screen.queryByRole('list', { name: 'Convites pendentes' })).not.toBeInTheDocument();
+		expect(screen.queryByText('Convites pendentes')).not.toBeInTheDocument();
+	});
+
+	it('opens a window to invite by e-mail with the chosen role, closes it, and answers the same whether or not the account exists', async () => {
 		let body: unknown;
 		server.use(
 			http.post('*/api/decks/d1/invitations', async ({ request }) => {
@@ -46,26 +62,58 @@ describe('DeckTeamPanel', () => {
 		);
 		renderApp('/decks/d1');
 
-		await userEvent.type(await screen.findByLabelText('Convidar por e-mail'), '  rita@example.com');
-		await userEvent.selectOptions(screen.getByLabelText('Papel'), 'EDITOR');
-		await userEvent.click(screen.getByRole('button', { name: 'Convidar' }));
+		const dialog = await openAddDialog();
+		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), '  rita@example.com');
+		await userEvent.selectOptions(within(dialog).getByLabelText('Papel'), 'EDITOR');
+		await userEvent.click(within(dialog).getByRole('button', { name: 'Convidar' }));
 
 		expect(await screen.findByText(/Se esse e-mail tiver uma conta/)).toBeInTheDocument();
 		expect(body).toEqual({ email: 'rita@example.com', role: 'EDITOR' });
-		expect(screen.getByLabelText('Convidar por e-mail')).toHaveValue('');
+		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 	});
 
-	it('shows an error when the e-mail is refused', async () => {
+	it('starts the next invitation with an empty e-mail and the reader role', async () => {
+		server.use(http.post('*/api/decks/d1/invitations', () => new HttpResponse(null, { status: 202 })));
+		renderApp('/decks/d1');
+		let dialog = await openAddDialog();
+		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), 'rita@example.com');
+		await userEvent.selectOptions(within(dialog).getByLabelText('Papel'), 'EDITOR');
+		await userEvent.click(within(dialog).getByRole('button', { name: 'Convidar' }));
+		await screen.findByText(/Se esse e-mail tiver uma conta/);
+
+		dialog = await openAddDialog();
+
+		expect(within(dialog).getByLabelText('E-mail da pessoa')).toHaveValue('');
+		expect(within(dialog).getByLabelText('Papel')).toHaveValue('READER');
+		expect(screen.queryByText(/Se esse e-mail tiver uma conta/)).not.toBeInTheDocument();
+	});
+
+	it('closes the window with Cancelar without sending anything', async () => {
+		let called = false;
+		server.use(http.post('*/api/decks/d1/invitations', () => ((called = true), new HttpResponse(null, { status: 202 }))));
+		renderApp('/decks/d1');
+
+		const dialog = await openAddDialog();
+		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), 'rita@example.com');
+		await userEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+
+		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+		expect(called).toBe(false);
+	});
+
+	it('keeps the window open and shows an error when the e-mail is refused', async () => {
 		server.use(http.post('*/api/decks/d1/invitations', () => HttpResponse.json({ detail: 'x' }, { status: 400 })));
 		renderApp('/decks/d1');
 
-		await userEvent.type(await screen.findByLabelText('Convidar por e-mail'), 'julia@example.com');
-		await userEvent.click(screen.getByRole('button', { name: 'Convidar' }));
+		const dialog = await openAddDialog();
+		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), 'julia@example.com');
+		await userEvent.click(within(dialog).getByRole('button', { name: 'Convidar' }));
 
-		expect(await screen.findByRole('alert')).toHaveTextContent('Confira o e-mail');
+		expect(await within(dialog).findByRole('alert')).toHaveTextContent('Confira o e-mail');
+		expect(screen.getByRole('dialog', { name: 'Adicionar participante' })).toBeInTheDocument();
 	});
 
-	it('lists the pending invitations and cancels one', async () => {
+	it('lists the pending invitations only when there are some, and cancels one', async () => {
 		let pending = [{ id: 'i1', inviteeName: 'Rita', role: 'READER', createdAt: '2026-01-02T12:00:00Z' }];
 		server.use(
 			http.get('*/api/decks/d1/invitations', () => HttpResponse.json(pending)),
@@ -80,7 +128,8 @@ describe('DeckTeamPanel', () => {
 		expect(within(list).getByText('Rita')).toBeInTheDocument();
 		await userEvent.click(within(list).getByRole('button', { name: 'Cancelar convite de Rita' }));
 
-		expect(await screen.findByText('Nenhum convite pendente.')).toBeInTheDocument();
+		await waitFor(() => expect(screen.queryByRole('list', { name: 'Convites pendentes' })).not.toBeInTheDocument());
+		expect(screen.queryByText('Convites pendentes')).not.toBeInTheDocument();
 	});
 
 	it('lists the participants and removes one after confirmation', async () => {
@@ -95,12 +144,14 @@ describe('DeckTeamPanel', () => {
 		renderApp('/decks/d1');
 
 		const list = await screen.findByRole('list', { name: 'Participantes' });
+		expect(screen.getByRole('heading', { name: 'Participantes (1)' })).toBeInTheDocument();
 		expect(within(list).getByText('Leitor')).toBeInTheDocument();
 		await userEvent.click(within(list).getByRole('button', { name: 'Remover Rita' }));
 		const dialog = await screen.findByRole('alertdialog', { name: 'Remover participante?' });
 		await userEvent.click(within(dialog).getByRole('button', { name: 'Remover' }));
 
-		expect(await screen.findByText('Só você, por enquanto.')).toBeInTheDocument();
+		expect(await screen.findByText('Apenas você')).toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: 'Participantes' })).toBeInTheDocument();
 	});
 
 	it('shows a message when removing fails', async () => {

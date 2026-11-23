@@ -8,11 +8,12 @@ interface DialogProps {
 	description: string;
 	icon?: ReactNode;
 	tone?: 'default' | 'danger';
+	variant?: 'alert' | 'form';
 	onCancel: () => void;
 	children: ReactNode;
 }
 
-export function Dialog({ open, title, description, icon, tone = 'default', onCancel, children }: DialogProps) {
+export function Dialog({ open, title, description, icon, tone = 'default', variant = 'alert', onCancel, children }: DialogProps) {
 	const ref = useRef<HTMLDialogElement>(null);
 	const titleId = useId();
 	const descriptionId = useId();
@@ -32,8 +33,8 @@ export function Dialog({ open, title, description, icon, tone = 'default', onCan
 	return (
 		<dialog
 			ref={ref}
-			className={styles.dialog}
-			role="alertdialog"
+			className={[styles.dialog, variant === 'form' ? styles.form : ''].filter(Boolean).join(' ')}
+			role={variant === 'form' ? 'dialog' : 'alertdialog'}
 			aria-labelledby={titleId}
 			aria-describedby={descriptionId}
 			onCancel={(event) => {

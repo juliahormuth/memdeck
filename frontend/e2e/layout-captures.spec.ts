@@ -59,9 +59,12 @@ test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 		await reader.getByRole('button', { name: 'Pesquisar' }).click();
 		await expect(reader.getByRole('link', { name: 'Anatomia humana' }).first()).toBeVisible();
 		await reader.screenshot({ path: `${captureDir}/${name}-explorar.png`, fullPage: true });
-		await page.getByLabel('Convidar por e-mail').fill(readerEmail);
-		await page.getByLabel('Papel').selectOption({ label: 'Editor' });
-		await page.getByRole('button', { name: 'Convidar' }).click();
+		await page.getByRole('button', { name: 'Adicionar participante' }).click();
+		await page.screenshot({ path: `${captureDir}/${name}-adicionar-participante.png` });
+		const inviteDialog = page.getByRole('dialog', { name: 'Adicionar participante' });
+		await inviteDialog.getByLabel('E-mail da pessoa').fill(readerEmail);
+		await inviteDialog.getByLabel('Papel').selectOption({ label: 'Editor' });
+		await inviteDialog.getByRole('button', { name: 'Convidar' }).click();
 		await expect(page.getByRole('list', { name: 'Convites pendentes' })).toBeVisible();
 		await page.screenshot({ path: `${captureDir}/${name}-participantes.png`, fullPage: true });
 		await reader.goto('/invitations');

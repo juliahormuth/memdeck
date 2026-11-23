@@ -14,9 +14,11 @@ async function newUser(browser: Browser): Promise<{ page: Page; email: string; c
 }
 
 async function invite(page: Page, email: string, role: 'Leitor' | 'Editor'): Promise<void> {
-	await page.getByLabel('Convidar por e-mail').fill(email);
-	await page.getByLabel('Papel').selectOption({ label: role });
-	await page.getByRole('button', { name: 'Convidar' }).click();
+	await page.getByRole('button', { name: 'Adicionar participante' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Adicionar participante' });
+	await dialog.getByLabel('E-mail da pessoa').fill(email);
+	await dialog.getByLabel('Papel').selectOption({ label: role });
+	await dialog.getByRole('button', { name: 'Convidar' }).click();
 	await expect(page.getByText(/Se esse e-mail tiver uma conta/)).toBeVisible();
 }
 
@@ -54,7 +56,7 @@ test('an invited editor accepts, adds flashcards to a private deck, and the owne
 	await expect(page.getByRole('listitem').filter({ hasText: 'Qual osso é a clavícula?' })).toBeVisible();
 	await page.getByRole('button', { name: 'Remover Pessoa de Teste' }).click();
 	await page.getByRole('alertdialog').getByRole('button', { name: 'Remover' }).click();
-	await expect(page.getByText('Só você, por enquanto.')).toBeVisible();
+	await expect(page.getByText('Apenas você')).toBeVisible();
 
 	await guest.page.goto(deckUrl);
 	await expect(guest.page.getByRole('heading', { name: 'Baralho não encontrado' })).toBeVisible();
@@ -101,7 +103,7 @@ test('declining keeps the guest out, and an unknown e-mail gets the same answer 
 
 	await expect(guest.page.getByText('Você não tem convites pendentes.')).toBeVisible();
 	await page.reload();
-	await expect(page.getByText('Nenhum convite pendente.')).toBeVisible();
+	await expect(page.getByRole('list', { name: 'Convites pendentes' })).toHaveCount(0);
 	await guest.close();
 });
 
@@ -112,7 +114,7 @@ test('the owner cancels a pending invitation and it disappears for the guest', a
 	await invite(page, guest.email, 'Editor');
 
 	await page.getByRole('button', { name: /Cancelar convite de/ }).click();
-	await expect(page.getByText('Nenhum convite pendente.')).toBeVisible();
+	await expect(page.getByRole('list', { name: 'Convites pendentes' })).toHaveCount(0);
 
 	await guest.page.goto('/invitations');
 	await expect(guest.page.getByText('Você não tem convites pendentes.')).toBeVisible();

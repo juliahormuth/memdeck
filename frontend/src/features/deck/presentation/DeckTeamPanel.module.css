@@ -21,19 +21,18 @@
 	color: var(--color-blue-dark);
 }
 
-.form {
+.header {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-end;
+	align-items: center;
+	justify-content: space-between;
 	gap: 12px;
 }
 
-.email {
-	flex: 1 1 240px;
-}
-
-.role {
-	flex: 0 1 160px;
+.dialogForm {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
 }
 
 .note {

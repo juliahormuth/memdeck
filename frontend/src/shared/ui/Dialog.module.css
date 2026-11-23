@@ -47,3 +47,11 @@
 	gap: 10px;
 	margin-top: 24px;
 }
+
+.form {
+	text-align: left;
+}
+
+.form .actions {
+	align-items: stretch;
+}
