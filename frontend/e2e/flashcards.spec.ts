@@ -79,6 +79,8 @@ test('another user can read a public deck flashcards but cannot add to it; a pri
 	await registerThroughTheUi(stranger, uniqueEmail());
 
 	await stranger.goto(publicUrl);
+	await expect(stranger.getByText('Aberto?')).toBeHidden();
+	await stranger.getByRole('button', { name: 'Exibir flashcards' }).click();
 	await expect(stranger.getByText('Aberto?')).toBeVisible();
 	await expect(stranger.getByRole('link', { name: 'Novo flashcard' })).toHaveCount(0);
 	await stranger.goto(`${publicUrl}/flashcards/new`);

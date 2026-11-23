@@ -92,6 +92,7 @@ test('another user sees no edit or delete controls on a public deck and cannot o
 	await registerThroughTheUi(stranger, uniqueEmail());
 
 	await stranger.goto(deckUrl);
+	await stranger.getByRole('button', { name: 'Exibir flashcards' }).click();
 	await expect(stranger.getByText('Aberto?')).toBeVisible();
 	await expect(stranger.getByRole('link', { name: 'Editar', exact: true })).toHaveCount(0);
 	await expect(stranger.getByRole('button', { name: 'Excluir', exact: true })).toHaveCount(0);

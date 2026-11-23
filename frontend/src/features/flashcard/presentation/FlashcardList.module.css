@@ -12,6 +12,28 @@
 	gap: 12px;
 }
 
+.tools {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.eye {
+	display: grid;
+	place-items: center;
+	width: 48px;
+	height: 48px;
+	color: var(--color-navy);
+	cursor: pointer;
+	background: var(--color-blue-pale);
+	border: 2px solid var(--color-blue-pastel);
+	border-radius: var(--radius-button);
+}
+
+.eye:hover {
+	background: var(--color-blue-pastel);
+}
+
 .title {
 	font-size: 1.25rem;
 	font-weight: 800;

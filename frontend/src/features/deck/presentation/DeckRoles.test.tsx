@@ -29,6 +29,7 @@ describe('deck page by role', () => {
 		renderApp('/decks/d1');
 
 		expect(await screen.findByRole('link', { name: 'Novo flashcard' })).toBeInTheDocument();
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 		expect(await screen.findByRole('link', { name: 'Editar flashcard' })).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: 'Excluir flashcard' })).toBeInTheDocument();
 		expect(screen.getByText('Você participa como Editor')).toBeInTheDocument();
@@ -41,6 +42,7 @@ describe('deck page by role', () => {
 		server.use(http.get('*/api/decks/d1', () => HttpResponse.json({ ...deckDto, role: 'READER' })));
 		renderApp('/decks/d1');
 
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 		await screen.findByText('Úmero?');
 
 		expect(screen.getByRole('link', { name: 'Estudar' })).toBeInTheDocument();

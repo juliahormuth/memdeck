@@ -28,6 +28,7 @@ describe('FlashcardList', () => {
 	it('lets the owner edit each flashcard', async () => {
 		server.use(http.get('*/api/decks/d1/flashcards', () => HttpResponse.json([second, first])));
 		renderApp('/decks/d1');
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 
 		const links = await screen.findAllByRole('link', { name: 'Editar flashcard' });
 
@@ -43,6 +44,7 @@ describe('FlashcardList', () => {
 			http.get('*/api/decks/d1/flashcards', () => HttpResponse.json([first])),
 		);
 		renderApp('/decks/d1');
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 
 		await screen.findByText('Úmero?');
 
@@ -60,6 +62,7 @@ describe('FlashcardList', () => {
 			}),
 		);
 		renderApp('/decks/d1');
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 
 		await userEvent.click((await screen.findAllByRole('button', { name: 'Excluir flashcard' }))[0]!);
 		const dialog = await screen.findByRole('alertdialog', { name: 'Excluir este flashcard?' });
@@ -81,6 +84,7 @@ describe('FlashcardList', () => {
 			}),
 		);
 		renderApp('/decks/d1');
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 
 		await userEvent.click(await screen.findByRole('button', { name: 'Excluir flashcard' }));
 		await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Cancelar' }));
@@ -95,10 +99,55 @@ describe('FlashcardList', () => {
 			http.delete('*/api/decks/d1/flashcards/f1', () => HttpResponse.json({ detail: 'x' }, { status: 403 })),
 		);
 		renderApp('/decks/d1');
+		await userEvent.click(await screen.findByRole('button', { name: 'Exibir flashcards' }));
 
 		await userEvent.click(await screen.findByRole('button', { name: 'Excluir flashcard' }));
 		await userEvent.click(within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Excluir flashcard' }));
 
 		expect(await screen.findByText('Só o dono ou um editor do baralho pode excluir flashcards.')).toBeInTheDocument();
+	});
+
+	it('keeps the flashcards hidden until the eye is clicked, and hides them again', async () => {
+		server.use(http.get('*/api/decks/d1/flashcards', () => HttpResponse.json([second, first])));
+		renderApp('/decks/d1');
+
+		const eye = await screen.findByRole('button', { name: 'Exibir flashcards' });
+		expect(eye).toHaveAttribute('aria-expanded', 'false');
+		expect(eye).toHaveAttribute('title', 'Exibir flashcards');
+		expect(screen.queryByText('Úmero?')).not.toBeInTheDocument();
+		expect(screen.queryByText('Osso do braço')).not.toBeInTheDocument();
+
+		await userEvent.click(eye);
+
+		expect(screen.getByText('Úmero?')).toBeInTheDocument();
+		expect(screen.getByText('Osso do braço')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Ocultar flashcards' })).toHaveAttribute('aria-expanded', 'true');
+		expect(screen.getByRole('button', { name: 'Ocultar flashcards' })).toHaveAttribute('title', 'Ocultar flashcards');
+
+		await userEvent.click(screen.getByRole('button', { name: 'Ocultar flashcards' }));
+
+		expect(screen.queryByText('Úmero?')).not.toBeInTheDocument();
+	});
+
+	it('shows the count in the title even while the content is hidden', async () => {
+		server.use(http.get('*/api/decks/d1/flashcards', () => HttpResponse.json([second, first])));
+		renderApp('/decks/d1');
+
+		expect(await screen.findByRole('heading', { name: 'Flashcards (2)' })).toBeInTheDocument();
+	});
+
+	it('has nothing to hide, and no eye, when the deck has no flashcards', async () => {
+		renderApp('/decks/d1');
+
+		expect(await screen.findByText('Este baralho ainda não tem flashcards. Crie o primeiro.')).toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: /flashcards$/ })).not.toBeInTheDocument();
+	});
+
+	it('opens with the list visible when the editor sends the user back after saving a flashcard', async () => {
+		server.use(http.get('*/api/decks/d1/flashcards', () => HttpResponse.json([first])));
+		renderApp({ pathname: '/decks/d1', state: { showFlashcards: true } });
+
+		expect(await screen.findByText('Úmero?')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Ocultar flashcards' })).toHaveAttribute('aria-expanded', 'true');
 	});
 });

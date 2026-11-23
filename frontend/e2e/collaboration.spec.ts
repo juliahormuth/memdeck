@@ -50,6 +50,7 @@ test('an invited editor accepts, adds flashcards to a private deck, and the owne
 	await expect(guest.page.getByRole('listitem').filter({ hasText: 'Qual osso é a clavícula?' })).toBeVisible();
 
 	await page.reload();
+	await page.getByRole('button', { name: 'Exibir flashcards' }).click();
 	await expect(page.getByRole('listitem').filter({ hasText: 'Qual osso é a clavícula?' })).toBeVisible();
 	await page.getByRole('button', { name: 'Remover Pessoa de Teste' }).click();
 	await page.getByRole('alertdialog').getByRole('button', { name: 'Remover' }).click();
@@ -71,6 +72,8 @@ test('an invited reader studies the private deck, cannot change it, and leaves i
 	await acceptFirstInvitation(guest.page);
 
 	await expect(guest.page.getByText('Você participa como Leitor')).toBeVisible();
+	await expect(guest.page.getByText('Pergunta')).toBeHidden();
+	await guest.page.getByRole('button', { name: 'Exibir flashcards' }).click();
 	await expect(guest.page.getByRole('listitem').filter({ hasText: 'Pergunta' })).toBeVisible();
 	await expect(guest.page.getByRole('link', { name: 'Novo flashcard' })).toHaveCount(0);
 	await guest.page.getByRole('link', { name: 'Estudar' }).click();

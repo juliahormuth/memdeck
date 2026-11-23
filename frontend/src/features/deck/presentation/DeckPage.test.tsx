@@ -64,6 +64,8 @@ describe('DeckPage', () => {
 		renderApp('/decks/d1');
 
 		expect(await screen.findByRole('heading', { name: 'Flashcards (2)' })).toBeInTheDocument();
+		expect(screen.queryByText('Rádio?')).not.toBeInTheDocument();
+		await userEvent.click(screen.getByRole('button', { name: 'Exibir flashcards' }));
 		expect(screen.getByText('Rádio?')).toBeInTheDocument();
 		expect(screen.getByText('Osso do braço')).toBeInTheDocument();
 		expect(screen.getByRole('link', { name: 'Novo flashcard' })).toHaveAttribute('href', '/decks/d1/flashcards/new');

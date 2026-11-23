@@ -104,7 +104,7 @@ function FlashcardEditor({ deck, flashcard, switchingDeck }: { deck: Deck; flash
 			if (flashcard) {
 				updateFlashcard.mutate(
 					{ deckId: deck.id, id: flashcard.id, ...values },
-					{ onSuccess: () => navigate(`/decks/${deck.id}`) },
+					{ onSuccess: () => navigate(`/decks/${deck.id}`, { state: { showFlashcards: true } }) },
 				);
 				return;
 			}
@@ -113,7 +113,7 @@ function FlashcardEditor({ deck, flashcard, switchingDeck }: { deck: Deck; flash
 				{
 					onSuccess: () => {
 						if (!createAnother) {
-							navigate(`/decks/${deck.id}`);
+							navigate(`/decks/${deck.id}`, { state: { showFlashcards: true } });
 							return;
 						}
 						reset();
