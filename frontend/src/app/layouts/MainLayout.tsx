@@ -1,4 +1,5 @@
-import { Link, NavLink, Outlet } from 'react-router';
+import { useEffect, useRef } from 'react';
+import { Link, NavLink, Outlet, useLocation } from 'react-router';
 import { useCurrentUser, useLogout } from '../../features/auth/presentation/authQueries';
 import { useFriendRequests } from '../../features/friendship/presentation/friendshipQueries';
 import { useMyInvitations } from '../../features/invitation/presentation/invitationQueries';
@@ -17,10 +18,23 @@ const menu = [
 export function MainLayout() {
 	const { data: user } = useCurrentUser();
 	const logout = useLogout();
-	const { data: invitations } = useMyInvitations();
+	const { data: invitations, refetch: refetchInvitations } = useMyInvitations();
 	const pendingInvitations = invitations?.length ?? 0;
 	const { data: profile } = useProfile();
-	const { data: friendRequests } = useFriendRequests();
+	const { data: friendRequests, refetch: refetchFriendRequests } = useFriendRequests();
+	const { key: locationKey } = useLocation();
+	const firstRender = useRef(true);
+
+	// The layout stays mounted between pages, so the badges are refreshed on every navigation (a click on the current page's menu item also changes the key).
+	useEffect(() => {
+		if (firstRender.current) {
+			firstRender.current = false;
+			return;
+		}
+		void refetchInvitations();
+		void refetchFriendRequests();
+	}, [locationKey, refetchInvitations, refetchFriendRequests]);
+
 	const pendingFriendRequests = friendRequests?.filter((request) => request.direction === 'INCOMING').length ?? 0;
 	const badgeFor = (path: string) => (path === '/invitations' ? pendingInvitations : path === '/friends' ? pendingFriendRequests : 0);
 
