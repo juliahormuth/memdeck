@@ -5,6 +5,25 @@
 	max-width: 720px;
 }
 
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+@media (min-width: 1280px) {
+	.page {
+		max-width: none;
+	}
+
+	.withRanking {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 340px;
+		gap: 32px;
+		align-items: start;
+	}
+}
+
 .title {
 	font-size: 1.75rem;
 	font-weight: 800;

@@ -89,8 +89,10 @@ export function DeckPage() {
 			) : (
 				<p className={styles.empty}>Este baralho não tem descrição.</p>
 			)}
-			<FlashcardList deckId={deck.id} canEdit={canEditFlashcards(deck)} />
-			{deck.role && <DeckRanking deckId={deck.id} />}
+			<div className={[styles.content, deck.role ? styles.withRanking : ''].filter(Boolean).join(' ')}>
+				<FlashcardList deckId={deck.id} canEdit={canEditFlashcards(deck)} />
+				{deck.role && <DeckRanking deckId={deck.id} />}
+			</div>
 			{deck.ownedByMe && <DeckTeamPanel deckId={deck.id} />}
 			{(deck.role === 'EDITOR' || deck.role === 'READER') && (
 				<ConfirmDialog
