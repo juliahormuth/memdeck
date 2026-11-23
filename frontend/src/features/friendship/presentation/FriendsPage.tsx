@@ -56,7 +56,7 @@ export function FriendsPage() {
 		<div className={styles.page}>
 			<header>
 				<h1 className={styles.title}>Amigos</h1>
-				<p className={styles.subtitle}>Adicione pessoas pelo e-mail. A amizade só vale depois que a pessoa aceitar.</p>
+				<p className={styles.subtitle}>Adicione pessoas pelo e-mail</p>
 			</header>
 
 			<form className={styles.form} onSubmit={submit}>
