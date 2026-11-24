@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/target
+**/test-results
+**/.env
+**/*.log
+.git
+.github
+frontend/e2e

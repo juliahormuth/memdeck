@@ -1,0 +1,4 @@
+server:
+  # Behind Caddy: use the client address from X-Forwarded-For (only private networks are trusted proxies), which the login throttling needs.
+  forward-headers-strategy: native
+  shutdown: graceful
