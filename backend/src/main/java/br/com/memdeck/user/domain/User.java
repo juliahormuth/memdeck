@@ -49,6 +49,13 @@ public class User {
 		return new User(id, validName(newName), email, passwordHash, newAvatar, createdAt);
 	}
 
+	public User withPasswordHash(String newPasswordHash) {
+		if (newPasswordHash == null || newPasswordHash.isBlank()) {
+			throw new InvalidUserException("Password hash is required");
+		}
+		return new User(id, name, email, newPasswordHash, avatar, createdAt);
+	}
+
 	private static String validName(String name) {
 		if (name == null || name.isBlank()) {
 			throw new InvalidUserException("Name must not be blank");

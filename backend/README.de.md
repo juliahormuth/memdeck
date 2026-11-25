@@ -24,6 +24,12 @@ REST-API von Memdeck, entwickelt mit Java 21, Spring Boot 4.1, Spring Data JPA, 
    # DB_PORT=5432
    # DB_URL=jdbc:postgresql://localhost:5432/memdeck
    # SESSION_COOKIE_SECURE=true   (nur auf false setzen, wenn der Browser das Cookie auf http://localhost ablehnt)
+   # E-Mail-Versand (Passwort-Wiederherstellung). Ohne MAIL_USERNAME wird nichts gesendet. Bei Gmail ein App-Passwort verwenden.
+   # MAIL_USERNAME=
+   # MAIL_PASSWORD=
+   # MAIL_HOST=smtp.gmail.com
+   # MAIL_PORT=587
+   # MAIL_FROM=
    ```
 
    Wenn du `DB_PORT` änderst, passe auch den Port in `DB_URL` an.

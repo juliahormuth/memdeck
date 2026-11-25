@@ -91,3 +91,16 @@ test('five failed logins block the account even with the right password', async 
 	await expect(page.getByRole('alert')).toContainText('Muitas tentativas');
 	await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible();
 });
+
+test('a forgotten password asks for a code and refuses a wrong one', async ({ page }) => {
+	await page.goto('/login');
+	await page.getByRole('link', { name: 'Esqueci minha senha' }).click();
+
+	await page.getByLabel('E-mail').fill(uniqueEmail());
+	await page.getByRole('button', { name: 'Enviar código' }).click();
+	await page.getByLabel('Código').fill('000000');
+	await page.getByLabel('Nova senha', { exact: true }).fill(PASSWORD);
+	await page.getByRole('button', { name: 'Alterar senha' }).click();
+
+	await expect(page.getByRole('alert')).toHaveText('Código inválido ou expirado.');
+});

@@ -30,6 +30,11 @@ services:
       DB_USER: ${DB_USER:-memdeck}
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in deploy/.env}
       PASSWORD_PEPPER: ${PASSWORD_PEPPER:?Set PASSWORD_PEPPER in deploy/.env}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      MAIL_FROM: ${MAIL_FROM:-}
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=45 -XX:+ExitOnOutOfMemoryError
 
   web:

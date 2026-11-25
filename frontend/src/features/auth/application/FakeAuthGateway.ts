@@ -1,11 +1,21 @@
 import type { User } from '../domain/User';
-import type { AuthGateway, Credentials, NewAccount } from './AuthGateway';
+import type { AuthGateway, Credentials, NewAccount, PasswordReset } from './AuthGateway';
 
 export class FakeAuthGateway implements AuthGateway {
 	registered: NewAccount[] = [];
 	loggedIn: Credentials[] = [];
 	loggedOut = 0;
 	user: User | null = null;
+	resetRequests: string[] = [];
+	resets: PasswordReset[] = [];
+
+	async requestPasswordReset(email: string): Promise<void> {
+		this.resetRequests.push(email);
+	}
+
+	async confirmPasswordReset(reset: PasswordReset): Promise<void> {
+		this.resets.push(reset);
+	}
 
 	async register(account: NewAccount): Promise<void> {
 		this.registered.push(account);

@@ -31,3 +31,35 @@
 .footer a {
 	font-weight: 700;
 }
+
+.forgot {
+	align-self: flex-end;
+	margin-top: -8px;
+	font-weight: 700;
+}
+
+.notice {
+	padding: 12px 14px;
+	color: var(--color-navy);
+	background: var(--color-blue-pale);
+	border: 1px solid var(--color-blue-pastel);
+	border-radius: var(--radius-field);
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.link {
+	min-height: 44px;
+	font-weight: 700;
+	color: var(--color-blue-dark);
+	text-decoration: underline;
+	cursor: pointer;
+	background: none;
+	border: 0;
+}

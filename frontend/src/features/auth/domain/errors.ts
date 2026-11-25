@@ -7,6 +7,13 @@ export class InvalidCredentialsError extends Error {
 	}
 }
 
+export class InvalidResetCodeError extends Error {
+	constructor() {
+		super('Invalid or expired code');
+		this.name = 'InvalidResetCodeError';
+	}
+}
+
 export class TooManyLoginAttemptsError extends Error {
 	readonly retryAfterSeconds: number | null;
 

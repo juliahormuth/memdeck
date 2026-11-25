@@ -32,6 +32,11 @@ class InMemoryLoginAttemptGateway implements LoginAttemptGateway {
 		attempts.removeIf(a -> a.email().equals(email) && a.origin().equals(origin));
 	}
 
+	@Override
+	public void clearAll(String email) {
+		attempts.removeIf(a -> a.email().equals(email));
+	}
+
 	int total() {
 		return attempts.size();
 	}

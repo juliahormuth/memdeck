@@ -21,6 +21,10 @@ interface LoginAttemptJpaRepository extends JpaRepository<LoginAttemptJpaModel, 
 	void deleteByKey(@Param("email") String email, @Param("origin") String origin);
 
 	@Modifying
+	@Query("delete from LoginAttemptJpaModel a where a.email = :email")
+	void deleteByEmail(@Param("email") String email);
+
+	@Modifying
 	@Query("delete from LoginAttemptJpaModel a where a.attemptedAt < :limit")
 	int deleteOlderThan(@Param("limit") Instant limit);
 }

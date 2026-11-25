@@ -9,14 +9,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import br.com.memdeck.user.domain.EmailAlreadyRegisteredException;
 import br.com.memdeck.user.domain.InvalidCredentialsException;
+import br.com.memdeck.user.domain.InvalidPasswordResetCodeException;
 import br.com.memdeck.user.domain.InvalidUserException;
 import br.com.memdeck.user.domain.TooManyLoginAttemptsException;
 
-@RestControllerAdvice(assignableTypes = AuthController.class)
+@RestControllerAdvice(assignableTypes = { AuthController.class, PasswordResetController.class })
 class AuthExceptionHandler {
 
 	@ExceptionHandler(InvalidUserException.class)
 	ProblemDetail handleInvalidUser(InvalidUserException exception) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+	}
+
+	@ExceptionHandler(InvalidPasswordResetCodeException.class)
+	ProblemDetail handleInvalidResetCode(InvalidPasswordResetCodeException exception) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
 	}
 

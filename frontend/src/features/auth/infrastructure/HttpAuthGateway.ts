@@ -1,10 +1,11 @@
 import { ApiError } from '../../../shared/http/ApiError';
 import { httpClient } from '../../../shared/http/httpClient';
-import type { AuthGateway, Credentials, NewAccount } from '../application/AuthGateway';
+import type { AuthGateway, Credentials, NewAccount, PasswordReset } from '../application/AuthGateway';
 import {
 	EmailAlreadyRegisteredError,
 	InvalidCredentialsError,
 	InvalidRegistrationError,
+	InvalidResetCodeError,
 	TooManyLoginAttemptsError,
 } from '../domain/errors';
 import type { User } from '../domain/User';
@@ -42,6 +43,21 @@ export class HttpAuthGateway implements AuthGateway {
 			}
 			if (error instanceof ApiError && error.status === 429) {
 				throw new TooManyLoginAttemptsError(error.retryAfterSeconds);
+			}
+			throw error;
+		}
+	}
+
+	async requestPasswordReset(email: string): Promise<void> {
+		await httpClient.post<void>('/api/auth/password-reset', { email });
+	}
+
+	async confirmPasswordReset(reset: PasswordReset): Promise<void> {
+		try {
+			await httpClient.post<void>('/api/auth/password-reset/confirm', reset);
+		} catch (error) {
+			if (error instanceof ApiError && error.status === 400) {
+				throw new InvalidResetCodeError();
 			}
 			throw error;
 		}

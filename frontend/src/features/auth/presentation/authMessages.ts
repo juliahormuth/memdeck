@@ -2,6 +2,7 @@ import {
 	EmailAlreadyRegisteredError,
 	InvalidCredentialsError,
 	InvalidRegistrationError,
+	InvalidResetCodeError,
 	TooManyLoginAttemptsError,
 } from '../domain/errors';
 import { NAME_MAX_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../domain/rules';
@@ -22,6 +23,11 @@ export const passwordMessages: Partial<Record<FieldErrorCode, string>> = {
 	too_long: `A senha deve ter no máximo ${PASSWORD_MAX_LENGTH} caracteres.`,
 };
 
+export const resetCodeMessages: Partial<Record<FieldErrorCode, string>> = {
+	blank: 'Informe o código.',
+	invalid: 'O código tem 6 números.',
+};
+
 export function messageForAuthError(error: unknown): string {
 	if (error instanceof InvalidCredentialsError) {
 		return 'E-mail ou senha inválidos.';
@@ -30,6 +36,9 @@ export function messageForAuthError(error: unknown): string {
 		return error.retryAfterSeconds
 			? `Muitas tentativas. Tente novamente em ${Math.ceil(error.retryAfterSeconds / 60)} minuto(s).`
 			: 'Muitas tentativas. Tente novamente mais tarde.';
+	}
+	if (error instanceof InvalidResetCodeError) {
+		return 'Código inválido ou expirado.';
 	}
 	if (error instanceof EmailAlreadyRegisteredError) {
 		return 'Este e-mail já está cadastrado.';

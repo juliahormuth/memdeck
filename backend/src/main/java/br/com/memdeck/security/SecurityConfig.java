@@ -31,7 +31,8 @@ public class SecurityConfig {
 				.requestCache(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(requests -> requests
 						.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-						.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
+								"/api/auth/password-reset", "/api/auth/password-reset/confirm").permitAll()
 						.anyRequest().authenticated())
 				.formLogin(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)

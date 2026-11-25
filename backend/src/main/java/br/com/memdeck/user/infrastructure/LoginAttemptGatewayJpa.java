@@ -34,4 +34,9 @@ class LoginAttemptGatewayJpa implements LoginAttemptGateway {
 	public void clear(String email, String origin) {
 		repository.deleteByKey(email, origin);
 	}
+
+	@Override
+	public void clearAll(String email) {
+		repository.deleteByEmail(email);
+	}
 }

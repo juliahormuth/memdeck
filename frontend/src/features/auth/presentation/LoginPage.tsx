@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { z } from 'zod';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
@@ -19,6 +19,7 @@ type LoginFormValues = z.infer<typeof schema>;
 
 export function LoginPage() {
 	const login = useLogin();
+	const passwordChanged = (useLocation().state as { passwordChanged?: boolean } | null)?.passwordChanged;
 	const {
 		register,
 		handleSubmit,
@@ -30,6 +31,11 @@ export function LoginPage() {
 			<h1 className={styles.title}>Entrar</h1>
 			<p className={styles.subtitle}>Que bom ver você de novo.</p>
 			<form className={styles.form} noValidate onSubmit={handleSubmit((values) => login.mutate(values))}>
+				{passwordChanged && !login.isError && (
+					<p role="status" className={styles.notice}>
+						Senha alterada. Entre com a nova senha.
+					</p>
+				)}
 				{login.isError && <Alert>{messageForAuthError(login.error)}</Alert>}
 				<TextField
 					label="E-mail"
@@ -46,6 +52,9 @@ export function LoginPage() {
 					error={errors.password?.message}
 					{...register('password')}
 				/>
+				<Link to="/forgot-password" className={styles.forgot}>
+					Esqueci minha senha
+				</Link>
 				<Button type="submit" fullWidth loading={login.isPending}>
 					Entrar
 				</Button>

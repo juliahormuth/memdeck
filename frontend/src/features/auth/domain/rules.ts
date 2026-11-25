@@ -32,6 +32,14 @@ export function validatePassword(password: string): FieldErrorCode | null {
 	return password.length > PASSWORD_MAX_LENGTH ? 'too_long' : null;
 }
 
+export function validateResetCode(code: string): FieldErrorCode | null {
+	const trimmed = code.trim();
+	if (trimmed.length === 0) {
+		return 'blank';
+	}
+	return /^\d{6}$/.test(trimmed) ? null : 'invalid';
+}
+
 export function validateRegistration(registration: { name: string; email: string; password: string }): FieldErrors {
 	const errors: FieldErrors = {};
 	const name = validateName(registration.name);

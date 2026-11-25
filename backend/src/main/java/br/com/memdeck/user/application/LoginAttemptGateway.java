@@ -9,4 +9,6 @@ public interface LoginAttemptGateway {
 	void recordFailure(String email, String origin, Instant at);
 
 	void clear(String email, String origin);
+
+	void clearAll(String email);
 }

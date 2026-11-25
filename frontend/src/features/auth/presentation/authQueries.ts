@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { QueryClient } from '@tanstack/react-query';
 import { authUseCases } from '../composition';
-import type { Credentials, NewAccount } from '../application/AuthGateway';
+import type { Credentials, NewAccount, PasswordReset } from '../application/AuthGateway';
 
 export const currentUserKey = ['auth', 'current-user'] as const;
 
@@ -36,6 +36,14 @@ export function useRegister() {
 		},
 		onSuccess: (user) => queryClient.setQueryData(currentUserKey, user),
 	});
+}
+
+export function useRequestPasswordReset() {
+	return useMutation({ mutationFn: (email: string) => authUseCases.requestPasswordReset(email) });
+}
+
+export function useConfirmPasswordReset() {
+	return useMutation({ mutationFn: (reset: PasswordReset) => authUseCases.confirmPasswordReset(reset) });
 }
 
 export function useLogout() {

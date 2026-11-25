@@ -16,11 +16,26 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    # No default on purpose. Without MAIL_USERNAME no e-mail is sent.
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
   session:
     timeout: 30m
     jdbc:
       initialize-schema: never
 memdeck:
+  mail:
+    from: ${MAIL_FROM:}
   security:
     # Base64 secret (at least 32 bytes decoded), kept outside the database. No default on purpose.
     password-pepper: ${PASSWORD_PEPPER}

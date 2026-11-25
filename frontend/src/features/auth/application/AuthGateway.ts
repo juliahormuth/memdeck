@@ -11,7 +11,15 @@ export interface Credentials {
 	password: string;
 }
 
+export interface PasswordReset {
+	email: string;
+	code: string;
+	newPassword: string;
+}
+
 export interface AuthGateway {
+	requestPasswordReset(email: string): Promise<void>;
+	confirmPasswordReset(reset: PasswordReset): Promise<void>;
 	register(account: NewAccount): Promise<void>;
 	login(credentials: Credentials): Promise<User>;
 	currentUser(): Promise<User | null>;

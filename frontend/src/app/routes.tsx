@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router';
 import type { RouteObject } from 'react-router';
+import { ForgotPasswordPage } from '../features/auth/presentation/ForgotPasswordPage';
 import { LoginPage } from '../features/auth/presentation/LoginPage';
 import { RedirectIfAuthenticated } from '../features/auth/presentation/RedirectIfAuthenticated';
 import { RegisterPage } from '../features/auth/presentation/RegisterPage';
@@ -30,6 +31,7 @@ export const routes: RouteObject[] = [
 						children: [
 							{ path: '/login', element: <LoginPage /> },
 							{ path: '/register', element: <RegisterPage /> },
+							{ path: '/forgot-password', element: <ForgotPasswordPage /> },
 						],
 					},
 				],
