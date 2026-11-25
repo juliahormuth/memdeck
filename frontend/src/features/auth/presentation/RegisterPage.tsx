@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { validatedField } from '../../../shared/forms/validatedField';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
+import { PasswordField } from '../../../shared/ui/PasswordField';
 import { TextField } from '../../../shared/ui/TextField';
 import { validateEmail, validateName, validatePassword } from '../domain/rules';
 import { emailMessages, messageForAuthError, nameMessages, passwordMessages } from './authMessages';
@@ -46,9 +47,8 @@ export function RegisterPage() {
 					error={errors.email?.message}
 					{...register('email')}
 				/>
-				<TextField
+				<PasswordField
 					label="Senha"
-					type="password"
 					autoComplete="new-password"
 					placeholder="Pelo menos 8 caracteres"
 					error={errors.password?.message}

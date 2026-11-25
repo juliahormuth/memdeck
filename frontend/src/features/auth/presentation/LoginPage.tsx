@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { z } from 'zod';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
+import { PasswordField } from '../../../shared/ui/PasswordField';
 import { TextField } from '../../../shared/ui/TextField';
 import { messageForAuthError } from './authMessages';
 import { useLogin } from './authQueries';
@@ -38,9 +39,8 @@ export function LoginPage() {
 					error={errors.email?.message}
 					{...register('email')}
 				/>
-				<TextField
+				<PasswordField
 					label="Senha"
-					type="password"
 					autoComplete="current-password"
 					placeholder="Sua senha"
 					error={errors.password?.message}

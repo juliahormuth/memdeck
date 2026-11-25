@@ -11,7 +11,7 @@ export async function registerThroughTheUi(page: Page, email: string, password =
 	await page.goto('/register');
 	await page.getByLabel('Nome').fill('Pessoa de Teste');
 	await page.getByLabel('E-mail').fill(email);
-	await page.getByLabel('Senha').fill(password);
+	await page.getByLabel('Senha', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Criar conta' }).click();
 	await expect(page.getByRole('heading', { name: 'Início' })).toBeVisible();
 }
@@ -23,7 +23,7 @@ export async function logoutThroughTheUi(page: Page): Promise<void> {
 
 export async function loginThroughTheUi(page: Page, email: string, password: string): Promise<void> {
 	await page.getByLabel('E-mail').fill(email);
-	await page.getByLabel('Senha').fill(password);
+	await page.getByLabel('Senha', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Entrar' }).click();
 }
 

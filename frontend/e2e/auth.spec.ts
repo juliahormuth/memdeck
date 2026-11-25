@@ -21,7 +21,7 @@ test('registration rejects invalid fields without leaving the page', async ({ pa
 	await page.goto('/register');
 
 	await page.getByLabel('E-mail').fill('not-an-email');
-	await page.getByLabel('Senha').fill('short');
+	await page.getByLabel('Senha', { exact: true }).fill('short');
 	await page.getByRole('button', { name: 'Criar conta' }).click();
 
 	await expect(page.getByText('Informe seu nome.')).toBeVisible();
@@ -38,7 +38,7 @@ test('registering an email that already exists shows an error', async ({ page })
 	await page.goto('/register');
 	await page.getByLabel('Nome').fill('Outra Pessoa');
 	await page.getByLabel('E-mail').fill(email);
-	await page.getByLabel('Senha').fill(PASSWORD);
+	await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
 	await page.getByRole('button', { name: 'Criar conta' }).click();
 
 	await expect(page.getByRole('alert')).toHaveText('Este e-mail já está cadastrado.');
@@ -85,7 +85,7 @@ test('five failed logins block the account even with the right password', async 
 		await loginThroughTheUi(page, email, 'wrong-password-123');
 		await expect(page.getByRole('alert')).toHaveText('E-mail ou senha inválidos.');
 	}
-	await page.getByLabel('Senha').fill(PASSWORD);
+	await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
 	await page.getByRole('button', { name: 'Entrar' }).click();
 
 	await expect(page.getByRole('alert')).toContainText('Muitas tentativas');
