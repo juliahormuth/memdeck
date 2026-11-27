@@ -8,6 +8,14 @@ export function useFriends() {
 	return useQuery({ queryKey: friendsKey, queryFn: () => friendshipUseCases.listFriends(), retry: false });
 }
 
+export function useFriendActivity() {
+	return useQuery({
+		queryKey: [...friendsKey, 'activity'],
+		queryFn: () => friendshipUseCases.listActivity(),
+		retry: false,
+	});
+}
+
 export function useFriendRequests() {
 	return useQuery({ queryKey: requestsKey, queryFn: () => friendshipUseCases.listRequests(), retry: false });
 }

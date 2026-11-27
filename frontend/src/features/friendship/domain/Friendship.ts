@@ -5,6 +5,14 @@ export interface Friend {
 	since: string;
 }
 
+export interface FriendActivity {
+	userId: string;
+	name: string;
+	avatar: string;
+	day: string;
+	reviewedFlashcards: number;
+}
+
 export type FriendRequestDirection = 'INCOMING' | 'OUTGOING';
 
 export interface FriendRequest {

@@ -1,7 +1,8 @@
-import type { Friend, FriendRequest } from '../domain/Friendship';
+import type { Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
 
 export interface FriendshipGateway {
 	listFriends(): Promise<Friend[]>;
+	listActivity(): Promise<FriendActivity[]>;
 	removeFriend(userId: string): Promise<void>;
 	listRequests(): Promise<FriendRequest[]>;
 	sendRequest(email: string): Promise<void>;

@@ -69,7 +69,7 @@ test('a friend request is sent by e-mail, accepted by the other person, and the 
 	await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: /Amigos/ }).click();
 	await page.getByLabel('Adicionar amigo por e-mail').fill(friend.email);
 	await page.getByRole('button', { name: 'Enviar pedido' }).click();
-	await expect(page.getByText(/Se esse e-mail tiver uma conta/)).toBeVisible();
+	await expect(page.getByText(/Pedido de amizade enviado/)).toBeVisible();
 	await page.getByLabel('Adicionar amigo por e-mail').fill(`ninguem-${Date.now()}@example.com`);
 	await page.getByRole('button', { name: 'Enviar pedido' }).click();
 	await expect(page.getByRole('list', { name: 'Pedidos enviados' }).getByRole('listitem')).toHaveCount(1);
@@ -84,6 +84,17 @@ test('a friend request is sent by e-mail, accepted by the other person, and the 
 	await expect(page.getByRole('list', { name: 'Seus amigos' }).getByText('Amiga Carla')).toBeVisible();
 	await page.goto('/profile');
 	await expect(page.getByRole('list', { name: 'Sua atividade' }).getByText('amigo', { exact: true })).toBeVisible();
+
+	await createDeckThroughTheUi(friend.page, 'Segredo da Carla');
+	const deckUrl = friend.page.url();
+	await addFlashcard(friend.page, 'Pergunta secreta');
+	await studyAll(friend.page, deckUrl);
+	await page.goto('/');
+	const activity = page.getByRole('list', { name: 'Atividade dos amigos' });
+	await expect(activity.getByRole('listitem')).toContainText('Amiga Carla revisou 1 flashcard');
+	await expect(activity.getByRole('listitem')).toContainText('Hoje');
+	await expect(page.getByText('Segredo da Carla')).toHaveCount(0);
+	await friend.page.goto('/friends');
 
 	await friend.page.getByRole('button', { name: /Remover .* dos amigos/ }).click();
 	await friend.page.getByRole('alertdialog').getByRole('button', { name: 'Remover' }).click();

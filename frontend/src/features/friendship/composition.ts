@@ -2,6 +2,7 @@ import {
 	acceptFriendRequest,
 	cancelFriendRequest,
 	declineFriendRequest,
+	listFriendActivity,
 	listFriendRequests,
 	listFriends,
 	removeFriend,
@@ -13,6 +14,7 @@ const gateway = new HttpFriendshipGateway();
 
 export const friendshipUseCases = {
 	listFriends: () => listFriends(gateway),
+	listActivity: () => listFriendActivity(gateway),
 	removeFriend: (userId: string) => removeFriend(gateway, userId),
 	listRequests: () => listFriendRequests(gateway),
 	sendRequest: (email: string) => sendFriendRequest(gateway, email),

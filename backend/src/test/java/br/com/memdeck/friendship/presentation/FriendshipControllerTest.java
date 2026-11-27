@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import br.com.memdeck.friendship.application.AnswerFriendRequestUseCase;
 import br.com.memdeck.friendship.application.FriendRequestView;
 import br.com.memdeck.friendship.application.FriendView;
+import br.com.memdeck.friendship.application.ListFriendActivityUseCase;
 import br.com.memdeck.friendship.application.ListFriendRequestsUseCase;
 import br.com.memdeck.friendship.application.ListFriendsUseCase;
 import br.com.memdeck.friendship.application.RemoveFriendUseCase;
@@ -69,6 +70,9 @@ class FriendshipControllerTest {
 
 	@MockitoBean
 	RemoveFriendUseCase removeFriend;
+
+	@MockitoBean
+	ListFriendActivityUseCase listFriendActivity;
 
 	@Test
 	void listsMyFriendsWithoutEmails() throws Exception {

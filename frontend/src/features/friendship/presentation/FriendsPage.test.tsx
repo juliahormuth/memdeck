@@ -63,7 +63,7 @@ describe('FriendsPage', () => {
 		await userEvent.type(await screen.findByLabelText('Adicionar amigo por e-mail'), '  bruno@example.com');
 		await userEvent.click(screen.getByRole('button', { name: 'Enviar pedido' }));
 
-		expect(await screen.findByText(/Se esse e-mail tiver uma conta/)).toBeInTheDocument();
+		expect(await screen.findByText(/Pedido de amizade enviado/)).toBeInTheDocument();
 		expect(body).toEqual({ email: 'bruno@example.com' });
 		expect(screen.getByLabelText('Adicionar amigo por e-mail')).toHaveValue('');
 	});

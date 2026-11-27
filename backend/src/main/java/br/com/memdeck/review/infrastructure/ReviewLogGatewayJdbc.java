@@ -2,6 +2,9 @@ package br.com.memdeck.review.infrastructure;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +13,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import br.com.memdeck.review.application.DailyReviewCount;
 import br.com.memdeck.review.application.ReviewLogGateway;
 
 @Component
@@ -45,5 +49,26 @@ class ReviewLogGatewayJdbc implements ReviewLogGateway {
 					counts.put(rs.getObject("user_id", UUID.class), rs.getLong("total"));
 				}, deckId);
 		return counts;
+	}
+
+	@Override
+	public List<DailyReviewCount> findDailyCounts(Collection<UUID> userIds, LocalDate since, int limit) {
+		if (userIds.isEmpty()) {
+			return List.of();
+		}
+		String placeholders = String.join(",", Collections.nCopies(userIds.size(), "?"));
+		List<Object> arguments = new ArrayList<>(userIds);
+		arguments.add(Date.valueOf(since));
+		arguments.add(limit);
+		return jdbc.query("""
+				SELECT user_id, reviewed_on, count(*) AS total FROM review_logs
+				WHERE user_id IN (%s) AND reviewed_on >= ?
+				GROUP BY user_id, reviewed_on
+				ORDER BY reviewed_on DESC, user_id
+				LIMIT ?
+				""".formatted(placeholders),
+				(rs, row) -> new DailyReviewCount(rs.getObject("user_id", UUID.class),
+						rs.getDate("reviewed_on").toLocalDate(), rs.getLong("total")),
+				arguments.toArray());
 	}
 }

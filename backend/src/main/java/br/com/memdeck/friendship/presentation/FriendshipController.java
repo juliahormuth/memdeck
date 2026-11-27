@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.memdeck.friendship.application.AnswerFriendRequestUseCase;
+import br.com.memdeck.friendship.application.ListFriendActivityUseCase;
 import br.com.memdeck.friendship.application.ListFriendRequestsUseCase;
 import br.com.memdeck.friendship.application.ListFriendsUseCase;
 import br.com.memdeck.friendship.application.RemoveFriendUseCase;
@@ -32,20 +33,28 @@ public class FriendshipController {
 	private final AnswerFriendRequestUseCase answerFriendRequest;
 	private final ListFriendsUseCase listFriends;
 	private final RemoveFriendUseCase removeFriend;
+	private final ListFriendActivityUseCase listFriendActivity;
 
 	public FriendshipController(SendFriendRequestUseCase sendFriendRequest,
 			ListFriendRequestsUseCase listFriendRequests, AnswerFriendRequestUseCase answerFriendRequest,
-			ListFriendsUseCase listFriends, RemoveFriendUseCase removeFriend) {
+			ListFriendsUseCase listFriends, RemoveFriendUseCase removeFriend,
+			ListFriendActivityUseCase listFriendActivity) {
 		this.sendFriendRequest = sendFriendRequest;
 		this.listFriendRequests = listFriendRequests;
 		this.answerFriendRequest = answerFriendRequest;
 		this.listFriends = listFriends;
 		this.removeFriend = removeFriend;
+		this.listFriendActivity = listFriendActivity;
 	}
 
 	@GetMapping("/friends")
 	public List<FriendResponse> friends(@AuthenticationPrincipal AuthenticatedUser user) {
 		return listFriends.execute(user.id()).stream().map(FriendResponse::from).toList();
+	}
+
+	@GetMapping("/friends/activity")
+	public List<FriendActivityResponse> activity(@AuthenticationPrincipal AuthenticatedUser user) {
+		return listFriendActivity.execute(user.id()).stream().map(FriendActivityResponse::from).toList();
 	}
 
 	@DeleteMapping("/friends/{friendId}")

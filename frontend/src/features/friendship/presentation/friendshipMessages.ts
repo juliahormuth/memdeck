@@ -1,7 +1,7 @@
 import { FriendshipNotFoundError, InvalidFriendRequestError } from '../domain/errors';
 
 export const requestSentMessage =
-	'Pronto. Se esse e-mail tiver uma conta no Memdeck, a pessoa recebe o pedido, que aparece em "Pedidos enviados".';
+	'Pedido de amizade enviado. Se este e-mail tiver uma conta, a pessoa poderá visualizá-lo.';
 
 export function messageForSendError(error: unknown): string {
 	if (error instanceof InvalidFriendRequestError) {

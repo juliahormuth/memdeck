@@ -1,6 +1,7 @@
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { ButtonLink } from '../../../shared/ui/ButtonLink';
+import { FriendActivityFeed } from '../../friendship/presentation/FriendActivityFeed';
 import { DeckCard } from './DeckCard';
 import { useMyDecks } from './deckQueries';
 import styles from './HomePage.module.css';
@@ -46,6 +47,7 @@ export function HomePage() {
 					))}
 				</ul>
 			)}
+			<FriendActivityFeed />
 		</div>
 	);
 }
