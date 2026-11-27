@@ -7,15 +7,16 @@ import jakarta.validation.constraints.Size;
 
 public record RegisterUserRequest(
 		@NotBlank @Size(max = 100) String name,
+		@NotBlank @Size(max = 21) String username,
 		@NotBlank @Email @Size(max = 254) String email,
 		@NotBlank @Size(min = 8, max = 128) String password) {
 
 	RegisterUserCommand toCommand() {
-		return new RegisterUserCommand(name, email, password);
+		return new RegisterUserCommand(name, username, email, password);
 	}
 
 	@Override
 	public String toString() {
-		return "RegisterUserRequest[name=" + name + ", email=" + email + ", password=***]";
+		return "RegisterUserRequest[name=" + name + ", username=" + username + ", email=" + email + ", password=***]";
 	}
 }

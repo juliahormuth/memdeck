@@ -7,9 +7,14 @@ export function uniqueEmail(): string {
 	return `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
 }
 
+export function usernameFor(email: string): string {
+	return `u${email.slice(0, email.indexOf('@')).replace(/[^a-z0-9]/g, '').slice(-18)}`;
+}
+
 export async function registerThroughTheUi(page: Page, email: string, password = PASSWORD): Promise<void> {
 	await page.goto('/register');
-	await page.getByLabel('Nome').fill('Pessoa de Teste');
+	await page.getByLabel('Nome', { exact: true }).fill('Pessoa de Teste');
+	await page.getByLabel('Nome de usuário').fill(usernameFor(email));
 	await page.getByLabel('E-mail').fill(email);
 	await page.getByLabel('Senha', { exact: true }).fill(password);
 	await page.getByRole('button', { name: 'Criar conta' }).click();

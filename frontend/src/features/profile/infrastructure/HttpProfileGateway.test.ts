@@ -4,7 +4,7 @@ import { server } from '../../../test/server';
 import { InvalidProfileError } from '../domain/errors';
 import { HttpProfileGateway } from './HttpProfileGateway';
 
-const profile = { id: 'u1', name: 'Julia', email: 'julia@example.com', avatar: 'CAT', reviewedDays: 3, streakDays: 2, friends: 1 };
+const profile = { id: 'u1', name: 'Julia', username: 'julia', email: 'julia@example.com', avatar: 'CAT', reviewedDays: 3, streakDays: 2, friends: 1 };
 const gateway = new HttpProfileGateway();
 
 describe('HttpProfileGateway', () => {

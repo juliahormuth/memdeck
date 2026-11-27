@@ -5,6 +5,7 @@ export type AvatarKey = (typeof AVATARS)[number];
 export interface Profile {
 	id: string;
 	name: string;
+	username: string;
 	email: string;
 	avatar: AvatarKey;
 	reviewedDays: number;

@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { ConfirmDialog } from '../../../shared/ui/ConfirmDialog';
 import { Dialog } from '../../../shared/ui/Dialog';
 import { Select } from '../../../shared/ui/Select';
-import { TextField } from '../../../shared/ui/TextField';
 import { PlusIcon, UsersIcon } from '../../../shared/ui/icons';
+import type { FoundUser } from '../../friendship/domain/Friendship';
+import { UserSearch } from '../../friendship/presentation/UserSearch';
 import type { InvitableRole } from '../../invitation/domain/Invitation';
 import { inviteSentMessage, messageForCancelInvitationError, messageForInviteError } from '../../invitation/presentation/invitationMessages';
 import { useCancelInvitation, useDeckInvitations, useInviteToDeck } from '../../invitation/presentation/invitationQueries';
@@ -17,9 +17,8 @@ import styles from './DeckTeamPanel.module.css';
 
 export function DeckTeamPanel({ deckId }: { deckId: string }) {
 	const [adding, setAdding] = useState(false);
-	const [email, setEmail] = useState('');
 	const [role, setRole] = useState<InvitableRole>('READER');
-	const [sent, setSent] = useState(false);
+	const [sentTo, setSentTo] = useState<string | null>(null);
 	const [toRemove, setToRemove] = useState<DeckMember | null>(null);
 	const members = useDeckMembers(deckId, true);
 	const invitations = useDeckInvitations(deckId);
@@ -29,7 +28,8 @@ export function DeckTeamPanel({ deckId }: { deckId: string }) {
 
 	const openAddDialog = () => {
 		invite.reset();
-		setSent(false);
+		setSentTo(null);
+		setRole('READER');
 		setAdding(true);
 	};
 
@@ -40,18 +40,29 @@ export function DeckTeamPanel({ deckId }: { deckId: string }) {
 		}
 	};
 
-	const submit = (event: FormEvent) => {
-		event.preventDefault();
+	const inviteUser = (user: FoundUser) => {
 		invite.mutate(
-			{ deckId, email, role },
+			{ deckId, username: user.username, role },
 			{
 				onSuccess: () => {
-					setEmail('');
-					setRole('READER');
 					setAdding(false);
-					setSent(true);
+					setSentTo(user.name);
 				},
 			},
+		);
+	};
+
+	const invitationControls = (user: FoundUser) => {
+		if (user.relation === 'SELF') {
+			return <span className={styles.note}>Este é você</span>;
+		}
+		if (members.data?.some((member) => member.userId === user.userId && member.role === role)) {
+			return <span className={styles.note}>Já participa como {roleLabels[role]}</span>;
+		}
+		return (
+			<Button type="button" loading={invite.isPending} onClick={() => inviteUser(user)}>
+				Convidar
+			</Button>
 		);
 	};
 
@@ -74,9 +85,9 @@ export function DeckTeamPanel({ deckId }: { deckId: string }) {
 					Adicionar participante
 				</Button>
 			</div>
-			{sent && (
+			{sentTo && (
 				<p role="status" className={styles.note}>
-					{inviteSentMessage}
+					{inviteSentMessage(sentTo)}
 				</p>
 			)}
 
@@ -131,32 +142,22 @@ export function DeckTeamPanel({ deckId }: { deckId: string }) {
 				variant="form"
 				icon={<UsersIcon size={28} />}
 				title="Adicionar participante"
-				description="Convide uma pessoa pelo e-mail e escolha o que ela pode fazer no baralho."
+				description="Encontre a pessoa pelo nome de usuário e escolha o que ela pode fazer no baralho."
 				onCancel={closeAddDialog}
 			>
-				<form className={styles.dialogForm} onSubmit={submit}>
-					{invite.isError && <Alert>{messageForInviteError(invite.error)}</Alert>}
-					<TextField
-						label="E-mail da pessoa"
-						type="email"
-						required
-						maxLength={254}
-						autoComplete="off"
-						placeholder="pessoa@exemplo.com"
-						value={email}
-						onChange={(event) => setEmail(event.target.value)}
-					/>
-					<Select label="Papel" value={role} onChange={(event) => setRole(event.target.value as InvitableRole)}>
-						<option value="READER">Leitor</option>
-						<option value="EDITOR">Editor</option>
-					</Select>
-					<Button type="submit" fullWidth loading={invite.isPending}>
-						Convidar
-					</Button>
-					<Button type="button" variant="ghost" fullWidth disabled={invite.isPending} onClick={closeAddDialog}>
-						Cancelar
-					</Button>
-				</form>
+				{adding && (
+					<div className={styles.dialogForm}>
+						{invite.isError && <Alert>{messageForInviteError(invite.error)}</Alert>}
+						<Select label="Papel" value={role} onChange={(event) => setRole(event.target.value as InvitableRole)}>
+							<option value="READER">Leitor</option>
+							<option value="EDITOR">Editor</option>
+						</Select>
+						<UserSearch label="Nome de usuário">{invitationControls}</UserSearch>
+						<Button type="button" variant="ghost" fullWidth disabled={invite.isPending} onClick={closeAddDialog}>
+							Cancelar
+						</Button>
+					</div>
+				)}
 			</Dialog>
 
 			<ConfirmDialog

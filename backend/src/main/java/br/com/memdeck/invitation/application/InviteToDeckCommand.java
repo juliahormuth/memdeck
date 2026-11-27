@@ -4,5 +4,5 @@ import java.util.UUID;
 
 import br.com.memdeck.deck.domain.DeckRole;
 
-public record InviteToDeckCommand(UUID requesterId, UUID deckId, String email, DeckRole role) {
+public record InviteToDeckCommand(UUID requesterId, UUID deckId, String username, DeckRole role) {
 }

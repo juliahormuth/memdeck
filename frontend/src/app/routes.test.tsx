@@ -51,11 +51,11 @@ describe('master layout', () => {
 		expect(await screen.findByRole('heading', { name: 'Novo baralho' })).toBeInTheDocument();
 	});
 
-	it('shows the signed-in user email', async () => {
+	it('shows the signed-in username in the menu', async () => {
 		signedIn();
 		renderApp('/');
 
-		expect(await screen.findByText('julia@example.com')).toBeInTheDocument();
+		expect(await screen.findByText('@julia')).toBeInTheDocument();
 	});
 
 	it('logs out and goes back to the login page', async () => {

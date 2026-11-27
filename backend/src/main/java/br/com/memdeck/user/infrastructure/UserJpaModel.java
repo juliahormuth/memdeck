@@ -21,6 +21,9 @@ class UserJpaModel {
 	@Column(nullable = false, length = 100)
 	private String name;
 
+	@Column(nullable = false, length = 20, unique = true)
+	private String username;
+
 	@Column(nullable = false, length = 254, unique = true)
 	private String email;
 
@@ -37,9 +40,10 @@ class UserJpaModel {
 	protected UserJpaModel() {
 	}
 
-	UserJpaModel(UUID id, String name, String email, String passwordHash, Avatar avatar, Instant createdAt) {
+	UserJpaModel(UUID id, String name, String username, String email, String passwordHash, Avatar avatar, Instant createdAt) {
 		this.id = id;
 		this.name = name;
+		this.username = username;
 		this.email = email;
 		this.passwordHash = passwordHash;
 		this.avatar = avatar;
@@ -52,6 +56,10 @@ class UserJpaModel {
 
 	String getName() {
 		return name;
+	}
+
+	String getUsername() {
+		return username;
 	}
 
 	String getEmail() {

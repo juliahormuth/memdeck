@@ -56,14 +56,17 @@ async function send(method: Method, path: string, body?: unknown): Promise<Respo
 
 async function toApiError(response: Response): Promise<ApiError> {
 	let message = response.statusText;
+	let reason: string | null = null;
 	try {
-		const problem = (await response.json()) as { detail?: string; error?: string; title?: string };
+		const problem = (await response.json()) as { detail?: string; error?: string; title?: string; reason?: string };
 		message = problem.detail ?? problem.error ?? problem.title ?? message;
+		reason = problem.reason ?? null;
 	} catch {
 		// the body is not JSON; keep the status text
 	}
 	const retryAfter = Number(response.headers.get('Retry-After'));
-	return new ApiError(response.status, message, Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : null);
+	const wait = Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : null;
+	return new ApiError(response.status, message, wait, reason);
 }
 
 async function execute<T>(method: Method, path: string, body?: unknown): Promise<T> {

@@ -22,12 +22,12 @@ describe('friendship use cases', () => {
 		await expect(listFriendRequests(gateway)).resolves.toEqual([request]);
 	});
 
-	it('trims the e-mail when sending a request', async () => {
+	it('sends the chosen username', async () => {
 		const gateway = new FakeFriendshipGateway();
 
-		await sendFriendRequest(gateway, '  bruno@example.com ');
+		await sendFriendRequest(gateway, 'bruno');
 
-		expect(gateway.sent).toEqual(['bruno@example.com']);
+		expect(gateway.sent).toEqual(['bruno']);
 	});
 
 	it('answers, cancels and removes', async () => {

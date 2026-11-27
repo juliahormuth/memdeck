@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import br.com.memdeck.user.application.UserGateway;
 import br.com.memdeck.user.domain.EmailAlreadyRegisteredException;
 import br.com.memdeck.user.domain.User;
+import br.com.memdeck.user.domain.UsernameAlreadyTakenException;
 
 @Component
 class UserGatewayJpa implements UserGateway {
@@ -26,6 +27,9 @@ class UserGatewayJpa implements UserGateway {
 		try {
 			return UserMapper.toDomain(repository.saveAndFlush(UserMapper.toModel(user)));
 		} catch (DataIntegrityViolationException exception) {
+			if (String.valueOf(exception.getMostSpecificCause().getMessage()).contains("uq_users_username")) {
+				throw new UsernameAlreadyTakenException();
+			}
 			throw new EmailAlreadyRegisteredException();
 		}
 	}
@@ -38,6 +42,16 @@ class UserGatewayJpa implements UserGateway {
 	@Override
 	public Optional<User> findByEmail(String email) {
 		return repository.findByEmail(email).map(UserMapper::toDomain);
+	}
+
+	@Override
+	public boolean existsByUsername(String username) {
+		return repository.existsByUsername(username);
+	}
+
+	@Override
+	public Optional<User> findByUsername(String username) {
+		return repository.findByUsername(username).map(UserMapper::toDomain);
 	}
 
 	@Override

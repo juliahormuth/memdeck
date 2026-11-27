@@ -4,5 +4,5 @@ import java.util.UUID;
 
 public interface SendFriendRequestUseCase {
 
-	void execute(UUID requesterId, String email);
+	void execute(UUID requesterId, String username);
 }

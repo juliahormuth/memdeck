@@ -51,7 +51,7 @@ class LoginThrottlingTest {
 	}
 
 	private void registerJulia() {
-		users.save(User.register("Julia", "julia@example.com", hasher.hash("correct-horse")));
+		users.save(User.register("Julia", "julia", "julia@example.com", hasher.hash("correct-horse")));
 	}
 
 	@Test
@@ -132,7 +132,7 @@ class LoginThrottlingTest {
 	@Test
 	void anotherAccountOnTheSameOriginIsNotAffected() {
 		registerJulia();
-		users.save(User.register("Other", "other@example.com", hasher.hash("other-password")));
+		users.save(User.register("Other", "other", "other@example.com", hasher.hash("other-password")));
 		fail("julia@example.com", ORIGIN, 5);
 
 		assertThatCode(() -> useCase.execute(attempt("other@example.com", "other-password", ORIGIN)))

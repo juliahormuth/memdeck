@@ -30,6 +30,16 @@ public class InMemoryUserGateway implements UserGateway {
 	}
 
 	@Override
+	public boolean existsByUsername(String username) {
+		return findByUsername(username).isPresent();
+	}
+
+	@Override
+	public Optional<User> findByUsername(String username) {
+		return byEmail.values().stream().filter(user -> user.getUsername().equals(username)).findFirst();
+	}
+
+	@Override
 	public Optional<User> findById(UUID id) {
 		return byEmail.values().stream().filter(user -> user.getId().equals(id)).findFirst();
 	}

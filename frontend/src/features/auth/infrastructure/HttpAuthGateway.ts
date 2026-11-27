@@ -7,6 +7,7 @@ import {
 	InvalidRegistrationError,
 	InvalidResetCodeError,
 	TooManyLoginAttemptsError,
+	UsernameAlreadyTakenError,
 } from '../domain/errors';
 import type { User } from '../domain/User';
 
@@ -25,7 +26,7 @@ export class HttpAuthGateway implements AuthGateway {
 			await httpClient.post<UserDto>('/api/auth/register', account);
 		} catch (error) {
 			if (error instanceof ApiError && error.status === 409) {
-				throw new EmailAlreadyRegisteredError();
+				throw error.reason === 'USERNAME_TAKEN' ? new UsernameAlreadyTakenError() : new EmailAlreadyRegisteredError();
 			}
 			if (error instanceof ApiError && error.status === 400) {
 				throw new InvalidRegistrationError({});

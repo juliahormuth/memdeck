@@ -57,6 +57,7 @@ function ProfileView({ profile }: { profile: Profile }) {
 				<Avatar avatar={profile.avatar} size={72} />
 				<div className={styles.who}>
 					<h1 className={styles.title}>{profile.name}</h1>
+					<p className={styles.email}>@{profile.username}</p>
 					<p className={styles.email}>{profile.email}</p>
 				</div>
 			</header>

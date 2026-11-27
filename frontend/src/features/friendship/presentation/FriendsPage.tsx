@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { Alert } from '../../../shared/ui/Alert';
 import { Avatar } from '../../../shared/ui/Avatar';
 import { Button } from '../../../shared/ui/Button';
 import { ConfirmDialog } from '../../../shared/ui/ConfirmDialog';
-import { TextField } from '../../../shared/ui/TextField';
-import type { Friend } from '../domain/Friendship';
+import type { FoundUser, Friend } from '../domain/Friendship';
 import {
 	useAcceptFriendRequest,
 	useCancelFriendRequest,
@@ -15,12 +13,19 @@ import {
 	useRemoveFriend,
 	useSendFriendRequest,
 } from './friendshipQueries';
-import { messageForAnswerError, messageForRemoveFriendError, messageForSendError, requestSentMessage } from './friendshipMessages';
+import {
+	messageForAnswerError,
+	messageForRemoveFriendError,
+	messageForSendError,
+	relationLabels,
+	requestSentMessage,
+} from './friendshipMessages';
+import { UserSearch } from './UserSearch';
 import styles from './FriendsPage.module.css';
 
 export function FriendsPage() {
-	const [email, setEmail] = useState('');
-	const [sent, setSent] = useState(false);
+	const [sentTo, setSentTo] = useState<string | null>(null);
+	const [searchKey, setSearchKey] = useState(0);
 	const [toRemove, setToRemove] = useState<Friend | null>(null);
 	const friends = useFriends();
 	const requests = useFriendRequests();
@@ -34,13 +39,12 @@ export function FriendsPage() {
 	const incoming = requests.data?.filter((request) => request.direction === 'INCOMING') ?? [];
 	const outgoing = requests.data?.filter((request) => request.direction === 'OUTGOING') ?? [];
 
-	const submit = (event: FormEvent) => {
-		event.preventDefault();
-		setSent(false);
-		send.mutate(email, {
+	const sendTo = (user: FoundUser) => {
+		setSentTo(null);
+		send.mutate(user.username, {
 			onSuccess: () => {
-				setEmail('');
-				setSent(true);
+				setSentTo(user.name);
+				setSearchKey((key) => key + 1);
 			},
 		});
 	};
@@ -56,30 +60,24 @@ export function FriendsPage() {
 		<div className={styles.page}>
 			<header>
 				<h1 className={styles.title}>Amigos</h1>
-				<p className={styles.subtitle}>Adicione pessoas pelo e-mail</p>
+				<p className={styles.subtitle}>Encontre pessoas pelo nome de usuário</p>
 			</header>
 
-			<form className={styles.form} onSubmit={submit}>
-				<div className={styles.field}>
-					<TextField
-						label="Adicionar amigo por e-mail"
-						type="email"
-						required
-						maxLength={254}
-						autoComplete="off"
-						placeholder="pessoa@exemplo.com"
-						value={email}
-						onChange={(event) => setEmail(event.target.value)}
-					/>
-				</div>
-				<Button type="submit" loading={send.isPending}>
-					Enviar pedido
-				</Button>
-			</form>
+			<UserSearch key={searchKey} label="Adicionar amigo">
+				{(user) =>
+					user.relation === 'NONE' ? (
+						<Button type="button" loading={send.isPending} onClick={() => sendTo(user)}>
+							Enviar pedido
+						</Button>
+					) : (
+						<span className={styles.note}>{relationLabels[user.relation]}</span>
+					)
+				}
+			</UserSearch>
 			{send.isError && <Alert>{messageForSendError(send.error)}</Alert>}
-			{sent && !send.isError && (
+			{sentTo && !send.isError && (
 				<p role="status" className={styles.note}>
-					{requestSentMessage}
+					{requestSentMessage(sentTo)}
 				</p>
 			)}
 			{answerError && <Alert>{messageForAnswerError(answerError)}</Alert>}

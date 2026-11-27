@@ -2,14 +2,14 @@ import type { AcceptedInvitation, DeckInvitation, InvitableRole, MyInvitation } 
 import type { InvitationGateway } from './InvitationGateway';
 
 export class FakeInvitationGateway implements InvitationGateway {
-	readonly invited: { deckId: string; email: string; role: InvitableRole }[] = [];
+	readonly invited: { deckId: string; username: string; role: InvitableRole }[] = [];
 	readonly answered: { id: string; answer: 'accepted' | 'declined' }[] = [];
 	readonly cancelled: string[] = [];
 
 	constructor(private readonly mine: MyInvitation[] = []) {}
 
-	async invite(deckId: string, email: string, role: InvitableRole): Promise<void> {
-		this.invited.push({ deckId, email, role });
+	async invite(deckId: string, username: string, role: InvitableRole): Promise<void> {
+		this.invited.push({ deckId, username, role });
 	}
 
 	async listForDeck(): Promise<DeckInvitation[]> {

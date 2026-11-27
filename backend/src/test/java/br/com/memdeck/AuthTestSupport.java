@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.UUID;
 
 import org.springframework.http.MediaType;
@@ -33,6 +35,11 @@ public final class AuthTestSupport {
 		return "it-" + UUID.randomUUID() + "@example.com";
 	}
 
+	public static String usernameOf(String email) {
+		byte[] seed = email.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8);
+		return "u" + UUID.nameUUIDFromBytes(seed).toString().replace("-", "").substring(0, 16);
+	}
+
 	public static Cookie csrfCookie(MockMvc mockMvc) throws Exception {
 		Cookie cookie = mockMvc.perform(get("/api/auth/me")).andExpect(status().isUnauthorized())
 				.andReturn().getResponse().getCookie("XSRF-TOKEN");
@@ -46,7 +53,8 @@ public final class AuthTestSupport {
 
 	public static Session registerAndLogin(MockMvc mockMvc, String email) throws Exception {
 		Cookie csrf = csrfCookie(mockMvc);
-		String body = "{\"name\":\"Test User\",\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, PASSWORD);
+		String body = "{\"name\":\"Test User\",\"username\":\"%s\",\"email\":\"%s\",\"password\":\"%s\"}"
+				.formatted(usernameOf(email), email, PASSWORD);
 		mockMvc.perform(withCsrf(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body), csrf))
 				.andExpect(status().isCreated());
 		MockHttpServletResponse login = mockMvc

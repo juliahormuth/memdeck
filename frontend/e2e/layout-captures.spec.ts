@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail } from './helpers';
+import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail, usernameFor } from './helpers';
 
 const captureDir = process.env.CAPTURE_DIR;
 
@@ -60,10 +60,12 @@ test.describe('captures for the report (set CAPTURE_DIR to save them)', () => {
 		await expect(reader.getByRole('link', { name: 'Anatomia humana' }).first()).toBeVisible();
 		await reader.screenshot({ path: `${captureDir}/${name}-explorar.png`, fullPage: true });
 		await page.getByRole('button', { name: 'Adicionar participante' }).click();
-		await page.screenshot({ path: `${captureDir}/${name}-adicionar-participante.png` });
 		const inviteDialog = page.getByRole('dialog', { name: 'Adicionar participante' });
-		await inviteDialog.getByLabel('E-mail da pessoa').fill(readerEmail);
 		await inviteDialog.getByLabel('Papel').selectOption({ label: 'Editor' });
+		await inviteDialog.getByLabel('Nome de usuário').fill(usernameFor(readerEmail));
+		await inviteDialog.getByRole('button', { name: 'Pesquisar' }).click();
+		await expect(inviteDialog.getByRole('group', { name: 'Usuário encontrado' })).toBeVisible();
+		await page.screenshot({ path: `${captureDir}/${name}-adicionar-participante.png` });
 		await inviteDialog.getByRole('button', { name: 'Convidar' }).click();
 		await expect(page.getByRole('list', { name: 'Convites pendentes' })).toBeVisible();
 		await page.screenshot({ path: `${captureDir}/${name}-participantes.png`, fullPage: true });

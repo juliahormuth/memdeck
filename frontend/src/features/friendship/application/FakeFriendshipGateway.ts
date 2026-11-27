@@ -1,4 +1,4 @@
-import type { Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
+import type { FoundUser, Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
 import type { FriendshipGateway } from './FriendshipGateway';
 
 export class FakeFriendshipGateway implements FriendshipGateway {
@@ -9,6 +9,7 @@ export class FakeFriendshipGateway implements FriendshipGateway {
 		private readonly friends: Friend[] = [],
 		private readonly requests: FriendRequest[] = [],
 		private readonly activity: FriendActivity[] = [],
+		private readonly found: FoundUser | null = null,
 	) {}
 
 	async listFriends(): Promise<Friend[]> {
@@ -27,8 +28,15 @@ export class FakeFriendshipGateway implements FriendshipGateway {
 		return this.requests;
 	}
 
-	async sendRequest(email: string): Promise<void> {
-		this.sent.push(email);
+	readonly searched: string[] = [];
+
+	async searchUser(username: string): Promise<FoundUser | null> {
+		this.searched.push(username);
+		return this.found;
+	}
+
+	async sendRequest(username: string): Promise<void> {
+		this.sent.push(username);
 	}
 
 	async accept(requestId: string): Promise<void> {

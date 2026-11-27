@@ -20,10 +20,15 @@ export function useFriendRequests() {
 	return useQuery({ queryKey: requestsKey, queryFn: () => friendshipUseCases.listRequests(), retry: false });
 }
 
+// a mutation, so the throttled search only runs when the person asks for it
+export function useSearchUser() {
+	return useMutation({ mutationFn: (username: string) => friendshipUseCases.searchUser(username) });
+}
+
 export function useSendFriendRequest() {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (email: string) => friendshipUseCases.sendRequest(email),
+		mutationFn: (username: string) => friendshipUseCases.sendRequest(username),
 		onSuccess: () => {
 			void queryClient.invalidateQueries({ queryKey: requestsKey });
 		},

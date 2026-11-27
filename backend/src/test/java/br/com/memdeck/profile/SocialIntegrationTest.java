@@ -77,7 +77,8 @@ class SocialIntegrationTest {
 
 	private ResultActions sendRequest(Session session, String email) throws Exception {
 		return mockMvc.perform(withCsrf(post("/api/users/me/friend-requests").cookie(session.session())
-				.contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"%s\"}".formatted(email)), session.csrf()));
+				.contentType(MediaType.APPLICATION_JSON).content("{\"username\":\"%s\"}"
+				.formatted(email.contains("@") ? br.com.memdeck.AuthTestSupport.usernameOf(email) : email)), session.csrf()));
 	}
 
 	private String firstRequestId(Session session) throws Exception {
@@ -194,7 +195,7 @@ class SocialIntegrationTest {
 
 		sendRequest(ana, "nobody-" + UUID.randomUUID() + "@example.com").andExpect(status().isAccepted()).andExpect(content().string(""));
 		sendRequest(ana, email).andExpect(status().isBadRequest());
-		sendRequest(ana, "not-an-email").andExpect(status().isBadRequest());
+		sendRequest(ana, "not a username").andExpect(status().isBadRequest());
 
 		mockMvc.perform(get("/api/users/me/friend-requests").cookie(ana.session())).andExpect(jsonPath("$.length()").value(0));
 	}
@@ -258,6 +259,6 @@ class SocialIntegrationTest {
 		mockMvc.perform(get("/api/users/me/friends")).andExpect(status().isUnauthorized());
 		mockMvc.perform(get("/api/decks/" + UUID.randomUUID() + "/ranking")).andExpect(status().isUnauthorized());
 		mockMvc.perform(withCsrf(post("/api/users/me/friend-requests").contentType(MediaType.APPLICATION_JSON)
-				.content("{\"email\":\"a@b.co\"}"), csrfCookie(mockMvc))).andExpect(status().isUnauthorized());
+				.content("{\"username\":\"abc\"}"), csrfCookie(mockMvc))).andExpect(status().isUnauthorized());
 	}
 }

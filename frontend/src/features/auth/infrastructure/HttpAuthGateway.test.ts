@@ -25,23 +25,33 @@ describe('HttpAuthGateway', () => {
 			}),
 		);
 
-		await gateway.register({ name: 'Julia', email: 'julia@example.com', password: 'correct-horse' });
+		await gateway.register({ name: 'Julia', username: 'julia', email: 'julia@example.com', password: 'correct-horse' });
 
-		expect(body).toEqual({ name: 'Julia', email: 'julia@example.com', password: 'correct-horse' });
+		expect(body).toEqual({ name: 'Julia', username: 'julia', email: 'julia@example.com', password: 'correct-horse' });
 	});
 
 	it('translates 409 into EmailAlreadyRegisteredError', async () => {
 		server.use(http.post('*/api/auth/register', () => HttpResponse.json({ detail: 'x' }, { status: 409 })));
 
-		await expect(gateway.register({ name: 'J', email: 'j@example.com', password: 'correct-horse' })).rejects.toBeInstanceOf(
+		await expect(gateway.register({ name: 'J', username: 'jota', email: 'j@example.com', password: 'correct-horse' })).rejects.toBeInstanceOf(
 			EmailAlreadyRegisteredError,
 		);
+	});
+
+	it('tells a taken username apart from a taken e-mail', async () => {
+		server.use(
+			http.post('*/api/auth/register', () => HttpResponse.json({ reason: 'USERNAME_TAKEN' }, { status: 409 })),
+		);
+
+		await expect(
+			gateway.register({ name: 'J', username: 'jota', email: 'j@example.com', password: 'correct-horse' }),
+		).rejects.toMatchObject({ name: 'UsernameAlreadyTakenError' });
 	});
 
 	it('translates 400 on register into InvalidRegistrationError', async () => {
 		server.use(http.post('*/api/auth/register', () => HttpResponse.json({ detail: 'x' }, { status: 400 })));
 
-		await expect(gateway.register({ name: 'J', email: 'j@example.com', password: 'correct-horse' })).rejects.toBeInstanceOf(
+		await expect(gateway.register({ name: 'J', username: 'jota', email: 'j@example.com', password: 'correct-horse' })).rejects.toBeInstanceOf(
 			InvalidRegistrationError,
 		);
 	});

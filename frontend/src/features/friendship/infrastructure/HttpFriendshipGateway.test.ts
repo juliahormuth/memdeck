@@ -24,7 +24,27 @@ describe('HttpFriendshipGateway', () => {
 		await expect(gateway.listRequests()).resolves.toEqual([request]);
 	});
 
-	it('sends a request with the e-mail in the body', async () => {
+	it('finds a person by the exact username, or nobody', async () => {
+		const found = { userId: 'u2', name: 'Bruno', username: 'bruno', avatar: 'DOG', relation: 'NONE' };
+		server.use(
+			http.get('*/api/users', ({ request }) =>
+				HttpResponse.json(new URL(request.url).searchParams.get('username') === 'bruno' ? [found] : []),
+			),
+		);
+
+		await expect(gateway.searchUser('bruno')).resolves.toEqual(found);
+		await expect(gateway.searchUser('a&b')).resolves.toBeNull();
+	});
+
+	it('translates 429 into TooManySearchesError with the waiting time', async () => {
+		server.use(
+			http.get('*/api/users', () => HttpResponse.json({}, { status: 429, headers: { 'Retry-After': '60' } })),
+		);
+
+		await expect(gateway.searchUser('bruno')).rejects.toMatchObject({ name: 'TooManySearchesError', retryAfterSeconds: 60 });
+	});
+
+	it('sends a request with the username in the body', async () => {
 		let body: unknown;
 		server.use(
 			http.post('*/api/users/me/friend-requests', async ({ request }) => {
@@ -33,9 +53,9 @@ describe('HttpFriendshipGateway', () => {
 			}),
 		);
 
-		await gateway.sendRequest('bruno@example.com');
+		await gateway.sendRequest('bruno');
 
-		expect(body).toEqual({ email: 'bruno@example.com' });
+		expect(body).toEqual({ username: 'bruno' });
 	});
 
 	it('answers, cancels and removes with the right routes', async () => {

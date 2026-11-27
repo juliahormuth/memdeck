@@ -39,18 +39,18 @@ class InvitationUseCasesTest {
 	private final ListMyInvitationsUseCase listMine = new ListMyInvitationsUseCaseImpl(decks, users, invitations);
 	private final AnswerInvitationUseCase answer = new AnswerInvitationUseCaseImpl(invitations, decks, members);
 
-	private final User owner = users.save(User.register("Olivia", "olivia@example.com", "hash"));
-	private final User guest = users.save(User.register("Gabriel", "gabriel@example.com", "hash"));
-	private final User other = users.save(User.register("Otto", "otto@example.com", "hash"));
+	private final User owner = users.save(User.register("Olivia", "olivia", "olivia@example.com", "hash"));
+	private final User guest = users.save(User.register("Gabriel", "gabriel", "gabriel@example.com", "hash"));
+	private final User other = users.save(User.register("Otto", "otto", "otto@example.com", "hash"));
 	private final Deck deck = decks.save(Deck.create(owner.getId(), "Anatomy", null, Visibility.PRIVATE));
 
 	private void inviteGuest(DeckRole role) {
-		invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "gabriel@example.com", role));
+		invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "gabriel", role));
 	}
 
 	@Test
 	void theOwnerInvitesARegisteredUserByEmailIgnoringCaseAndSpaces() {
-		invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "  Gabriel@Example.com ", DeckRole.EDITOR));
+		invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "  Gabriel ", DeckRole.EDITOR));
 
 		List<Invitation> pending = invitations.findPendingByInvitee(guest.getId());
 		assertThat(pending).hasSize(1);
@@ -59,23 +59,23 @@ class InvitationUseCasesTest {
 	}
 
 	@Test
-	void anUnknownEmailEndsSilentlyWithoutRevealingThatThereIsNoAccount() {
-		invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "nobody@example.com", DeckRole.READER));
+	void anUnknownUsernameEndsSilentlyWithoutRevealingThatThereIsNoAccount() {
+		invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "nobody", DeckRole.READER));
 
 		assertThat(invitations.size()).isZero();
 	}
 
 	@Test
 	void aMalformedEmailOrTheOwnerRoleIsRejectedBeforeAnyLookup() {
-		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "not-an-email", DeckRole.READER)))
+		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "not a username", DeckRole.READER)))
 				.isInstanceOf(InvalidInvitationException.class);
-		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "nobody@example.com", DeckRole.OWNER)))
+		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "nobody", DeckRole.OWNER)))
 				.isInstanceOf(InvalidInvitationException.class);
 	}
 
 	@Test
 	void theOwnerCannotInviteTheirOwnEmail() {
-		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "olivia@example.com", DeckRole.READER)))
+		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(owner.getId(), deck.getId(), "olivia", DeckRole.READER)))
 				.isInstanceOf(InvalidInvitationException.class);
 	}
 
@@ -83,9 +83,9 @@ class InvitationUseCasesTest {
 	void onlyTheOwnerInvites() {
 		members.save(DeckMember.join(deck.getId(), guest.getId(), DeckRole.EDITOR));
 
-		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(guest.getId(), deck.getId(), "otto@example.com", DeckRole.READER)))
+		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(guest.getId(), deck.getId(), "otto", DeckRole.READER)))
 				.isInstanceOf(NotDeckOwnerException.class);
-		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(other.getId(), deck.getId(), "otto@example.com", DeckRole.READER)))
+		assertThatThrownBy(() -> invite.execute(new InviteToDeckCommand(other.getId(), deck.getId(), "otto", DeckRole.READER)))
 				.isInstanceOf(DeckNotFoundException.class);
 	}
 

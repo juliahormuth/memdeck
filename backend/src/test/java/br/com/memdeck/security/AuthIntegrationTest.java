@@ -34,7 +34,8 @@ class AuthIntegrationTest {
 	JdbcTemplate jdbc;
 
 	private String json(String email, String password) {
-		return "{\"name\":\"Auth User\",\"email\":\"%s\",\"password\":\"%s\"}".formatted(email, password);
+		return "{\"name\":\"Auth User\",\"username\":\"%s\",\"email\":\"%s\",\"password\":\"%s\"}"
+				.formatted(br.com.memdeck.AuthTestSupport.usernameOf(email), email, password);
 	}
 
 	private MockHttpServletResponse postJson(String path, String body, Cookie csrf, Cookie... extra) throws Exception {

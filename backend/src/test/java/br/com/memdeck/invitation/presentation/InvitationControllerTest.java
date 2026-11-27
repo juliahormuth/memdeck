@@ -82,7 +82,7 @@ class InvitationControllerTest {
 	@Test
 	void invitesAndAnswersWithAnEmpty202() throws Exception {
 		mockMvc.perform(post(DECK_URL).with(authentication(USER)).with(csrf()).contentType(MediaType.APPLICATION_JSON)
-				.content("{\"email\":\"rita@example.com\",\"role\":\"EDITOR\"}"))
+				.content("{\"username\":\"rita\",\"role\":\"EDITOR\"}"))
 				.andExpect(status().isAccepted())
 				.andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(""));
 
@@ -90,14 +90,14 @@ class InvitationControllerTest {
 		verify(inviteToDeck).execute(command.capture());
 		assertThat(command.getValue().requesterId()).isEqualTo(USER_ID);
 		assertThat(command.getValue().deckId()).isEqualTo(DECK_ID);
-		assertThat(command.getValue().email()).isEqualTo("rita@example.com");
+		assertThat(command.getValue().username()).isEqualTo("rita");
 		assertThat(command.getValue().role()).isEqualTo(DeckRole.EDITOR);
 	}
 
 	@Test
 	void rejectsABlankEmailOrAMissingOrUnknownRoleWithoutCallingTheUseCase() throws Exception {
-		for (String body : List.of("{\"email\":\" \",\"role\":\"READER\"}", "{\"email\":\"a@b.co\"}",
-				"{\"email\":\"a@b.co\",\"role\":\"BOSS\"}")) {
+		for (String body : List.of("{\"username\":\" \",\"role\":\"READER\"}", "{\"username\":\"abc\"}",
+				"{\"username\":\"abc\",\"role\":\"BOSS\"}")) {
 			mockMvc.perform(post(DECK_URL).with(authentication(USER)).with(csrf())
 					.contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isBadRequest());
 		}
@@ -107,7 +107,7 @@ class InvitationControllerTest {
 
 	@Test
 	void translatesDomainErrorsOfInviting() throws Exception {
-		String body = "{\"email\":\"rita@example.com\",\"role\":\"READER\"}";
+		String body = "{\"username\":\"rita\",\"role\":\"READER\"}";
 		doThrow(new InvalidInvitationException("The e-mail is not valid")).when(inviteToDeck).execute(any());
 		mockMvc.perform(post(DECK_URL).with(authentication(USER)).with(csrf()).contentType(MediaType.APPLICATION_JSON)
 				.content(body)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").value("The e-mail is not valid"));

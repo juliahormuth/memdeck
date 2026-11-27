@@ -31,6 +31,13 @@ export class EmailAlreadyRegisteredError extends Error {
 	}
 }
 
+export class UsernameAlreadyTakenError extends Error {
+	constructor() {
+		super('Username is already taken');
+		this.name = 'UsernameAlreadyTakenError';
+	}
+}
+
 export class InvalidRegistrationError extends Error {
 	readonly fields: FieldErrors;
 

@@ -2,6 +2,7 @@ import type { User } from '../domain/User';
 
 export interface NewAccount {
 	name: string;
+	username: string;
 	email: string;
 	password: string;
 }

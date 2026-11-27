@@ -31,7 +31,7 @@ class ProfileUseCasesTest {
 	private final GetProfileUseCase getProfile = new GetProfileUseCaseImpl(users, logs, friendships, clock);
 	private final UpdateProfileUseCase updateProfile = new UpdateProfileUseCaseImpl(users);
 
-	private final User julia = users.save(User.register("Julia", "julia@example.com", "hash"));
+	private final User julia = users.save(User.register("Julia", "julia", "julia@example.com", "hash"));
 
 	@Test
 	void aNewProfileHasTheDefaultAvatarAndNoActivity() {

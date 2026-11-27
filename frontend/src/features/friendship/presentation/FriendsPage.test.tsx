@@ -50,9 +50,27 @@ describe('FriendsPage', () => {
 		expect(await screen.findByText('Você ainda não tem amigos adicionados.')).toBeInTheDocument();
 	});
 
-	it('sends a request by e-mail and answers the same whether or not the account exists', async () => {
+	function findsBruno(relation = 'NONE') {
+		server.use(
+			http.get('*/api/users', () =>
+				HttpResponse.json([{ userId: 'u2', name: 'Bruno', username: 'bruno', avatar: 'DOG', relation }]),
+			),
+		);
+	}
+
+	async function searchFor(username: string) {
+		await userEvent.type(await screen.findByLabelText('Adicionar amigo'), username);
+		await userEvent.click(screen.getByRole('button', { name: 'Pesquisar' }));
+	}
+
+	it('searches only when asked, shows the person and sends the request', async () => {
+		const searches: string[] = [];
 		let body: unknown;
 		server.use(
+			http.get('*/api/users', ({ request }) => {
+				searches.push(new URL(request.url).searchParams.get('username') ?? '');
+				return HttpResponse.json([{ userId: 'u2', name: 'Bruno', username: 'bruno', avatar: 'DOG', relation: 'NONE' }]);
+			}),
 			http.post('*/api/users/me/friend-requests', async ({ request }) => {
 				body = await request.json();
 				return new HttpResponse(null, { status: 202 });
@@ -60,22 +78,52 @@ describe('FriendsPage', () => {
 		);
 		renderApp('/friends');
 
-		await userEvent.type(await screen.findByLabelText('Adicionar amigo por e-mail'), '  bruno@example.com');
-		await userEvent.click(screen.getByRole('button', { name: 'Enviar pedido' }));
+		await userEvent.type(await screen.findByLabelText('Adicionar amigo'), '  bruno');
+		expect(searches).toEqual([]);
+		await userEvent.click(screen.getByRole('button', { name: 'Pesquisar' }));
+		await userEvent.click(await screen.findByRole('button', { name: 'Enviar pedido' }));
 
-		expect(await screen.findByText(/Pedido de amizade enviado/)).toBeInTheDocument();
-		expect(body).toEqual({ email: 'bruno@example.com' });
-		expect(screen.getByLabelText('Adicionar amigo por e-mail')).toHaveValue('');
+		expect(await screen.findByText('Pedido de amizade enviado para Bruno.')).toBeInTheDocument();
+		expect(searches).toEqual(['bruno']);
+		expect(body).toEqual({ username: 'bruno' });
+		expect(screen.getByLabelText('Adicionar amigo')).toHaveValue('');
 	});
 
-	it('shows an error when the e-mail is refused', async () => {
-		server.use(http.post('*/api/users/me/friend-requests', () => HttpResponse.json({ detail: 'x' }, { status: 400 })));
+	it('says when nobody has that username', async () => {
+		server.use(http.get('*/api/users', () => HttpResponse.json([])));
 		renderApp('/friends');
 
-		await userEvent.type(await screen.findByLabelText('Adicionar amigo por e-mail'), 'julia@example.com');
-		await userEvent.click(screen.getByRole('button', { name: 'Enviar pedido' }));
+		await searchFor('nobody');
 
-		expect(await screen.findByRole('alert')).toHaveTextContent('Confira o e-mail');
+		expect(await screen.findByText('Nenhum usuário encontrado.')).toBeInTheDocument();
+	});
+
+	it.each([
+		['SELF', 'Este é você'],
+		['FRIEND', 'Vocês já são amigos'],
+		['REQUEST_SENT', 'Pedido já enviado'],
+		['REQUEST_RECEIVED', 'Essa pessoa já enviou um pedido para você'],
+	])('does not offer a request when the relation is %s', async (relation, label) => {
+		findsBruno(relation);
+		renderApp('/friends');
+
+		await searchFor('bruno');
+
+		expect(await screen.findByText(label)).toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: 'Enviar pedido' })).not.toBeInTheDocument();
+	});
+
+	it('tells how long to wait after too many searches', async () => {
+		server.use(
+			http.get('*/api/users', () =>
+				HttpResponse.json({ detail: 'x' }, { status: 429, headers: { 'Retry-After': '600' } }),
+			),
+		);
+		renderApp('/friends');
+
+		await searchFor('bruno');
+
+		expect(await screen.findByRole('alert')).toHaveTextContent('Tente novamente em 10 minuto(s).');
 	});
 
 	it('accepts a request and the person moves to the friends list', async () => {

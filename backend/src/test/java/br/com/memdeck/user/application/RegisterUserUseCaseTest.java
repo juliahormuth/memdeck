@@ -28,7 +28,7 @@ class RegisterUserUseCaseTest {
 
 	@Test
 	void registersUserStoringOnlyTheHash() {
-		User user = useCase.execute(new RegisterUserCommand("Julia", "Julia@Example.com", "correct-horse"));
+		User user = useCase.execute(new RegisterUserCommand("Julia", "julia", "Julia@Example.com", "correct-horse"));
 
 		assertThat(user.getEmail()).isEqualTo("julia@example.com");
 		assertThat(user.getPasswordHash()).isEqualTo("hashed:correct-horse");
@@ -37,16 +37,16 @@ class RegisterUserUseCaseTest {
 
 	@Test
 	void rejectsEmailAlreadyRegisteredIgnoringCase() {
-		useCase.execute(new RegisterUserCommand("Julia", "julia@example.com", "correct-horse"));
+		useCase.execute(new RegisterUserCommand("Julia", "julia", "julia@example.com", "correct-horse"));
 
-		assertThatThrownBy(() -> useCase.execute(new RegisterUserCommand("Other", "JULIA@example.com", "another-pass")))
+		assertThatThrownBy(() -> useCase.execute(new RegisterUserCommand("Other", "julia", "JULIA@example.com", "another-pass")))
 				.isInstanceOf(EmailAlreadyRegisteredException.class);
 		assertThat(gateway.size()).isEqualTo(1);
 	}
 
 	@Test
 	void rejectsWeakPasswordWithoutSaving() {
-		assertThatThrownBy(() -> useCase.execute(new RegisterUserCommand("Julia", "julia@example.com", "short")))
+		assertThatThrownBy(() -> useCase.execute(new RegisterUserCommand("Julia", "julia", "julia@example.com", "short")))
 				.isInstanceOf(InvalidUserException.class);
 
 		assertThat(gateway.size()).isZero();
@@ -54,7 +54,7 @@ class RegisterUserUseCaseTest {
 
 	@Test
 	void rejectsInvalidEmailWithoutSaving() {
-		assertThatThrownBy(() -> useCase.execute(new RegisterUserCommand("Julia", "not-an-email", "correct-horse")))
+		assertThatThrownBy(() -> useCase.execute(new RegisterUserCommand("Julia", "julia", "not-an-email", "correct-horse")))
 				.isInstanceOf(InvalidUserException.class);
 
 		assertThat(gateway.size()).isZero();
@@ -62,7 +62,7 @@ class RegisterUserUseCaseTest {
 
 	@Test
 	void commandToStringDoesNotLeakThePassword() {
-		String text = new RegisterUserCommand("Julia", "julia@example.com", "correct-horse").toString();
+		String text = new RegisterUserCommand("Julia", "julia", "julia@example.com", "correct-horse").toString();
 
 		assertThat(text).doesNotContain("correct-horse");
 	}

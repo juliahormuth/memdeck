@@ -5,7 +5,7 @@ export const PASSWORD_MAX_LENGTH = 128;
 
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-export type RegistrationField = 'name' | 'email' | 'password';
+export type RegistrationField = 'name' | 'username' | 'email' | 'password';
 export type FieldErrorCode = 'blank' | 'too_long' | 'too_short' | 'invalid';
 export type FieldErrors = Partial<Record<RegistrationField, FieldErrorCode>>;
 
@@ -15,6 +15,14 @@ export function validateName(name: string): FieldErrorCode | null {
 		return 'blank';
 	}
 	return trimmed.length > NAME_MAX_LENGTH ? 'too_long' : null;
+}
+
+export function validateUsername(username: string): FieldErrorCode | null {
+	const normalized = username.trim().replace(/^@/, '').toLowerCase();
+	if (normalized.length === 0) {
+		return 'blank';
+	}
+	return /^[a-z0-9._]{3,20}$/.test(normalized) ? null : 'invalid';
 }
 
 export function validateEmail(email: string): FieldErrorCode | null {
@@ -40,12 +48,14 @@ export function validateResetCode(code: string): FieldErrorCode | null {
 	return /^\d{6}$/.test(trimmed) ? null : 'invalid';
 }
 
-export function validateRegistration(registration: { name: string; email: string; password: string }): FieldErrors {
+export function validateRegistration(registration: { name: string; username: string; email: string; password: string }): FieldErrors {
 	const errors: FieldErrors = {};
 	const name = validateName(registration.name);
+	const username = validateUsername(registration.username);
 	const email = validateEmail(registration.email);
 	const password = validatePassword(registration.password);
 	if (name) errors.name = name;
+	if (username) errors.username = username;
 	if (email) errors.email = email;
 	if (password) errors.password = password;
 	return errors;

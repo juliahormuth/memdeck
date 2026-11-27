@@ -7,13 +7,14 @@ import { Alert } from '../../../shared/ui/Alert';
 import { Button } from '../../../shared/ui/Button';
 import { PasswordField } from '../../../shared/ui/PasswordField';
 import { TextField } from '../../../shared/ui/TextField';
-import { validateEmail, validateName, validatePassword } from '../domain/rules';
-import { emailMessages, messageForAuthError, nameMessages, passwordMessages } from './authMessages';
+import { validateEmail, validateName, validatePassword, validateUsername } from '../domain/rules';
+import { emailMessages, messageForAuthError, nameMessages, passwordMessages, usernameMessages } from './authMessages';
 import { useRegister } from './authQueries';
 import styles from './AuthForm.module.css';
 
 const schema = z.object({
 	name: validatedField(validateName, nameMessages),
+	username: validatedField(validateUsername, usernameMessages),
 	email: validatedField(validateEmail, emailMessages),
 	password: validatedField(validatePassword, passwordMessages),
 });
@@ -39,6 +40,16 @@ export function RegisterPage() {
 			>
 				{registerAccount.isError && <Alert>{messageForAuthError(registerAccount.error)}</Alert>}
 				<TextField label="Nome" autoComplete="name" placeholder="Seu nome" error={errors.name?.message} {...register('name')} />
+				<TextField
+					label="Nome de usuário"
+					autoComplete="off"
+					autoCapitalize="none"
+					spellCheck={false}
+					maxLength={21}
+					placeholder="Como vão encontrar você"
+					error={errors.username?.message}
+					{...register('username')}
+				/>
 				<TextField
 					label="E-mail"
 					type="email"

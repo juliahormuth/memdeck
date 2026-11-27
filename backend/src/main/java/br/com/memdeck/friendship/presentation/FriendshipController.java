@@ -72,7 +72,7 @@ public class FriendshipController {
 	@PostMapping("/friend-requests")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public void send(@AuthenticationPrincipal AuthenticatedUser user, @Valid @RequestBody FriendRequestBody body) {
-		sendFriendRequest.execute(user.id(), body.email());
+		sendFriendRequest.execute(user.id(), body.username());
 	}
 
 	@PostMapping("/friend-requests/{requestId}/accept")

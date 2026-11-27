@@ -16,17 +16,6 @@
 	color: var(--color-blue-dark);
 }
 
-.form {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-end;
-	gap: 12px;
-}
-
-.field {
-	flex: 1 1 260px;
-}
-
 .note {
 	color: var(--color-blue-dark);
 }

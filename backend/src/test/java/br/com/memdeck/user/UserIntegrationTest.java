@@ -32,7 +32,7 @@ class UserIntegrationTest {
 	@Test
 	void registersUserStoringAnArgon2HashAndRejectsDuplicateEmail() throws Exception {
 		String body = """
-				{"name":"Integration User","email":"Integration@Example.com","password":"correct-horse-battery"}
+				{"name":"Integration User","username":"integration","email":"Integration@Example.com","password":"correct-horse-battery"}
 				""";
 
 		Cookie csrf = csrfCookie(mockMvc);

@@ -46,12 +46,12 @@ class AuthControllerTest {
 	SessionAuthenticator sessionAuthenticator;
 
 	private static final String VALID_BODY = """
-			{"name":"Julia","email":"julia@example.com","password":"correct-horse"}
+			{"name":"Julia","username":"julia","email":"julia@example.com","password":"correct-horse"}
 			""";
 
 	@Test
 	void registersUserAndNeverReturnsPasswordData() throws Exception {
-		when(registerUser.execute(any())).thenReturn(User.register("Julia", "julia@example.com", "secret-hash"));
+		when(registerUser.execute(any())).thenReturn(User.register("Julia", "julia", "julia@example.com", "secret-hash"));
 
 		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(VALID_BODY))
 				.andExpect(status().isCreated())
@@ -65,7 +65,7 @@ class AuthControllerTest {
 	@Test
 	void rejectsInvalidEmailBeforeCallingTheUseCase() throws Exception {
 		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
-				{"name":"Julia","email":"nope","password":"correct-horse"}
+				{"name":"Julia","username":"julia","email":"nope","password":"correct-horse"}
 				""")).andExpect(status().isBadRequest());
 
 		verifyNoInteractions(registerUser);
@@ -74,7 +74,7 @@ class AuthControllerTest {
 	@Test
 	void rejectsShortPasswordBeforeCallingTheUseCase() throws Exception {
 		mockMvc.perform(post("/api/auth/register").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
-				{"name":"Julia","email":"julia@example.com","password":"short"}
+				{"name":"Julia","username":"julia","email":"julia@example.com","password":"short"}
 				""")).andExpect(status().isBadRequest());
 
 		verifyNoInteractions(registerUser);

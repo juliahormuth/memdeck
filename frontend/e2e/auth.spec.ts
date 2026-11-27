@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { loginThroughTheUi, logoutThroughTheUi, PASSWORD, registerThroughTheUi, uniqueEmail } from './helpers';
+import { loginThroughTheUi, logoutThroughTheUi, PASSWORD, registerThroughTheUi, uniqueEmail, usernameFor } from './helpers';
 
 test('a visitor is sent to the login page', async ({ page }) => {
 	await page.goto('/');
@@ -36,7 +36,8 @@ test('registering an email that already exists shows an error', async ({ page })
 	await logoutThroughTheUi(page);
 
 	await page.goto('/register');
-	await page.getByLabel('Nome').fill('Outra Pessoa');
+	await page.getByLabel('Nome', { exact: true }).fill('Outra Pessoa');
+	await page.getByLabel('Nome de usuário').fill(usernameFor(uniqueEmail()));
 	await page.getByLabel('E-mail').fill(email);
 	await page.getByLabel('Senha', { exact: true }).fill(PASSWORD);
 	await page.getByRole('button', { name: 'Criar conta' }).click();
@@ -95,6 +96,7 @@ test('five failed logins block the account even with the right password', async 
 test('a forgotten password asks for a code and refuses a wrong one', async ({ page }) => {
 	await page.goto('/login');
 	await page.getByRole('link', { name: 'Esqueci minha senha' }).click();
+	await expect(page.getByRole('heading', { name: 'Recuperar conta' })).toBeVisible();
 
 	await page.getByLabel('E-mail').fill(uniqueEmail());
 	await page.getByRole('button', { name: 'Enviar código' }).click();

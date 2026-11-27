@@ -4,6 +4,7 @@ import {
 	InvalidRegistrationError,
 	InvalidResetCodeError,
 	TooManyLoginAttemptsError,
+	UsernameAlreadyTakenError,
 } from '../domain/errors';
 import { NAME_MAX_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from '../domain/rules';
 import type { FieldErrorCode } from '../domain/rules';
@@ -11,6 +12,11 @@ import type { FieldErrorCode } from '../domain/rules';
 export const nameMessages: Partial<Record<FieldErrorCode, string>> = {
 	blank: 'Informe seu nome.',
 	too_long: `O nome deve ter no máximo ${NAME_MAX_LENGTH} caracteres.`,
+};
+
+export const usernameMessages: Partial<Record<FieldErrorCode, string>> = {
+	blank: 'Informe um nome de usuário.',
+	invalid: 'Use de 3 a 20 letras sem acento, números, ponto ou sublinhado.',
 };
 
 export const emailMessages: Partial<Record<FieldErrorCode, string>> = {
@@ -39,6 +45,9 @@ export function messageForAuthError(error: unknown): string {
 	}
 	if (error instanceof InvalidResetCodeError) {
 		return 'Código inválido ou expirado.';
+	}
+	if (error instanceof UsernameAlreadyTakenError) {
+		return 'Este nome de usuário já está em uso.';
 	}
 	if (error instanceof EmailAlreadyRegisteredError) {
 		return 'Este e-mail já está cadastrado.';

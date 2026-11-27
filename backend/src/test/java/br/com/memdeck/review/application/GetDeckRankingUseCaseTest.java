@@ -31,10 +31,10 @@ class GetDeckRankingUseCaseTest {
 	private final GetDeckRankingUseCase useCase = new GetDeckRankingUseCaseImpl(
 			new DeckAccessFinder(decks, members), members, users, logs);
 
-	private final User owner = users.save(User.register("Olivia", "olivia@example.com", "hash"));
-	private final User editor = users.save(User.register("Eduardo", "eduardo@example.com", "hash"));
-	private final User reader = users.save(User.register("Rita", "rita@example.com", "hash"));
-	private final User stranger = users.save(User.register("Samuel", "samuel@example.com", "hash"));
+	private final User owner = users.save(User.register("Olivia", "olivia", "olivia@example.com", "hash"));
+	private final User editor = users.save(User.register("Eduardo", "eduardo", "eduardo@example.com", "hash"));
+	private final User reader = users.save(User.register("Rita", "rita", "rita@example.com", "hash"));
+	private final User stranger = users.save(User.register("Samuel", "samuel", "samuel@example.com", "hash"));
 	private final Deck deck = decks.save(Deck.create(owner.getId(), "Anatomy", null, Visibility.PUBLIC));
 
 	private void review(User user, int times) {

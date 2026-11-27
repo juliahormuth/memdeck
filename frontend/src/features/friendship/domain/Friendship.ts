@@ -13,6 +13,16 @@ export interface FriendActivity {
 	reviewedFlashcards: number;
 }
 
+export type UserRelation = 'SELF' | 'FRIEND' | 'REQUEST_SENT' | 'REQUEST_RECEIVED' | 'NONE';
+
+export interface FoundUser {
+	userId: string;
+	name: string;
+	username: string;
+	avatar: string;
+	relation: UserRelation;
+}
+
 export type FriendRequestDirection = 'INCOMING' | 'OUTGOING';
 
 export interface FriendRequest {

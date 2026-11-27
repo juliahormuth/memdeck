@@ -43,7 +43,7 @@ class RealServerSecurityTest {
 		HttpResponse<String> response = send(to("/api/auth/register")
 				.header("Content-Type", "application/json")
 				.POST(BodyPublishers.ofString(
-						"{\"name\":\"A\",\"email\":\"a@example.com\",\"password\":\"correct-horse-battery\"}")));
+						"{\"name\":\"A\",\"username\":\"aaa\",\"email\":\"a@example.com\",\"password\":\"correct-horse-battery\"}")));
 
 		assertThat(response.statusCode()).isEqualTo(403);
 	}

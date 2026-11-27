@@ -110,7 +110,7 @@
 	background: var(--color-blue-pale);
 }
 
-.email {
+.username {
 	display: none;
 	min-width: 0;
 	overflow: hidden;
@@ -224,7 +224,7 @@
 		gap: 10px;
 	}
 
-	.email {
+	.username {
 		display: block;
 	}
 

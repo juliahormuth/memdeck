@@ -30,7 +30,7 @@ class ListFriendActivityUseCaseTest {
 	private final User me = register("Julia");
 
 	private User register(String name) {
-		return users.save(User.register(name, name.toLowerCase() + "@example.com", "hash"));
+		return users.save(User.register(name, name.toLowerCase(), name.toLowerCase() + "@example.com", "hash"));
 	}
 
 	private User friend(String name) {

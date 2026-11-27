@@ -25,9 +25,9 @@ function translate(error: unknown, notFound: () => Error): unknown {
 }
 
 export class HttpInvitationGateway implements InvitationGateway {
-	async invite(deckId: string, email: string, role: InvitableRole): Promise<void> {
+	async invite(deckId: string, username: string, role: InvitableRole): Promise<void> {
 		try {
-			await httpClient.post(deckInvitationsPath(deckId), { email, role });
+			await httpClient.post(deckInvitationsPath(deckId), { username, role });
 		} catch (error) {
 			throw translate(error, () => new InvitationDeckNotFoundError());
 		}

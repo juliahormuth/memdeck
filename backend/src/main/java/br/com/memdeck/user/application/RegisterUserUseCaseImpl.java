@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.com.memdeck.user.domain.EmailAlreadyRegisteredException;
 import br.com.memdeck.user.domain.PasswordPolicy;
 import br.com.memdeck.user.domain.User;
+import br.com.memdeck.user.domain.UsernameAlreadyTakenException;
 
 @Service
 @Transactional
@@ -26,7 +27,11 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
 		if (gateway.existsByEmail(email)) {
 			throw new EmailAlreadyRegisteredException();
 		}
-		User user = User.register(command.name(), email, passwordHasher.hash(command.password()));
+		String username = User.normalizeUsername(command.username());
+		if (gateway.existsByUsername(username)) {
+			throw new UsernameAlreadyTakenException();
+		}
+		User user = User.register(command.name(), username, email, passwordHasher.hash(command.password()));
 		return gateway.save(user);
 	}
 }

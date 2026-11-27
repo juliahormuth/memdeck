@@ -69,7 +69,7 @@ class PasswordResetUseCasesTest {
 
 	@BeforeEach
 	void register() {
-		user = users.save(User.register("Julia", EMAIL, "hashed:old-password"));
+		user = users.save(User.register("Julia", "julia", EMAIL, "hashed:old-password"));
 	}
 
 	private void confirmWith(String code) {

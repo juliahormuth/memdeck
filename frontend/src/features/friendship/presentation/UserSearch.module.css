@@ -1,0 +1,50 @@
+.search {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 12px;
+}
+
+.field {
+	flex: 1 1 220px;
+}
+
+.note {
+	color: var(--color-blue-dark);
+}
+
+.result {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 12px;
+	text-align: left;
+	background: var(--color-surface);
+	border: 1.5px solid var(--color-blue-pastel);
+	border-radius: var(--radius-field);
+}
+
+.who {
+	display: flex;
+	flex: 1 1 140px;
+	flex-direction: column;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.name {
+	font-weight: 700;
+	color: var(--color-navy);
+}
+
+.username {
+	font-size: 0.875rem;
+	color: var(--color-blue-dark);
+}

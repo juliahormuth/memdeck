@@ -14,12 +14,12 @@ const mine: MyInvitation = {
 };
 
 describe('invitation use cases', () => {
-	it('trims the e-mail when inviting', async () => {
+	it('trims the username when inviting', async () => {
 		const gateway = new FakeInvitationGateway();
 
-		await inviteToDeck(gateway, { deckId: 'd1', email: '  rita@example.com ', role: 'READER' });
+		await inviteToDeck(gateway, { deckId: 'd1', username: '  rita ', role: 'READER' });
 
-		expect(gateway.invited).toEqual([{ deckId: 'd1', email: 'rita@example.com', role: 'READER' }]);
+		expect(gateway.invited).toEqual([{ deckId: 'd1', username: 'rita', role: 'READER' }]);
 	});
 
 	it('lists my invitations and answers them', async () => {

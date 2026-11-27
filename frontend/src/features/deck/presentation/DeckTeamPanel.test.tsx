@@ -52,7 +52,21 @@ describe('DeckTeamPanel', () => {
 		expect(screen.queryByText('Convites pendentes')).not.toBeInTheDocument();
 	});
 
-	it('opens a window to invite by e-mail with the chosen role, closes it, and answers the same whether or not the account exists', async () => {
+	function findsRita(relation = 'NONE') {
+		server.use(
+			http.get('*/api/users', () =>
+				HttpResponse.json([{ userId: 'u2', name: 'Rita', username: 'rita', avatar: 'CAT', relation }]),
+			),
+		);
+	}
+
+	async function searchFor(dialog: HTMLElement, username: string) {
+		await userEvent.type(within(dialog).getByLabelText('Nome de usuário'), username);
+		await userEvent.click(within(dialog).getByRole('button', { name: 'Pesquisar' }));
+	}
+
+	it('finds the person by username and invites with the chosen role', async () => {
+		findsRita();
 		let body: unknown;
 		server.use(
 			http.post('*/api/decks/d1/invitations', async ({ request }) => {
@@ -63,53 +77,65 @@ describe('DeckTeamPanel', () => {
 		renderApp('/decks/d1');
 
 		const dialog = await openAddDialog();
-		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), '  rita@example.com');
 		await userEvent.selectOptions(within(dialog).getByLabelText('Papel'), 'EDITOR');
+		await searchFor(dialog, 'rita');
+		expect(await within(dialog).findByText('@rita')).toBeInTheDocument();
 		await userEvent.click(within(dialog).getByRole('button', { name: 'Convidar' }));
 
-		expect(await screen.findByText(/Se esse e-mail tiver uma conta/)).toBeInTheDocument();
-		expect(body).toEqual({ email: 'rita@example.com', role: 'EDITOR' });
+		expect(await screen.findByText('Convite enviado para Rita.')).toBeInTheDocument();
+		expect(body).toEqual({ username: 'rita', role: 'EDITOR' });
 		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 	});
 
-	it('starts the next invitation with an empty e-mail and the reader role', async () => {
-		server.use(http.post('*/api/decks/d1/invitations', () => new HttpResponse(null, { status: 202 })));
-		renderApp('/decks/d1');
-		let dialog = await openAddDialog();
-		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), 'rita@example.com');
-		await userEvent.selectOptions(within(dialog).getByLabelText('Papel'), 'EDITOR');
-		await userEvent.click(within(dialog).getByRole('button', { name: 'Convidar' }));
-		await screen.findByText(/Se esse e-mail tiver uma conta/);
-
-		dialog = await openAddDialog();
-
-		expect(within(dialog).getByLabelText('E-mail da pessoa')).toHaveValue('');
-		expect(within(dialog).getByLabelText('Papel')).toHaveValue('READER');
-		expect(screen.queryByText(/Se esse e-mail tiver uma conta/)).not.toBeInTheDocument();
-	});
-
-	it('closes the window with Cancelar without sending anything', async () => {
-		let called = false;
-		server.use(http.post('*/api/decks/d1/invitations', () => ((called = true), new HttpResponse(null, { status: 202 }))));
+	it('says when nobody has that username', async () => {
+		server.use(http.get('*/api/users', () => HttpResponse.json([])));
 		renderApp('/decks/d1');
 
 		const dialog = await openAddDialog();
-		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), 'rita@example.com');
-		await userEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+		await searchFor(dialog, 'nobody');
 
-		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-		expect(called).toBe(false);
+		expect(await within(dialog).findByText('Nenhum usuário encontrado.')).toBeInTheDocument();
+		expect(within(dialog).queryByRole('button', { name: 'Convidar' })).not.toBeInTheDocument();
 	});
 
-	it('keeps the window open and shows an error when the e-mail is refused', async () => {
+	it('does not offer to invite the owner or someone who already has the role', async () => {
+		findsRita();
+		server.use(http.get('*/api/decks/d1/members', () => HttpResponse.json([rita])));
+		renderApp('/decks/d1');
+
+		const dialog = await openAddDialog();
+		await searchFor(dialog, 'rita');
+
+		expect(await within(dialog).findByText('Já participa como Leitor')).toBeInTheDocument();
+		await userEvent.selectOptions(within(dialog).getByLabelText('Papel'), 'EDITOR');
+		expect(within(dialog).getByRole('button', { name: 'Convidar' })).toBeInTheDocument();
+	});
+
+	it('starts the next invitation with an empty search and the reader role', async () => {
+		findsRita();
+		renderApp('/decks/d1');
+		let dialog = await openAddDialog();
+		await userEvent.selectOptions(within(dialog).getByLabelText('Papel'), 'EDITOR');
+		await searchFor(dialog, 'rita');
+		await userEvent.click(within(dialog).getByRole('button', { name: 'Cancelar' }));
+		await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+		dialog = await openAddDialog();
+
+		expect(within(dialog).getByLabelText('Nome de usuário')).toHaveValue('');
+		expect(within(dialog).getByLabelText('Papel')).toHaveValue('READER');
+	});
+
+	it('keeps the window open and shows an error when the invitation is refused', async () => {
+		findsRita();
 		server.use(http.post('*/api/decks/d1/invitations', () => HttpResponse.json({ detail: 'x' }, { status: 400 })));
 		renderApp('/decks/d1');
 
 		const dialog = await openAddDialog();
-		await userEvent.type(within(dialog).getByLabelText('E-mail da pessoa'), 'julia@example.com');
-		await userEvent.click(within(dialog).getByRole('button', { name: 'Convidar' }));
+		await searchFor(dialog, 'rita');
+		await userEvent.click(await within(dialog).findByRole('button', { name: 'Convidar' }));
 
-		expect(await within(dialog).findByRole('alert')).toHaveTextContent('Confira o e-mail');
+		expect(await within(dialog).findByRole('alert')).toHaveTextContent('Confira o nome de usuário');
 		expect(screen.getByRole('dialog', { name: 'Adicionar participante' })).toBeInTheDocument();
 	});
 

@@ -66,3 +66,15 @@ describe('MainLayout pending counters', () => {
 		expect(await screen.findByLabelText('1 pendentes')).toBeInTheDocument();
 	});
 });
+
+describe('MainLayout profile link', () => {
+	it('shows the username, not the e-mail, in the menu', async () => {
+		server.use(http.get('*/api/auth/me', () => HttpResponse.json({ id: 'u1', email: 'julia@example.com' })));
+		renderApp('/');
+
+		const link = await screen.findByRole('link', { name: 'Meu perfil' });
+
+		await waitFor(() => expect(link).toHaveTextContent('@julia'));
+		expect(screen.queryByText('julia@example.com')).not.toBeInTheDocument();
+	});
+});

@@ -7,5 +7,10 @@ export async function registerUser(gateway: AuthGateway, account: NewAccount): P
 	if (Object.keys(errors).length > 0) {
 		throw new InvalidRegistrationError(errors);
 	}
-	await gateway.register({ name: account.name.trim(), email: account.email.trim(), password: account.password });
+	await gateway.register({
+		name: account.name.trim(),
+		username: account.username.trim(),
+		email: account.email.trim(),
+		password: account.password,
+	});
 }

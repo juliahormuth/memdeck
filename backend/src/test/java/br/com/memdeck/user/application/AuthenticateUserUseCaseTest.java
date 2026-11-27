@@ -35,7 +35,7 @@ class AuthenticateUserUseCaseTest {
 			new InMemoryLoginAttemptGateway(), new LoginAttemptPolicy(5, Duration.ofMinutes(15)), new MutableClock());
 
 	private User registered() {
-		return gateway.save(User.register("Julia", "julia@example.com", hasher.hash("correct-horse")));
+		return gateway.save(User.register("Julia", "julia", "julia@example.com", hasher.hash("correct-horse")));
 	}
 
 	@Test

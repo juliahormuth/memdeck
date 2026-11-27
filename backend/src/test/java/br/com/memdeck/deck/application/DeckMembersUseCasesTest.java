@@ -28,9 +28,9 @@ class DeckMembersUseCasesTest {
 	private final RemoveDeckMemberUseCase remove = new RemoveDeckMemberUseCaseImpl(access, members);
 	private final LeaveDeckUseCase leave = new LeaveDeckUseCaseImpl(access, members);
 
-	private final User owner = users.save(User.register("Olivia", "olivia@example.com", "hash"));
-	private final User editor = users.save(User.register("Eduardo", "eduardo@example.com", "hash"));
-	private final User reader = users.save(User.register("Rita", "rita@example.com", "hash"));
+	private final User owner = users.save(User.register("Olivia", "olivia", "olivia@example.com", "hash"));
+	private final User editor = users.save(User.register("Eduardo", "eduardo", "eduardo@example.com", "hash"));
+	private final User reader = users.save(User.register("Rita", "rita", "rita@example.com", "hash"));
 	private final Deck deck = decks.save(Deck.create(owner.getId(), "Anatomy", null, Visibility.PRIVATE));
 
 	private void team() {

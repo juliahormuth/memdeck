@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router';
-import { useCurrentUser, useLogout } from '../../features/auth/presentation/authQueries';
+import { useLogout } from '../../features/auth/presentation/authQueries';
 import { useFriendRequests } from '../../features/friendship/presentation/friendshipQueries';
 import { useMyInvitations } from '../../features/invitation/presentation/invitationQueries';
 import { useProfile } from '../../features/profile/presentation/profileQueries';
@@ -16,7 +16,6 @@ const menu = [
 ];
 
 export function MainLayout() {
-	const { data: user } = useCurrentUser();
 	const logout = useLogout();
 	const { data: invitations, refetch: refetchInvitations } = useMyInvitations();
 	const pendingInvitations = invitations?.length ?? 0;
@@ -69,9 +68,11 @@ export function MainLayout() {
 				<div className={styles.user}>
 					<Link to="/profile" className={styles.profile} aria-label="Meu perfil">
 						<Avatar avatar={profile?.avatar ?? 'CAT'} />
-						<span className={styles.email} title={user?.email}>
-							{user?.email}
-						</span>
+						{profile && (
+							<span className={styles.username} title={`@${profile.username}`}>
+								@{profile.username}
+							</span>
+						)}
 					</Link>
 					<button type="button" className={styles.logout} aria-label="Sair" disabled={logout.isPending} onClick={() => logout.mutate()}>
 						<LogoutIcon />

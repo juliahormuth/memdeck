@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
-import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail } from './helpers';
+import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail, usernameFor } from './helpers';
 
 const FRONT = 'Frente (pergunta, conceito ou palavra)';
 const BACK = 'Verso (resposta ou tradução)';
@@ -16,10 +16,11 @@ async function newUser(browser: Browser): Promise<{ page: Page; email: string; c
 async function invite(page: Page, email: string, role: 'Leitor' | 'Editor'): Promise<void> {
 	await page.getByRole('button', { name: 'Adicionar participante' }).click();
 	const dialog = page.getByRole('dialog', { name: 'Adicionar participante' });
-	await dialog.getByLabel('E-mail da pessoa').fill(email);
 	await dialog.getByLabel('Papel').selectOption({ label: role });
+	await dialog.getByLabel('Nome de usuário').fill(usernameFor(email));
+	await dialog.getByRole('button', { name: 'Pesquisar' }).click();
 	await dialog.getByRole('button', { name: 'Convidar' }).click();
-	await expect(page.getByText(/Se esse e-mail tiver uma conta/)).toBeVisible();
+	await expect(page.getByText(/Convite enviado para/)).toBeVisible();
 }
 
 async function acceptFirstInvitation(page: Page): Promise<void> {
@@ -90,12 +91,17 @@ test('an invited reader studies the private deck, cannot change it, and leaves i
 	await guest.close();
 });
 
-test('declining keeps the guest out, and an unknown e-mail gets the same answer without creating an invitation', async ({ page, browser }) => {
+test('declining keeps the guest out, and an unknown username is reported without creating an invitation', async ({ page, browser }) => {
 	await registerThroughTheUi(page, uniqueEmail());
 	await createDeckThroughTheUi(page, 'Recusas');
 	const guest = await newUser(browser);
 	await invite(page, guest.email, 'Leitor');
-	await invite(page, 'ninguem-' + Date.now() + '@example.com', 'Leitor');
+	await page.getByRole('button', { name: 'Adicionar participante' }).click();
+	const dialog = page.getByRole('dialog', { name: 'Adicionar participante' });
+	await dialog.getByLabel('Nome de usuário').fill('ninguem_aqui');
+	await dialog.getByRole('button', { name: 'Pesquisar' }).click();
+	await expect(dialog.getByText('Nenhum usuário encontrado.')).toBeVisible();
+	await dialog.getByRole('button', { name: 'Cancelar' }).click();
 	await expect(page.getByRole('list', { name: 'Convites pendentes' }).getByRole('listitem')).toHaveCount(1);
 
 	await guest.page.goto('/invitations');

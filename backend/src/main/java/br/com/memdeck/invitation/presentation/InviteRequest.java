@@ -8,9 +8,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record InviteRequest(@NotBlank @Size(max = 254) String email, @NotNull DeckRole role) {
+public record InviteRequest(@NotBlank @Size(max = 21) String username, @NotNull DeckRole role) {
 
 	InviteToDeckCommand toCommand(UUID requesterId, UUID deckId) {
-		return new InviteToDeckCommand(requesterId, deckId, email, role);
+		return new InviteToDeckCommand(requesterId, deckId, username, role);
 	}
 }

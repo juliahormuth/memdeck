@@ -1,8 +1,8 @@
 import { ApiError } from '../../../shared/http/ApiError';
 import { httpClient } from '../../../shared/http/httpClient';
 import type { FriendshipGateway } from '../application/FriendshipGateway';
-import { FriendshipNotFoundError, InvalidFriendRequestError } from '../domain/errors';
-import type { Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
+import { FriendshipNotFoundError, InvalidFriendRequestError, TooManySearchesError } from '../domain/errors';
+import type { FoundUser, Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
 
 const base = '/api/users/me';
 const requestPath = (id: string) => `${base}/friend-requests/${encodeURIComponent(id)}`;
@@ -36,9 +36,21 @@ export class HttpFriendshipGateway implements FriendshipGateway {
 		return httpClient.get<FriendRequest[]>(`${base}/friend-requests`);
 	}
 
-	async sendRequest(email: string): Promise<void> {
+	async searchUser(username: string): Promise<FoundUser | null> {
 		try {
-			await httpClient.post(`${base}/friend-requests`, { email });
+			const found = await httpClient.get<FoundUser[]>(`/api/users?username=${encodeURIComponent(username)}`);
+			return found[0] ?? null;
+		} catch (error) {
+			if (error instanceof ApiError && error.status === 429) {
+				throw new TooManySearchesError(error.retryAfterSeconds);
+			}
+			throw error;
+		}
+	}
+
+	async sendRequest(username: string): Promise<void> {
+		try {
+			await httpClient.post(`${base}/friend-requests`, { username });
 		} catch (error) {
 			throw translate(error);
 		}

@@ -12,6 +12,7 @@ import br.com.memdeck.user.domain.InvalidCredentialsException;
 import br.com.memdeck.user.domain.InvalidPasswordResetCodeException;
 import br.com.memdeck.user.domain.InvalidUserException;
 import br.com.memdeck.user.domain.TooManyLoginAttemptsException;
+import br.com.memdeck.user.domain.UsernameAlreadyTakenException;
 
 @RestControllerAdvice(assignableTypes = { AuthController.class, PasswordResetController.class })
 class AuthExceptionHandler {
@@ -29,6 +30,13 @@ class AuthExceptionHandler {
 	@ExceptionHandler(EmailAlreadyRegisteredException.class)
 	ProblemDetail handleDuplicateEmail(EmailAlreadyRegisteredException exception) {
 		return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+	}
+
+	@ExceptionHandler(UsernameAlreadyTakenException.class)
+	ProblemDetail handleTakenUsername(UsernameAlreadyTakenException exception) {
+		ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+		body.setProperty("reason", "USERNAME_TAKEN");
+		return body;
 	}
 
 	@ExceptionHandler(InvalidCredentialsException.class)

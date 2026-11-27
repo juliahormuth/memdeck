@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { renderApp } from '../../../test/renderApp';
 import { server } from '../../../test/server';
 
-const profile = { id: 'u1', name: 'Julia', email: 'julia@example.com', avatar: 'CAT', reviewedDays: 12, streakDays: 3, friends: 2 };
+const profile = { id: 'u1', name: 'Julia', username: 'julia', email: 'julia@example.com', avatar: 'CAT', reviewedDays: 12, streakDays: 3, friends: 2 };
 
 describe('ProfilePage', () => {
 	beforeEach(() => {

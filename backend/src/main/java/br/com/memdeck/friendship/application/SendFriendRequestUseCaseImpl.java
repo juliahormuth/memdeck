@@ -23,10 +23,10 @@ public class SendFriendRequestUseCaseImpl implements SendFriendRequestUseCase {
 		this.friendships = friendships;
 	}
 
-	// Unknown e-mails and existing friendships or requests end silently, so the answer never reveals who has an account.
+	// Unknown usernames end silently: only the throttled search tells whether a username exists.
 	@Override
-	public void execute(UUID requesterId, String email) {
-		User addressee = users.findByEmail(normalized(email)).orElse(null);
+	public void execute(UUID requesterId, String username) {
+		User addressee = users.findByUsername(normalized(username)).orElse(null);
 		if (addressee == null) {
 			return;
 		}
@@ -37,11 +37,11 @@ public class SendFriendRequestUseCaseImpl implements SendFriendRequestUseCase {
 		friendships.save(request);
 	}
 
-	private static String normalized(String email) {
+	private static String normalized(String username) {
 		try {
-			return User.normalizeEmail(email);
+			return User.normalizeUsername(username);
 		} catch (InvalidUserException exception) {
-			throw new InvalidFriendRequestException("The e-mail is not valid");
+			throw new InvalidFriendRequestException("The username is not valid");
 		}
 	}
 }

@@ -50,7 +50,8 @@ class CollaborationIntegrationTest {
 	private ResultActions invite(Session owner, String deckId, String email, String role) throws Exception {
 		return mockMvc.perform(withCsrf(post("/api/decks/" + deckId + "/invitations").cookie(owner.session())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"email\":\"%s\",\"role\":\"%s\"}".formatted(email, role)), owner.csrf()));
+				.content("{\"username\":\"%s\",\"role\":\"%s\"}"
+						.formatted(email.contains("@") ? br.com.memdeck.AuthTestSupport.usernameOf(email) : email, role)), owner.csrf()));
 	}
 
 	private String firstInvitationId(Session guest) throws Exception {
@@ -169,7 +170,7 @@ class CollaborationIntegrationTest {
 		Session owner = registerAndLogin(mockMvc, ownerEmail);
 		String deckId = createPrivateDeck(owner);
 
-		invite(owner, deckId, "not-an-email", "READER").andExpect(status().isBadRequest());
+		invite(owner, deckId, "not a username", "READER").andExpect(status().isBadRequest());
 		invite(owner, deckId, ownerEmail, "READER").andExpect(status().isBadRequest());
 		invite(owner, deckId, uniqueEmail(), "OWNER").andExpect(status().isBadRequest());
 	}

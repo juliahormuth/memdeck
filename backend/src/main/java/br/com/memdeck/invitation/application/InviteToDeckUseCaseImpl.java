@@ -29,13 +29,13 @@ public class InviteToDeckUseCaseImpl implements InviteToDeckUseCase {
 		this.invitations = invitations;
 	}
 
-	// Unknown e-mails, current members and repeated invitations end silently, so the answer never reveals who has an account.
+	// Unknown usernames, current members and repeated invitations end silently.
 	@Override
 	public void execute(InviteToDeckCommand command) {
 		access.owned(command.deckId(), command.requesterId());
 		Invitation.requireOfferableRole(command.role());
-		String email = normalized(command.email());
-		User invitee = users.findByEmail(email).orElse(null);
+		String username = normalized(command.username());
+		User invitee = users.findByUsername(username).orElse(null);
 		if (invitee == null) {
 			return;
 		}
@@ -49,11 +49,11 @@ public class InviteToDeckUseCaseImpl implements InviteToDeckUseCase {
 		invitations.save(invitation);
 	}
 
-	private static String normalized(String email) {
+	private static String normalized(String username) {
 		try {
-			return User.normalizeEmail(email);
+			return User.normalizeUsername(username);
 		} catch (InvalidUserException exception) {
-			throw new InvalidInvitationException("The e-mail is not valid");
+			throw new InvalidInvitationException("The username is not valid");
 		}
 	}
 }

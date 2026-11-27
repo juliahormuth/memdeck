@@ -9,7 +9,7 @@ class UserTest {
 
 	@Test
 	void registersUserWithNormalizedEmailAndTrimmedName() {
-		User user = User.register("  Julia  ", "  Julia@Example.COM ", "hash");
+		User user = User.register("  Julia  ", "  Julia", "  Julia@Example.COM ", "hash");
 
 		assertThat(user.getId()).isNotNull();
 		assertThat(user.getName()).isEqualTo("Julia");
@@ -20,20 +20,20 @@ class UserTest {
 
 	@Test
 	void rejectsBlankName() {
-		assertThatThrownBy(() -> User.register("  ", "a@b.com", "hash")).isInstanceOf(InvalidUserException.class);
+		assertThatThrownBy(() -> User.register("  ", "abc", "a@b.com", "hash")).isInstanceOf(InvalidUserException.class);
 	}
 
 	@Test
 	void rejectsTooLongName() {
 		String name = "a".repeat(User.NAME_MAX_LENGTH + 1);
 
-		assertThatThrownBy(() -> User.register(name, "a@b.com", "hash")).isInstanceOf(InvalidUserException.class);
+		assertThatThrownBy(() -> User.register(name, "julia", "a@b.com", "hash")).isInstanceOf(InvalidUserException.class);
 	}
 
 	@Test
 	void rejectsInvalidEmails() {
 		for (String email : new String[] { null, "", "   ", "no-at-sign", "a@b", "a b@c.com", "a@@b.com" }) {
-			assertThatThrownBy(() -> User.register("Julia", email, "hash"))
+			assertThatThrownBy(() -> User.register("Julia", "julia", email, "hash"))
 					.as("email: %s", email)
 					.isInstanceOf(InvalidUserException.class);
 		}
@@ -41,17 +41,17 @@ class UserTest {
 
 	@Test
 	void rejectsMissingPasswordHash() {
-		assertThatThrownBy(() -> User.register("Julia", "a@b.com", " ")).isInstanceOf(InvalidUserException.class);
+		assertThatThrownBy(() -> User.register("Julia", "abc", "a@b.com", " ")).isInstanceOf(InvalidUserException.class);
 	}
 
 	@Test
 	void aNewUserGetsTheDefaultAvatar() {
-		assertThat(User.register("Julia", "julia@example.com", "hash").getAvatar()).isEqualTo(Avatar.CAT);
+		assertThat(User.register("Julia", "julia", "julia@example.com", "hash").getAvatar()).isEqualTo(Avatar.CAT);
 	}
 
 	@Test
 	void changesTheNameAndAvatarKeepingIdentityEmailAndPassword() {
-		User user = User.register("Julia", "julia@example.com", "hash");
+		User user = User.register("Julia", "julia", "julia@example.com", "hash");
 
 		User changed = user.withProfile("  Julia Hormuth ", Avatar.RABBIT);
 
@@ -64,7 +64,7 @@ class UserTest {
 
 	@Test
 	void rejectsAnInvalidProfileChange() {
-		User user = User.register("Julia", "julia@example.com", "hash");
+		User user = User.register("Julia", "julia", "julia@example.com", "hash");
 
 		assertThatThrownBy(() -> user.withProfile(" ", Avatar.CAT)).isInstanceOf(InvalidUserException.class);
 		assertThatThrownBy(() -> user.withProfile("Julia", null)).isInstanceOf(InvalidUserException.class);

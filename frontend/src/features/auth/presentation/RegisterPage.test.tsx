@@ -8,6 +8,7 @@ import { server } from '../../../test/server';
 async function fillAndSubmit(name: string, email: string, password: string) {
 	const nameField = await screen.findByLabelText('Nome');
 	if (name) await userEvent.type(nameField, name);
+	await userEvent.type(screen.getByLabelText('Nome de usuário'), 'julia');
 	if (email) await userEvent.type(screen.getByLabelText('E-mail'), email);
 	if (password) await userEvent.type(screen.getByLabelText('Senha'), password);
 	await userEvent.click(screen.getByRole('button', { name: 'Criar conta' }));

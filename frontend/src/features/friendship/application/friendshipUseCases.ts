@@ -1,4 +1,4 @@
-import type { Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
+import type { FoundUser, Friend, FriendActivity, FriendRequest } from '../domain/Friendship';
 import type { FriendshipGateway } from './FriendshipGateway';
 
 export function listFriends(gateway: FriendshipGateway): Promise<Friend[]> {
@@ -17,8 +17,12 @@ export function listFriendRequests(gateway: FriendshipGateway): Promise<FriendRe
 	return gateway.listRequests();
 }
 
-export function sendFriendRequest(gateway: FriendshipGateway, email: string): Promise<void> {
-	return gateway.sendRequest(email.trim());
+export function searchUser(gateway: FriendshipGateway, username: string): Promise<FoundUser | null> {
+	return gateway.searchUser(username.trim());
+}
+
+export function sendFriendRequest(gateway: FriendshipGateway, username: string): Promise<void> {
+	return gateway.sendRequest(username);
 }
 
 export function acceptFriendRequest(gateway: FriendshipGateway, requestId: string): Promise<void> {

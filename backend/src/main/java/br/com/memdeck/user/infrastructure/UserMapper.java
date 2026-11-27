@@ -11,6 +11,7 @@ final class UserMapper {
 		return new UserJpaModel(
 				user.getId(),
 				user.getName(),
+				user.getUsername(),
 				user.getEmail(),
 				user.getPasswordHash(),
 				user.getAvatar(),
@@ -21,6 +22,7 @@ final class UserMapper {
 		return User.restore(
 				model.getId(),
 				model.getName(),
+				model.getUsername(),
 				model.getEmail(),
 				model.getPasswordHash(),
 				model.getAvatar(),

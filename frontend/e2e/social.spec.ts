@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
-import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail } from './helpers';
+import { createDeckThroughTheUi, registerThroughTheUi, uniqueEmail, usernameFor } from './helpers';
 
 const FRONT = 'Frente (pergunta, conceito ou palavra)';
 const BACK = 'Verso (resposta ou tradução)';
@@ -40,7 +40,7 @@ test('the user edits the name and the icon on the profile and sees the activity 
 	const stats = page.getByRole('list', { name: 'Sua atividade' });
 	await expect(stats.getByText('dias revisados')).toBeVisible();
 
-	await page.getByLabel('Nome').fill('Julia Hormuth');
+	await page.getByLabel('Nome', { exact: true }).fill('Julia Hormuth');
 	await page.getByLabel('Cachorro').check({ force: true });
 	await page.getByRole('button', { name: 'Salvar alterações' }).click();
 	await expect(page.getByText('Perfil salvo.')).toBeVisible();
@@ -62,16 +62,19 @@ test('a friend request is sent by e-mail, accepted by the other person, and the 
 	await registerThroughTheUi(page, uniqueEmail());
 	const friend = await newUser(browser);
 	await friend.page.getByRole('link', { name: 'Meu perfil' }).click();
-	await friend.page.getByLabel('Nome').fill('Amiga Carla');
+	await friend.page.getByLabel('Nome', { exact: true }).fill('Amiga Carla');
 	await friend.page.getByRole('button', { name: 'Salvar alterações' }).click();
 	await expect(friend.page.getByText('Perfil salvo.')).toBeVisible();
 
 	await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('link', { name: /Amigos/ }).click();
-	await page.getByLabel('Adicionar amigo por e-mail').fill(friend.email);
+	await page.getByLabel('Adicionar amigo').fill(`ninguem_${Date.now().toString(36)}`);
+	await page.getByRole('button', { name: 'Pesquisar' }).click();
+	await expect(page.getByText('Nenhum usuário encontrado.')).toBeVisible();
+	await page.getByLabel('Adicionar amigo').fill(usernameFor(friend.email));
+	await page.getByRole('button', { name: 'Pesquisar' }).click();
+	await expect(page.getByRole('group', { name: 'Usuário encontrado' })).toContainText('Amiga Carla');
 	await page.getByRole('button', { name: 'Enviar pedido' }).click();
-	await expect(page.getByText(/Pedido de amizade enviado/)).toBeVisible();
-	await page.getByLabel('Adicionar amigo por e-mail').fill(`ninguem-${Date.now()}@example.com`);
-	await page.getByRole('button', { name: 'Enviar pedido' }).click();
+	await expect(page.getByText('Pedido de amizade enviado para Amiga Carla.')).toBeVisible();
 	await expect(page.getByRole('list', { name: 'Pedidos enviados' }).getByRole('listitem')).toHaveCount(1);
 
 	await friend.page.reload();
@@ -108,7 +111,8 @@ test('declining or cancelling a friend request leaves no friendship', async ({ p
 	await registerThroughTheUi(page, uniqueEmail());
 	const other = await newUser(browser);
 	await page.goto('/friends');
-	await page.getByLabel('Adicionar amigo por e-mail').fill(other.email);
+	await page.getByLabel('Adicionar amigo').fill(usernameFor(other.email));
+	await page.getByRole('button', { name: 'Pesquisar' }).click();
 	await page.getByRole('button', { name: 'Enviar pedido' }).click();
 	await expect(page.getByRole('list', { name: 'Pedidos enviados' })).toBeVisible();
 

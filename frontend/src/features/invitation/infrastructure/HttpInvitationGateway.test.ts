@@ -26,9 +26,9 @@ describe('HttpInvitationGateway', () => {
 			}),
 		);
 
-		await gateway.invite('d1', 'rita@example.com', 'EDITOR');
+		await gateway.invite('d1', 'rita', 'EDITOR');
 
-		expect(body).toEqual({ email: 'rita@example.com', role: 'EDITOR' });
+		expect(body).toEqual({ username: 'rita', role: 'EDITOR' });
 	});
 
 	it.each([

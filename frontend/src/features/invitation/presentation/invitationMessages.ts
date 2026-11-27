@@ -1,11 +1,10 @@
 import { InvalidInvitationError, InvitationAlreadyAnsweredError, InvitationDeckNotFoundError, InvitationNotFoundError, NotDeckOwnerError } from '../domain/errors';
 
-export const inviteSentMessage =
-	'Pronto. Se esse e-mail tiver uma conta no Memdeck, a pessoa recebe o convite, que aparece em "Convites pendentes".';
+export const inviteSentMessage = (name: string) => `Convite enviado para ${name}.`;
 
 export function messageForInviteError(error: unknown): string {
 	if (error instanceof InvalidInvitationError) {
-		return 'Confira o e-mail: ele precisa ser válido e não pode ser o seu.';
+		return 'Confira o nome de usuário: ele não pode ser o seu.';
 	}
 	if (error instanceof NotDeckOwnerError) {
 		return 'Só o dono do baralho pode convidar pessoas.';

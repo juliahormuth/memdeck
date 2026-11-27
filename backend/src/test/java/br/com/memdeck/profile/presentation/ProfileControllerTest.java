@@ -60,7 +60,7 @@ class ProfileControllerTest {
 
 	@Test
 	void showsMyProfileWithTheActivityAndFriends() throws Exception {
-		User julia = User.register("Julia", "julia@example.com", "hash");
+		User julia = User.register("Julia", "julia", "julia@example.com", "hash");
 		when(getProfile.execute(USER_ID)).thenReturn(view(julia));
 
 		mockMvc.perform(get("/api/users/me").with(authentication(USER)))
@@ -76,7 +76,7 @@ class ProfileControllerTest {
 
 	@Test
 	void updatesTheNameAndTheAvatarOfTheLoggedUser() throws Exception {
-		User changed = User.register("Julia H", "julia@example.com", "hash").withProfile("Julia H", Avatar.DOG);
+		User changed = User.register("Julia H", "julia", "julia@example.com", "hash").withProfile("Julia H", Avatar.DOG);
 		when(getProfile.execute(USER_ID)).thenReturn(view(changed));
 
 		mockMvc.perform(put("/api/users/me").with(authentication(USER)).with(csrf())

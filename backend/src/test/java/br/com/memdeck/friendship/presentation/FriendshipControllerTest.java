@@ -101,22 +101,22 @@ class FriendshipControllerTest {
 	@Test
 	void sendsARequestWithAnEmpty202() throws Exception {
 		mockMvc.perform(post("/api/users/me/friend-requests").with(authentication(USER)).with(csrf())
-				.contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"bruno@example.com\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"username\":\"bruno\"}"))
 				.andExpect(status().isAccepted()).andExpect(content().string(""));
 
-		verify(sendFriendRequest).execute(USER_ID, "bruno@example.com");
+		verify(sendFriendRequest).execute(USER_ID, "bruno");
 	}
 
 	@Test
 	void rejectsABlankEmailAndTranslatesAnInvalidRequestTo400() throws Exception {
 		mockMvc.perform(post("/api/users/me/friend-requests").with(authentication(USER)).with(csrf())
-				.contentType(MediaType.APPLICATION_JSON).content("{\"email\":\" \"}")).andExpect(status().isBadRequest());
+				.contentType(MediaType.APPLICATION_JSON).content("{\"username\":\" \"}")).andExpect(status().isBadRequest());
 		verifyNoInteractions(sendFriendRequest);
 
 		doThrow(new InvalidFriendRequestException("You cannot send a friend request to yourself"))
 				.when(sendFriendRequest).execute(any(), any());
 		mockMvc.perform(post("/api/users/me/friend-requests").with(authentication(USER)).with(csrf())
-				.contentType(MediaType.APPLICATION_JSON).content("{\"email\":\"julia@example.com\"}"))
+				.contentType(MediaType.APPLICATION_JSON).content("{\"username\":\"julia\"}"))
 				.andExpect(status().isBadRequest());
 	}
 

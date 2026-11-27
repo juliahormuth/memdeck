@@ -9,5 +9,9 @@ interface UserJpaRepository extends JpaRepository<UserJpaModel, UUID> {
 
 	boolean existsByEmail(String email);
 
+	boolean existsByUsername(String username);
+
+	Optional<UserJpaModel> findByUsername(String username);
+
 	Optional<UserJpaModel> findByEmail(String email);
 }

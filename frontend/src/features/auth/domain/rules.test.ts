@@ -8,6 +8,7 @@ import {
 	validateName,
 	validatePassword,
 	validateRegistration,
+	validateUsername,
 } from './rules';
 
 describe('validateName', () => {
@@ -22,6 +23,16 @@ describe('validateName', () => {
 	it('accepts the limit and rejects one more character', () => {
 		expect(validateName('a'.repeat(NAME_MAX_LENGTH))).toBeNull();
 		expect(validateName('a'.repeat(NAME_MAX_LENGTH + 1))).toBe('too_long');
+	});
+});
+
+describe('validateUsername', () => {
+	it.each(['marcia', '@Marcia', 'a.b_c', 'abc'])('accepts %s', (username) => {
+		expect(validateUsername(username)).toBeNull();
+	});
+
+	it.each(['ab', 'with space', 'márcia', 'a-b', 'julia@example.com', 'a'.repeat(21)])('rejects %s', (username) => {
+		expect(validateUsername(username)).toBe('invalid');
 	});
 });
 
@@ -60,12 +71,13 @@ describe('validatePassword', () => {
 
 describe('validateRegistration', () => {
 	it('returns no errors for a valid registration', () => {
-		expect(validateRegistration({ name: 'Julia', email: 'julia@example.com', password: 'correct-horse' })).toEqual({});
+		expect(validateRegistration({ name: 'Julia', username: 'julia', email: 'julia@example.com', password: 'correct-horse' })).toEqual({});
 	});
 
 	it('reports every invalid field', () => {
-		expect(validateRegistration({ name: '', email: 'nope', password: 'short' })).toEqual({
+		expect(validateRegistration({ name: '', username: '', email: 'nope', password: 'short' })).toEqual({
 			name: 'blank',
+			username: 'blank',
 			email: 'invalid',
 			password: 'too_short',
 		});

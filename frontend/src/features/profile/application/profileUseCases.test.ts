@@ -7,6 +7,7 @@ import { getProfile, updateProfile } from './profileUseCases';
 const profile: Profile = {
 	id: 'u1',
 	name: 'Julia',
+	username: 'julia',
 	email: 'julia@example.com',
 	avatar: 'CAT',
 	reviewedDays: 3,
